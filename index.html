@@ -163,14 +163,14 @@ body.is-offline .chip-off{display:flex}
   color:var(--muted);transition:color .18s ease;position:relative;
 }
 .tab .i{width:23px;height:23px;transition:transform .22s cubic-bezier(.32,.72,0,1)}
-.tab span{font-size:11.5px;font-weight:500;letter-spacing:.02em}
+.tab span{font-size:12px;font-weight:500;letter-spacing:.02em}
 .tab[aria-selected="true"]{color:var(--brand)}
 .tab[aria-selected="true"] .i{stroke-width:1.75;transform:translateY(-1px)}
 .tab[aria-selected="true"] span{font-weight:600}
 .tab .badge{
   position:absolute;top:5px;left:calc(50% + 7px);
   min-width:17px;height:17px;padding:0 4px;border-radius:999px;
-  background:var(--red);color:var(--on-red);font-size:11px;font-weight:700;
+  background:var(--red);color:var(--on-red);font-size:12px;font-weight:700;
   display:none;align-items:center;justify-content:center;line-height:1;
 }
 .tab .badge.on{display:flex}
@@ -289,7 +289,7 @@ body.is-offline .chip-off{display:flex}
 
 /* ═══════════ Timeline ═══════════ */
 .tl-item{
-  display:flex;gap:14px;align-items:flex-start;width:100%;text-align:left;padding:18px;
+  display:block;width:100%;text-align:left;padding:16px 18px;
   background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
   box-shadow:var(--shadow);margin-bottom:10px;
   transition:background .35s ease, border-color .35s ease;
@@ -297,19 +297,21 @@ body.is-offline .chip-off{display:flex}
 .tl-item:active{transform:scale(.99)}
 .tl-item.done{background:var(--green-bg);border-color:var(--green-line)}
 .tl-item.done .tl-t,.tl-item.done .tl-d{color:var(--green-ink)}
+/* 上排：圖示 + STEP／標題 + 勾選圈；下排：說明文字跨滿整寬 */
+.tl-head{display:flex;gap:13px;align-items:center}
 .tl-mark{
-  flex:0 0 44px;height:44px;border-radius:14px;background:var(--line-soft);
+  flex:0 0 40px;height:40px;border-radius:12px;background:var(--line-soft);
   display:flex;align-items:center;justify-content:center;
-  font-size:23px;line-height:1;color:var(--ink-2);transition:background .35s ease;
+  font-size:21px;line-height:1;color:var(--ink-2);transition:background .35s ease;
 }
 .tl-item.done .tl-mark{background:var(--green-line);color:var(--green-ink)}
-.tl-body{flex:1;min-width:0;display:block}
-.tl-step{font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.1em;display:block;margin-bottom:3px}
-.tl-t{display:block;font-size:17.5px;font-weight:600;letter-spacing:-.01em;line-height:1.45}
-.tl-d{display:block;font-size:14.5px;color:var(--ink-2);margin-top:5px;line-height:1.5}
+.tl-titles{flex:1;min-width:0;display:block}
+.tl-step{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.1em;display:block;margin-bottom:1px}
+.tl-t{display:block;font-size:17.5px;font-weight:600;letter-spacing:-.01em;line-height:1.4}
+.tl-d{display:block;font-size:14.5px;color:var(--ink-2);margin-top:9px;line-height:1.6}
 .tl-check{
   flex:0 0 28px;height:28px;border-radius:50%;
-  border:1.5px solid var(--line);margin-top:8px;
+  border:1.5px solid var(--line);
   display:flex;align-items:center;justify-content:center;
   transition:background .3s ease, border-color .3s ease;
 }
@@ -1496,6 +1498,20 @@ var STEPS = [
   { ic:'phone',  t:'五日內通知保險公司出險', d:'越早通知，理賠流程越順。出險專線在「出險」分頁。' }
 ];
 
+/* 說明文字獨立成一列、跨滿整寬，不跟標題一起縮在圖示右側。
+   步驟說明常常是完整句子，擠在剩下的欄寬裡會斷成兩三行。 */
+function tlMarkup(s, i){
+  return '<span class="tl-head">' +
+           '<span class="tl-mark">' + ico(s.ic) + '</span>' +
+           '<span class="tl-titles">' +
+             '<span class="tl-step">STEP ' + (i + 1) + '</span>' +
+             '<span class="tl-t">' + s.t + '</span>' +
+           '</span>' +
+           '<span class="tl-check">' + CHECK + '</span>' +
+         '</span>' +
+         '<span class="tl-d">' + s.d + '</span>';
+}
+
 function renderTL(){
   var st = load(LS.tl), box = $('tl'), n = 0;
   box.innerHTML = '';
@@ -1504,14 +1520,7 @@ function renderTL(){
     var b = document.createElement('button');
     b.className = 'tl-item' + (done ? ' done' : '');
     b.setAttribute('aria-pressed', done ? 'true' : 'false');
-    b.innerHTML =
-      '<span class="tl-mark">' + ico(s.ic) + '</span>' +
-      '<span class="tl-body">' +
-        '<span class="tl-step">STEP ' + (i+1) + '</span>' +
-        '<span class="tl-t">' + s.t + '</span>' +
-        '<span class="tl-d">' + s.d + '</span>' +
-      '</span>' +
-      '<span class="tl-check">' + CHECK + '</span>';
+    b.innerHTML = tlMarkup(s, i);
     b.addEventListener('click', function(){
       var cur = load(LS.tl);
       cur[i] = !cur[i];
@@ -2005,14 +2014,7 @@ function renderCL(){
     var b = document.createElement('button');
     b.className = 'tl-item' + (done ? ' done' : '');
     b.setAttribute('aria-pressed', done ? 'true' : 'false');
-    b.innerHTML =
-      '<span class="tl-mark">' + ico(s.ic) + '</span>' +
-      '<span class="tl-body">' +
-        '<span class="tl-step">STEP ' + (i + 1) + '</span>' +
-        '<span class="tl-t">' + s.t + '</span>' +
-        '<span class="tl-d">' + s.d + '</span>' +
-      '</span>' +
-      '<span class="tl-check">' + CHECK + '</span>';
+    b.innerHTML = tlMarkup(s, i);
     b.addEventListener('click', function(){
       var cur = load(LS.claim);
       cur[i] = !cur[i];
