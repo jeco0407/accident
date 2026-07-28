@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>車禍緊急助手</title>
+<title>Guardy — 車禍緊急助手</title>
 <meta name="description" content="別慌，我陪你一步一步處理。車禍現場定位、報案、拍照存證與後續理賠的完整引導。">
 <meta name="theme-color" content="#FBF8F3">
 <link rel="manifest" href="manifest.json">
@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="車禍助手">
+<meta name="apple-mobile-web-app-title" content="Guardy">
 <style>
 :root{
   --bg:#FBF8F3;
@@ -109,7 +109,7 @@ a{color:inherit;text-decoration:none}
   max-width:520px;margin:0 auto;height:var(--appbar);
   padding:0 20px;display:flex;align-items:center;gap:10px;
 }
-.appbar .mark{font-size:21px;color:var(--brand)}
+.appbar .mark{width:26px;height:26px;flex:none;display:block}
 .appbar h1{
   flex:1;font-size:17px;font-weight:600;letter-spacing:-.01em;margin:0;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
@@ -419,7 +419,7 @@ body.is-offline .chip-off{display:flex}
   background:var(--solid-bg);color:var(--solid-fg);border-color:var(--solid-bg);
 }
 .brandfoot{padding:26px 4px 8px;text-align:center}
-.brandfoot .b{font-size:13px;color:var(--muted);letter-spacing:.06em}
+.brandfoot .b{font-size:15px;font-weight:700;color:var(--ink-2);letter-spacing:.08em}
 .brandfoot p{font-size:11.5px;color:var(--muted);line-height:1.7;margin:10px 0 0}
 
 /* ═══════════ 引導 sheet ═══════════ */
@@ -590,7 +590,7 @@ body.is-offline .chip-off{display:flex}
 <!-- ═══════════ App bar ═══════════ -->
 <header class="appbar">
   <div class="appbar-in">
-    <svg class="i mark"><use href="#ic-car"/></svg>
+    <img class="mark" src="icons/mark.png" alt="Guardy" width="26" height="26">
     <h1 id="view-title">車禍緊急助手</h1>
     <span class="chip-off"><span class="dot"></span>離線</span>
   </div>
@@ -859,7 +859,7 @@ function toast(msg){
 /* =========================================================
    分頁切換（hash 路由，Android 返回鍵可用）
    ========================================================= */
-var VIEWS = { scene:'車禍緊急助手', photo:'存證', claim:'出險', me:'我的' };
+var VIEWS = { scene:'Guardy', photo:'存證', claim:'出險', me:'我的' };
 var current = null;
 
 function go(name, push){
@@ -915,6 +915,7 @@ function who(){ return '你的保險業務員'; }
   else tow.hidden = true;
 
   $('brandfoot').innerHTML =
+    '<div class="b">Guardy</div>' +
     '<p>本 App 提供一般性事故處理資訊，<br>實際權益依保單條款與主管機關規定為準。</p>';
 })();
 
