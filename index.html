@@ -118,7 +118,22 @@ body.is-offline .chip-off{display:flex}
 .view.on{opacity:1;visibility:visible;transform:none}
 .view-in{max-width:520px;margin:0 auto;padding:26px 20px 40px}
 
-.greet{font-size:16.5px;color:var(--ink-2);margin:0 0 22px;letter-spacing:-.01em}
+/* 頁首：頂欄移除後用來補回視覺重量與「我在哪一頁」。
+   刻意不固定，捲動時讓位給內容 —— 事故現場的每一像素都該留給資訊。 */
+.page-head{margin:0 0 26px}
+.page-head .brand{
+  display:flex;align-items:center;gap:8px;margin-bottom:16px;
+}
+.page-head .brand img{width:24px;height:24px;display:block}
+.page-head .brand span{
+  font-size:16px;font-weight:700;color:var(--ink-2);letter-spacing:.06em;
+}
+.page-head h1{
+  font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.25;
+  margin:0;
+}
+.page-head .greet{margin:9px 0 0}
+.greet{font-size:16.5px;color:var(--ink-2);margin:0 0 22px;letter-spacing:-.01em;line-height:1.6}
 .blk{margin-bottom:34px}
 .blk:last-child{margin-bottom:0}
 .sec-label{
@@ -710,7 +725,14 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <!-- ───── 現場 ───── -->
   <section class="view on" id="v-scene" role="tabpanel" aria-label="現場">
     <div class="view-in">
-      <p class="greet">別慌，我陪你一步一步處理。</p>
+      <div class="page-head">
+        <div class="brand">
+          <img src="icons/mark.png" alt="" width="24" height="24">
+          <span>GUARDY</span>
+        </div>
+        <h1>事故現場</h1>
+        <p class="greet">別慌，我陪你一步一步處理。</p>
+      </div>
 
       <div class="blk">
         <p class="sec-label"><svg class="i"><use href="#ic-pin"/></svg>我的位置</p>
@@ -783,7 +805,10 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <!-- ───── 拍照 ───── -->
   <section class="view" id="v-photo" role="tabpanel" aria-label="拍照">
     <div class="view-in">
-      <p class="greet">對方可能會先離開，資料先問到手；車輛移動前先拍照。</p>
+      <div class="page-head">
+        <h1>拍照存證</h1>
+        <p class="greet">對方可能會先離開，資料先問到手；車輛移動前先拍照。</p>
+      </div>
 
       <div class="blk">
         <p class="sec-label"><svg class="i"><use href="#ic-id"/></svg>對方資料</p>
@@ -804,7 +829,10 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <!-- ───── 出險 ───── -->
   <section class="view" id="v-claim" role="tabpanel" aria-label="出險">
     <div class="view-in">
-      <p class="greet">五日內通知保險公司，越早通知，理賠流程越順。</p>
+      <div class="page-head">
+        <h1>通知保險公司</h1>
+        <p class="greet">五日內通知，越早越順。</p>
+      </div>
 
       <div class="blk">
         <p class="sec-label"><svg class="i"><use href="#ic-phone"/></svg>找到你的保險公司</p>
@@ -826,6 +854,11 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <!-- ───── 求償 ───── -->
   <section class="view" id="v-comp" role="tabpanel" aria-label="求償">
     <div class="view-in">
+      <div class="page-head">
+        <h1>調解與求償</h1>
+        <p class="greet">不用今天填完，填多少就存多少。</p>
+      </div>
+
       <div class="blk">
         <p class="sec-label"><svg class="i"><use href="#ic-coin"/></svg>把有單據的先算出來</p>
         <div class="card" id="comp-form"></div>
@@ -885,6 +918,10 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 
   <section class="view" id="v-me" role="tabpanel" aria-label="我的">
     <div class="view-in">
+      <div class="page-head">
+        <h1>我的</h1>
+      </div>
+
       <div class="blk">
         <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg>外觀</p>
         <div class="card">
