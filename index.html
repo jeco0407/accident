@@ -1451,13 +1451,10 @@ renderTL();
    對方資料 — 全部存在本機，不會上傳
    ========================================================= */
 var OTHER_FIELDS = [
-  { k:'plate',   t:'車牌號碼', ph:'ABC-1234', cls:'plate', hint:'最重要的一項。看不清楚就先拍照，之後再補打。' },
+  { k:'plate',   t:'車牌號碼', ph:'ABC-1234', cls:'plate' },
   { k:'name',    t:'姓名', ph:'' },
   { k:'tel',     t:'電話', ph:'0912345678', type:'tel' },
-  { k:'insurer', t:'保險公司', ph:'○○產物保險', hint:'問「你保哪一家？」，之後求償要用。' },
-  { k:'license', t:'駕照號碼', ph:'' },
-  { k:'car',     t:'車輛', ph:'白色 Toyota Altis', hint:'廠牌、車型、顏色，能認出是哪台車就好。' },
-  { k:'memo',    t:'備註', ph:'現場狀況、對方說了什麼…', area:true }
+  { k:'insurer', t:'保險公司', ph:'○○產物保險' }
 ];
 
 function otherData(){ return load(LS.other); }
