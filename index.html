@@ -187,21 +187,25 @@ body.is-offline .chip-off{display:flex}
 }
 .btn-primary:active{transform:scale(.985)}
 .btn-primary[disabled]{opacity:.45}
-.loc-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:6px}
-.loc-head h3{margin:0;font-size:16px;font-weight:600;color:var(--green-ink)}
-.loc-time{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-#loc-addr{font-size:21px;font-weight:600;line-height:1.45;letter-spacing:-.01em;margin:2px 0 0;word-break:break-word}
-#loc-coords{font-size:16px;color:var(--ink-2);margin:8px 0 0;font-variant-numeric:tabular-nums}
+#loc-addr{font-size:21px;font-weight:600;line-height:1.45;letter-spacing:-.01em;margin:0;word-break:break-word}
+/* 離線或查詢失敗時這一行改放座標 —— 現場沒訊號是常態，
+   而唸座標給接線員正是這個 App 最核心的用途，不能留白。 */
+#loc-addr .ll{display:block;font-size:19px;font-variant-numeric:tabular-nums}
+#loc-addr .why{display:block;font-size:13.5px;font-weight:500;color:var(--ink-2);margin-bottom:4px}
 .loc-note{
   font-size:14px;color:var(--ink-2);line-height:1.55;margin:12px 0 0;
   padding:12px 14px;background:var(--inset);border-radius:var(--r-sm);
 }
-/* 目前位置：與事故地點分開呈現，避免移動後把事發位置蓋掉 */
-.loc-cur{
-  display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;
-  margin:10px 0 0;padding-top:10px;border-top:1px solid var(--line-soft);
-  font-size:14px;color:var(--muted);line-height:1.5;
+/* 重新定位／關閉：次要動作，壓在三顆主要按鈕下方 */
+.loc-foot{
+  display:flex;justify-content:space-between;gap:12px;
+  margin-top:14px;padding-top:12px;border-top:1px solid var(--green-line);
 }
+.loc-foot button{
+  font-size:14px;font-weight:600;color:var(--muted);
+  padding:4px 2px;text-decoration:underline;text-underline-offset:3px;
+}
+.loc-foot #loc-again{color:var(--green-ink)}
 /* 手動輸入：定位失敗時唯一能記下事故地點的路徑，不是次要選項 */
 .loc-manual{margin-top:14px}
 .loc-manual label{display:block;font-size:14px;font-weight:600;color:var(--ink-2);margin-bottom:7px}
@@ -224,11 +228,6 @@ body.is-offline .chip-off{display:flex}
   display:block;width:100%;margin-top:14px;padding:6px 0;
   font-size:14.5px;font-weight:600;color:var(--muted);
   text-decoration:underline;text-underline-offset:3px;
-}
-.loc-cur button{
-  appearance:none;border:0;background:none;padding:0;cursor:pointer;
-  font:inherit;font-weight:600;color:var(--brand);text-decoration:underline;
-  text-underline-offset:3px;
 }
 .loc-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
 .btn-ghost{
@@ -751,18 +750,15 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
             <button class="loc-link" id="loc-manual-open">定位不到？手動輸入地點</button>
           </div>
           <div id="loc-ready" hidden>
-            <div class="loc-head">
-              <h3>事故地點</h3>
-              <span class="loc-time" id="loc-time"></span>
-            </div>
             <p id="loc-addr"></p>
-            <p id="loc-coords"></p>
-            <div id="loc-cur" class="loc-cur" hidden></div>
-            <p class="loc-note" id="loc-tip">將座標唸給 110 接線員，是最準確的定位方式。</p>
             <div class="loc-actions">
               <button class="btn-ghost" id="btn-copy"><span class="ic"><svg class="i"><use href="#ic-copy"/></svg></span>複製</button>
               <button class="btn-ghost" id="btn-share"><span class="ic"><svg class="i"><use href="#ic-share"/></svg></span>分享</button>
               <button class="btn-ghost" id="btn-map"><span class="ic"><svg class="i"><use href="#ic-map"/></svg></span>地圖</button>
+            </div>
+            <div class="loc-foot">
+              <button id="loc-again">重新定位</button>
+              <button id="loc-close">關閉</button>
             </div>
           </div>
         </div>
@@ -1143,11 +1139,10 @@ function who(){ return '你的保險業務員'; }
 /* =========================================================
    我的位置
    ========================================================= */
-/* site  = 事故地點，第一次定位就鎖定並寫進 localStorage，之後不會被覆蓋。
-   coords = 目前位置，watchPosition 持續更新，只用於顯示「離事故地點多遠」。
-   兩者分開是刻意的：處理事故時人常會移動（移車、進超商等對方），
-   若讓 watchPosition 直接覆寫，事發位置就被無聲地蓋掉了。 */
-var state = { site:null, coords:null, watchId:null };
+/* site = 記錄下來的位置，寫進 localStorage，開啟時復原。
+   只有使用者主動按「重新定位」才會被取代 —— 沒有背景定位在偷偷覆蓋它。 */
+var state = { site:null, coords:null };
+var geoFailed = false;
 
 function saveSite(){ if (state.site) save(LS.site, state.site); }
 
@@ -1176,14 +1171,6 @@ function setManualSite(text){
 }
 
 function hasCoords(s){ return !!s && typeof s.lat === 'number' && typeof s.lon === 'number'; }
-
-function startWatch(){
-  if (!navigator.geolocation || !navigator.geolocation.watchPosition) return;
-  if (state.watchId !== null) return;
-  state.watchId = navigator.geolocation.watchPosition(onPos, function(){}, {
-    enableHighAccuracy:true, maximumAge:15000, timeout:30000
-  });
-}
 
 $('loc-btn').addEventListener('click', function(){
   var btn = this;
@@ -1222,139 +1209,74 @@ $('loc-manual-in').addEventListener('keydown', function(e){
   if (e.key === 'Enter'){ e.preventDefault(); $('loc-manual-ok').click(); }
 });
 
-function applyPos(pos){
-  state.coords = { lat: pos.coords.latitude, lon: pos.coords.longitude, acc: pos.coords.accuracy };
-  startWatch();
-}
-
 function onPos(pos){
-  applyPos(pos);
-  if (!state.site){
-    setSite(state.coords);
-    syncNet();
-  } else {
-    renderCur();
-  }
+  state.coords = { lat: pos.coords.latitude, lon: pos.coords.longitude, acc: pos.coords.accuracy };
+  setSite(state.coords);
+  syncNet();
 }
 
 function fmtLL(c){ return c.lat.toFixed(5) + ', ' + c.lon.toFixed(5); }
 
-function fmtWhen(ts){
-  var d = new Date(ts), p = function(n){ return ('0'+n).slice(-2); };
-  var today = new Date(); today.setHours(0,0,0,0);
-  var hm = p(d.getHours()) + ':' + p(d.getMinutes());
-  return ts >= today.getTime() ? hm : (p(d.getMonth()+1) + '/' + p(d.getDate()) + ' ' + hm);
-}
-
+/* 卡片上只有一行位置資訊。有地址就顯示地址，
+   沒有地址（離線、查詢失敗、還在查）就退回座標 —— 版面一樣是一行。 */
 function renderLoc(){
-  var s = state.site;
+  var s = state.site, el = $('loc-addr');
   if (!s) return;
-  var coords = hasCoords(s);
-  $('loc-coords').hidden = !coords;
-  if (coords) $('loc-coords').textContent = '座標 ' + fmtLL(s);
-  $('loc-time').textContent = '記錄於 ' + fmtWhen(s.at);
 
-  var addrEl = $('loc-addr');
-  if (s.manual){
-    addrEl.textContent = s.addr;
-    $('loc-tip').textContent = '這是你手動輸入的地點，沒有座標。若之後定位得到，可以再補上精確位置。';
-  } else if (s.addr){
-    addrEl.textContent = s.addr;
-    $('loc-tip').textContent = '報案時可直接唸出這個地址；若接線員需要更精確位置，再補上座標。';
-  } else if (!navigator.onLine){
-    addrEl.innerHTML = '<span style="font-size:17px;color:var(--ink-2);font-weight:500">離線中，以下為你的座標</span>';
-    $('loc-tip').textContent = '將座標唸給 110 接線員，是最準確的定位方式。';
+  if (s.addr){ el.textContent = s.addr; return; }
+
+  if (!hasCoords(s)){ el.textContent = '（未取得位置）'; return; }
+
+  var ll = '<span class="ll">座標 ' + fmtLL(s) + '</span>';
+  if (!navigator.onLine){
+    el.innerHTML = '<span class="why">離線中，把座標唸給接線員一樣準確</span>' + ll;
+  } else if (geoFailed){
+    el.innerHTML = '<span class="why">查不到地址，改用座標</span>' + ll;
   } else {
-    addrEl.innerHTML = '<span class="skeleton"></span>';
-    $('loc-tip').textContent = '正在查詢地址…同時可先把座標唸給接線員。';
+    el.innerHTML = '<span class="why">查詢地址中…可先唸座標</span>' + ll;
   }
-  renderCur();
 }
 
-/* 目前位置只在「距離事故地點夠遠」時才值得佔版面；
-   在原地時顯示距離只會製造雜訊（GPS 本來就有數公尺誤差）。 */
-function renderCur(){
-  var el = $('loc-cur'), s = state.site;
-  if (!s){ el.hidden = true; return; }
-  el.innerHTML = '';
-
-  function locate(){
-    if (!navigator.geolocation){ toast('此裝置不支援定位'); return; }
-    navigator.geolocation.getCurrentPosition(onPos, function(){
-      toast('還是定位不到，維持目前的地點');
-    }, { enableHighAccuracy:true, timeout:15000, maximumAge:0 });
-  }
-  function replaceWithCur(){
-    if (!confirm('要用目前位置取代已記錄的事故地點嗎？原本的地點會被覆蓋。')) return;
+/* 重新定位：直接取代目前記錄的位置。使用者按這顆按鈕的意圖很明確，
+   不需要再確認一次。 */
+$('loc-again').addEventListener('click', function(){
+  var btn = this;
+  if (!navigator.geolocation){ toast('此裝置不支援定位'); return; }
+  btn.disabled = true;
+  btn.textContent = '定位中…';
+  navigator.geolocation.getCurrentPosition(function(pos){
+    btn.disabled = false; btn.textContent = '重新定位';
+    state.coords = { lat: pos.coords.latitude, lon: pos.coords.longitude, acc: pos.coords.accuracy };
     setSite(state.coords);
-    toast('事故地點已更新');
-  }
-  /* 手動地點按「再試一次定位」的意圖就是要換掉它，成功後直接問，
-     不要讓使用者定位完還得自己找第二顆按鈕。 */
-  function locateThenReplace(){
-    if (!navigator.geolocation){ toast('此裝置不支援定位'); return; }
-    toast('定位中…');
-    navigator.geolocation.getCurrentPosition(function(pos){
-      applyPos(pos);
-      if (confirm('定位成功。要用目前位置取代手動輸入的地點嗎？')){
-        setSite(state.coords);
-        toast('事故地點已更新');
-      } else renderCur();
-    }, function(){
-      toast('還是定位不到，維持目前的地點');
-    }, { enableHighAccuracy:true, timeout:15000, maximumAge:0 });
-  }
+    toast('位置已更新');
+  }, function(){
+    btn.disabled = false; btn.textContent = '重新定位';
+    toast('定位失敗，維持原本的位置');
+  }, { enableHighAccuracy:true, timeout:15000, maximumAge:0 });
+});
 
-  // 手動輸入的地點沒有座標，算不出距離，改為提供補上定位與修改文字兩條路
-  if (s.manual){
-    el.hidden = false;
-    el.appendChild(document.createTextNode('手動輸入的地點　'));
-    el.appendChild(mkAction('修改', function(){
-      $('loc-ready').hidden = true;
-      $('loc-idle').hidden = false;
-      $('loc-card').classList.remove('ready');
-      $('loc-manual-in').value = s.addr || '';
-      openManual();
-    }));
-    el.appendChild(mkAction(state.coords ? '改用目前定位' : '再試一次定位',
-                            state.coords ? replaceWithCur : locateThenReplace));
-    return;
-  }
+/* 關閉：把記錄的位置清掉並收回卡片。清掉存檔是刻意的 ——
+   只是隱藏的話，下次開 App 又會冒出來，那不叫關閉。 */
+$('loc-close').addEventListener('click', resetLoc);
 
-  if (!state.coords){
-    el.hidden = false;
-    el.appendChild(document.createTextNode('目前位置尚未取得　'));
-    el.appendChild(mkAction('取得目前位置', locate));
-    return;
-  }
-
-  var m = distM(s.lat, s.lon, state.coords.lat, state.coords.lon);
-  if (m < 40){ el.hidden = true; return; }
-
-  el.hidden = false;
-  var txt = m < 1000 ? ('約 ' + Math.round(m / 10) * 10 + ' 公尺') : ((m/1000).toFixed(1) + ' 公里');
-  el.appendChild(document.createTextNode('你目前距離事故地點 ' + txt));
-  el.appendChild(mkAction('改設為事故地點', replaceWithCur));
-}
-
-function mkAction(label, fn){
-  var b = document.createElement('button');
-  b.type = 'button';
-  b.textContent = label;
-  b.addEventListener('click', fn);
-  return b;
+function resetLoc(){
+  state.site = null;
+  state.coords = null;
+  geoFailed = false;
+  if (geoAbort) { geoAbort.abort(); geoAbort = null; }
+  try{ localStorage.removeItem(LS.site); }catch(e){}
+  $('loc-ready').hidden = true;
+  $('loc-idle').hidden = false;
+  $('loc-card').classList.remove('ready');
+  $('loc-btn').disabled = false;
+  $('loc-btn').textContent = '取得我的位置';
+  $('loc-manual').hidden = true;
+  $('loc-manual-open').hidden = false;
+  $('loc-manual-in').value = '';
 }
 
 var geoAbort = null;
 var geoAt = 0;
-
-function distM(a1, o1, a2, o2){
-  var R = 6371000, t = Math.PI / 180;
-  var dLat = (a2 - a1) * t, dLon = (o2 - o1) * t;
-  var s = Math.sin(dLat/2) * Math.sin(dLat/2) +
-          Math.cos(a1*t) * Math.cos(a2*t) * Math.sin(dLon/2) * Math.sin(dLon/2);
-  return 2 * R * Math.asin(Math.sqrt(s));
-}
 
 /* Nominatim 的 display_name 是英文語序（門牌在前、國家在後），直接反轉會混進
    「商圈」「里」甚至店名這類對報案沒用的東西，門牌的「號」也會不見。
@@ -1378,13 +1300,15 @@ function fmtAddr(j){
   return out || (j.display_name || '').split(',').slice(0,4).reverse().join('').replace(/\s+/g,'');
 }
 
-/* 事故地點固定不動，所以每個事故只需要查一次地址。
+/* 記錄的位置不會自己變動，所以每個位置只需要查一次地址。
    仍保留節流，避免離線／失敗時的重試打爆 Nominatim（政策上限每秒一次）。 */
 function reverseGeocode(){
   if (!state.site || state.site.addr || !navigator.onLine) return;
   var now = Date.now();
   if (now - geoAt < 5000) return;
   geoAt = now;
+  geoFailed = false;
+  renderLoc();
 
   var s = state.site;
   if (geoAbort) geoAbort.abort();
@@ -1398,16 +1322,16 @@ function reverseGeocode(){
       clearTimeout(t);
       var name = fmtAddr(j);
       if (!name) throw 0;
-      if (state.site !== s) return;          // 期間換過事故地點就作廢
+      if (state.site !== s) return;          // 期間換過位置就作廢
       s.addr = name;
       saveSite();
       renderLoc();
     })
     .catch(function(){
       clearTimeout(t);
-      if (!state.site || state.site.addr) return;
-      $('loc-addr').innerHTML = '<span style="font-size:17px;color:var(--ink-2);font-weight:500">地址查詢失敗，請直接使用座標</span>';
-      $('loc-tip').textContent = '將座標唸給 110 接線員，是最準確的定位方式。';
+      if (state.site !== s || s.addr) return;
+      geoFailed = true;
+      renderLoc();
     });
 }
 
@@ -2432,16 +2356,7 @@ renderComp();
 $('btn-reset-all').addEventListener('click', function(){
   save(LS.tl, {}); save(LS.ph, {}); save(LS.todo, {}); save(LS.claim, {});
   save(LS.other, {}); save(LS.comp, {}); save(LS.compdoc, {});
-  try{ localStorage.removeItem(LS.site); }catch(e){}
-  state.site = null;
-  $('loc-ready').hidden = true;
-  $('loc-idle').hidden = false;
-  $('loc-card').classList.remove('ready');
-  $('loc-btn').disabled = false;
-  $('loc-btn').textContent = '取得我的位置';
-  $('loc-manual').hidden = true;
-  $('loc-manual-open').hidden = false;
-  $('loc-manual-in').value = '';
+  resetLoc();
   renderTL(); renderPH(); renderCL(); renderOther(); renderComp();
   toast('所有進度已清除');
 });
