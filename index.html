@@ -274,6 +274,49 @@ body.is-offline .chip-off{display:flex}
 .ph .box path{stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;fill:none}
 
 /* ═══════════ 電話 ═══════════ */
+.ph{cursor:pointer}
+.ph .body{flex:1;min-width:0}
+.ph .thumbs{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+.ph .thumbs img{
+  width:46px;height:46px;object-fit:cover;border-radius:9px;
+  border:1px solid var(--line);background:var(--line-soft);
+}
+.ph .thumbs .more{
+  width:46px;height:46px;border-radius:9px;background:var(--line-soft);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12.5px;font-weight:600;color:var(--muted);
+}
+.ph .shoot{
+  flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+  width:40px;height:40px;border-radius:12px;
+  border:1px solid var(--line);color:var(--ink-2);
+}
+.ph .shoot .i{width:19px;height:19px}
+.ph.done .shoot{border-color:var(--green-line);color:var(--green-ink)}
+
+.viewer{
+  position:fixed;inset:0;z-index:150;background:rgba(20,17,14,.96);
+  display:none;flex-direction:column;
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+}
+.viewer.open{display:flex}
+.viewer-top{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff}
+.viewer-top .t{flex:1;font-size:15px;font-weight:600}
+.viewer-top button{color:rgba(255,255,255,.75);font-size:15px;padding:6px 4px}
+.viewer-img{flex:1;display:flex;align-items:center;justify-content:center;padding:0 12px;min-height:0}
+.viewer-img img{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px}
+.viewer-bar{display:flex;gap:10px;padding:16px 20px}
+.viewer-bar button{
+  flex:1;min-height:52px;border-radius:var(--r-md);font-size:15.5px;font-weight:600;
+  background:rgba(255,255,255,.12);color:#fff;
+}
+.viewer-bar button.del{background:rgba(200,54,42,.9)}
+
+.storage{
+  display:flex;align-items:center;gap:13px;padding:16px 18px;
+  font-size:13.5px;color:var(--muted);line-height:1.6;
+}
+.storage .i{width:20px;height:20px;flex:none}
 .ins{display:flex;align-items:center;gap:12px;padding:15px 18px;min-height:58px;width:100%;text-align:left}
 .ins + .ins{border-top:1px solid var(--line-soft)}
 .ins .t{flex:1;font-size:15.5px;font-weight:500}
@@ -281,6 +324,43 @@ body.is-offline .chip-off{display:flex}
 .note{padding:14px 18px;font-size:12.5px;color:var(--muted);line-height:1.6;background:var(--line-soft)}
 
 /* ═══════════ 我的 ═══════════ */
+.f{padding:15px 18px}
+.f + .f{border-top:1px solid var(--line-soft)}
+.f label{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:7px}
+.f label .opt{font-weight:400;color:var(--muted)}
+.f input,.f textarea{
+  width:100%;min-height:48px;padding:12px 14px;border-radius:var(--r-sm);
+  border:1px solid var(--line);background:var(--bg);color:var(--ink);
+  font-size:16px;font-family:inherit;line-height:1.5;
+}
+.f textarea{min-height:80px;resize:vertical}
+.f input:focus,.f textarea:focus{outline:none;border-color:var(--brand);background:var(--card)}
+.f input.plate{
+  font-size:22px;font-weight:700;letter-spacing:.12em;text-align:center;
+  font-variant-numeric:tabular-nums;
+}
+.saved{
+  font-size:12.5px;color:var(--green-ink);text-align:center;
+  margin:16px 0 0;opacity:0;transition:opacity .25s ease;
+}
+.saved.on{opacity:1}
+.other-empty{padding:22px 20px;text-align:center}
+.other-empty .t{font-size:16px;font-weight:600;margin:0 0 6px}
+.other-empty .d{font-size:13.5px;color:var(--ink-2);margin:0 0 18px;line-height:1.6}
+.other-sum{padding:18px 20px}
+.other-sum .plate{
+  font-size:26px;font-weight:700;letter-spacing:.1em;
+  font-variant-numeric:tabular-nums;margin:0 0 4px;
+}
+.other-sum .plate.none{font-size:16px;font-weight:600;color:var(--muted);letter-spacing:0}
+.kv{display:flex;gap:10px;font-size:14px;line-height:1.7}
+.kv .k{flex:0 0 76px;color:var(--muted)}
+.kv .v{flex:1;color:var(--ink-2);word-break:break-word}
+.other-sum .edit{
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  width:100%;min-height:48px;margin-top:16px;border-radius:var(--r-sm);
+  border:1px solid var(--line);font-size:15px;font-weight:600;
+}
 .fineprint{font-size:12.5px;color:var(--muted);line-height:1.6;margin:14px 0 0}
 
 .row-btn{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:16px 18px;min-height:60px}
@@ -523,11 +603,20 @@ body.is-offline .chip-off{display:flex}
   <!-- ───── 拍照 ───── -->
   <section class="view" id="v-photo" role="tabpanel" aria-label="拍照">
     <div class="view-in">
-      <p class="greet">車輛移動前先拍。這七項是理賠與肇責認定最常被要求的證據。</p>
-      <div class="card" id="ph-body"></div>
-      <div class="prog-bar">
-        <span class="n" id="ph-prog"></span>
-        <button class="btn-reset" id="ph-reset">重設</button>
+      <p class="greet">對方可能會先離開，資料先問到手；車輛移動前先拍照。</p>
+
+      <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-id"/></svg>對方資料</p>
+        <div class="card" id="other-card"></div>
+      </div>
+
+      <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-camera"/></svg>拍照清單</p>
+        <div class="card" id="ph-body"></div>
+        <div class="prog-bar">
+          <span class="n" id="ph-prog"></span>
+          <button class="btn-reset" id="ph-reset">重設</button>
+        </div>
       </div>
     </div>
   </section>
@@ -563,10 +652,24 @@ body.is-offline .chip-off{display:flex}
             <span class="ic"><svg class="i"><use href="#ic-share"/></svg></span>
             <span class="t">加入主畫面</span><span class="ar">›</span>
           </button>
+          <button class="row-btn" id="btn-share-all">
+            <span class="ic"><svg class="i"><use href="#ic-share"/></svg></span>
+            <span class="t">分享所有照片</span><span class="ar">›</span>
+          </button>
+          <button class="row-btn warn" id="btn-del-photos">
+            <span class="ic"><svg class="i"><use href="#ic-camera"/></svg></span>
+            <span class="t">刪除所有照片</span><span class="ar">›</span>
+          </button>
           <button class="row-btn warn" id="btn-reset-all">
             <span class="ic"><svg class="i"><use href="#ic-ban"/></svg></span>
             <span class="t">清除所有進度</span><span class="ar">›</span>
           </button>
+        </div>
+      </div>
+
+      <div class="blk">
+        <div class="card">
+          <p class="storage" id="storage-info"></p>
         </div>
       </div>
 
@@ -582,7 +685,7 @@ body.is-offline .chip-off{display:flex}
       <svg class="i"><use href="#ic-alert"/></svg><span>現場</span>
     </button>
     <button class="tab" role="tab" data-v="photo" aria-selected="false">
-      <svg class="i"><use href="#ic-camera"/></svg><span>拍照</span>
+      <svg class="i"><use href="#ic-camera"/></svg><span>存證</span>
       <span class="badge" id="tab-badge"></span>
     </button>
     <button class="tab" role="tab" data-v="claim" aria-selected="false">
@@ -603,6 +706,30 @@ body.is-offline .chip-off{display:flex}
   <div class="sheet-scroll">
     <div class="sheet-inner" id="sheet-body"></div>
   </div>
+</div>
+
+<!-- 照片檢視器 -->
+<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="照片">
+  <div class="viewer-top">
+    <span class="t" id="viewer-t"></span>
+    <button id="viewer-close">關閉</button>
+  </div>
+  <div class="viewer-img"><img id="viewer-img" alt=""></div>
+  <div class="viewer-bar">
+    <button id="viewer-share">分享 / 存到相簿</button>
+    <button class="del" id="viewer-del">刪除</button>
+  </div>
+</div>
+
+<input type="file" id="picker" accept="image/*" multiple hidden>
+
+<!-- 對方資料 -->
+<div class="sheet" id="other-sheet" role="dialog" aria-modal="true" aria-label="對方資料">
+  <div class="sheet-top">
+    <span class="sheet-title">對方資料</span>
+    <button class="sheet-close" id="other-close">完成</button>
+  </div>
+  <div class="sheet-scroll"><div class="sheet-inner" id="other-form"></div></div>
 </div>
 
 <!-- 保險公司詳情 -->
@@ -635,7 +762,7 @@ body.is-offline .chip-off{display:flex}
 
 var LS = {
   tl:'aa.timeline.v1', ph:'aa.photos.v1', todo:'aa.todo.v1',
-  install:'aa.install.dismissed.v1', claim:'aa.claim.v1'
+  install:'aa.install.dismissed.v1', claim:'aa.claim.v1', other:'aa.other.v1'
 };
 function load(k){ try{ return JSON.parse(localStorage.getItem(k)) || {}; }catch(e){ return {}; } }
 function save(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
@@ -655,7 +782,7 @@ function toast(msg){
 /* =========================================================
    分頁切換（hash 路由，Android 返回鍵可用）
    ========================================================= */
-var VIEWS = { scene:'車禍緊急助手', photo:'拍照存證', claim:'出險', me:'我的' };
+var VIEWS = { scene:'車禍緊急助手', photo:'存證', claim:'出險', me:'我的' };
 var current = null;
 
 function go(name, push){
@@ -876,6 +1003,107 @@ $('tl-reset').addEventListener('click', function(){
 renderTL();
 
 /* =========================================================
+   對方資料 — 全部存在本機，不會上傳
+   ========================================================= */
+var OTHER_FIELDS = [
+  { k:'plate',   t:'車牌號碼', ph:'ABC-1234', cls:'plate', hint:'最重要的一項。看不清楚就先拍照，之後再補打。' },
+  { k:'name',    t:'姓名', ph:'', opt:true },
+  { k:'tel',     t:'電話', ph:'0912345678', type:'tel', opt:true },
+  { k:'insurer', t:'保險公司', ph:'○○產物保險', opt:true, hint:'問「你保哪一家？」，之後求償要用。' },
+  { k:'license', t:'駕照號碼', ph:'', opt:true },
+  { k:'car',     t:'車輛', ph:'白色 Toyota Altis', opt:true, hint:'廠牌、車型、顏色，能認出是哪台車就好。' },
+  { k:'memo',    t:'備註', ph:'現場狀況、對方說了什麼…', opt:true, area:true }
+];
+
+function otherData(){ return load(LS.other); }
+function otherFilled(){
+  var d = otherData();
+  return OTHER_FIELDS.some(function(f){ return (d[f.k] || '').trim(); });
+}
+
+function renderOther(){
+  var d = otherData(), box = $('other-card');
+
+  if (!otherFilled()){
+    box.innerHTML =
+      '<div class="other-empty">' +
+        '<p class="t">還沒記錄對方資料</p>' +
+        '<p class="d">對方可能先離開現場。至少把車牌問到手，其他之後還能補。</p>' +
+        '<button class="btn-primary" id="other-open">記錄對方資料</button>' +
+      '</div>';
+  } else {
+    var rows = '';
+    OTHER_FIELDS.forEach(function(f){
+      if (f.k === 'plate') return;
+      var v = (d[f.k] || '').trim();
+      if (!v) return;
+      rows += '<div class="kv"><span class="k">' + f.t + '</span><span class="v">' +
+              (f.k === 'tel'
+                ? '<a href="tel:' + v.replace(/[^0-9+#*,]/g, '') + '" style="color:var(--brand);font-weight:600">' + v + '</a>'
+                : v) +
+              '</span></div>';
+    });
+    var plate = (d.plate || '').trim();
+    box.innerHTML =
+      '<div class="other-sum">' +
+        '<p class="plate' + (plate ? '' : ' none') + '">' + (plate || '（車牌未填）') + '</p>' +
+        rows +
+        '<button class="edit" id="other-open">' + ico('id') + '編輯</button>' +
+      '</div>';
+  }
+  $('other-open').addEventListener('click', openOther);
+}
+
+function openOther(){
+  var d = otherData(), html = '<div class="qhead" style="padding:26px 0 20px">' +
+    '<p class="k">現場記錄</p><h2>對方資料</h2>' +
+    '<p class="sub">邊問邊填，會自動儲存。全部只存在這支手機裡，不會上傳。</p></div><div class="card">';
+
+  OTHER_FIELDS.forEach(function(f){
+    var v = (d[f.k] || '').replace(/"/g, '&quot;');
+    html += '<div class="f"><label for="of-' + f.k + '">' + f.t +
+            (f.opt ? ' <span class="opt">（選填）</span>' : '') + '</label>' +
+            (f.area
+              ? '<textarea id="of-' + f.k + '" placeholder="' + f.ph + '">' + v + '</textarea>'
+              : '<input id="of-' + f.k + '" type="' + (f.type || 'text') + '"' +
+                (f.cls ? ' class="' + f.cls + '"' : '') +
+                ' value="' + v + '" placeholder="' + f.ph + '" autocomplete="off">') +
+            (f.hint ? '<p class="hint" style="font-size:12.5px;color:var(--muted);margin:7px 0 0;line-height:1.55">' + f.hint + '</p>' : '') +
+            '</div>';
+  });
+  html += '</div><p class="saved" id="of-saved">已儲存</p>' +
+          '<button class="sheet-back" id="of-clear" style="color:var(--red)">清除對方資料</button>';
+
+  $('other-form').innerHTML = html;
+  $('other-sheet').classList.add('open');
+  $('other-sheet').querySelector('.sheet-scroll').scrollTop = 0;
+
+  var saveT;
+  OTHER_FIELDS.forEach(function(f){
+    $('of-' + f.k).addEventListener('input', function(){
+      var cur = otherData();
+      cur[f.k] = this.value;
+      save(LS.other, cur);
+      clearTimeout(saveT);
+      $('of-saved').classList.add('on');
+      saveT = setTimeout(function(){ $('of-saved').classList.remove('on'); }, 1400);
+    });
+  });
+  $('of-clear').addEventListener('click', function(){
+    save(LS.other, {});
+    $('other-sheet').classList.remove('open');
+    renderOther();
+    toast('對方資料已清除');
+  });
+}
+
+$('other-close').addEventListener('click', function(){
+  $('other-sheet').classList.remove('open');
+  renderOther();
+});
+renderOther();
+
+/* =========================================================
    拍照清單
    ========================================================= */
 var PHOTOS = [
@@ -888,32 +1116,261 @@ var PHOTOS = [
   { ic:'video', t:'行車記錄器備份', s:'當場存檔，避免循環錄影覆蓋' }
 ];
 
+/* ── 照片儲存：IndexedDB（照片是 Blob，localStorage 放不下） ── */
+var DB_NAME = 'aa-photos', DB_STORE = 'photos', dbp = null;
+
+function db(){
+  if (dbp) return dbp;
+  dbp = new Promise(function(res, rej){
+    var r = indexedDB.open(DB_NAME, 1);
+    r.onupgradeneeded = function(){
+      var s = r.result.createObjectStore(DB_STORE, { keyPath:'id', autoIncrement:true });
+      s.createIndex('slot', 'slot');
+    };
+    r.onsuccess = function(){ res(r.result); };
+    r.onerror = function(){ rej(r.error); };
+  });
+  return dbp;
+}
+
+/* transaction 與請求必須在同一個 tick 內發出，跨 .then 會讓 transaction 失效；
+   一律等 oncomplete 才算成功，確保真的寫進磁碟。 */
+function withStore(mode, fn){
+  return db().then(function(d){
+    return new Promise(function(res, rej){
+      var t = d.transaction(DB_STORE, mode), out;
+      try { out = fn(t.objectStore(DB_STORE)); }
+      catch(e){ rej(e); return; }
+      t.oncomplete = function(){ res(out && 'result' in out ? out.result : out); };
+      t.onerror = function(){ rej(t.error); };
+      t.onabort = function(){ rej(t.error); };
+    });
+  });
+}
+function photosAll(){ return withStore('readonly', function(s){ return s.getAll(); }); }
+function photoAdd(rec){ return withStore('readwrite', function(s){ return s.add(rec); }); }
+function photoDel(id){ return withStore('readwrite', function(s){ return s.delete(id); }); }
+function photosClear(){ return withStore('readwrite', function(s){ return s.clear(); }); }
+
+/* 照片以 ArrayBuffer 儲存 —— 部分 Safari 版本存 Blob 進 IndexedDB 會出問題 */
+function recBlob(rec){ return new Blob([rec.buf], { type: rec.type || 'image/jpeg' }); }
+function recSize(rec){ return rec.buf ? rec.buf.byteLength : 0; }
+
+/* 原圖動輒 4MB，縮到長邊 2048 已足夠辨識車牌，也才存得下。
+   只解碼一次就同時產出大圖與縮圖 —— 解碼是整個流程最貴的一步。 */
+function drawTo(img, maxEdge){
+  var w = img.naturalWidth || img.width, hgt = img.naturalHeight || img.height;
+  var scale = Math.min(1, maxEdge / Math.max(w, hgt));
+  var cv = document.createElement('canvas');
+  cv.width = Math.max(1, Math.round(w * scale));
+  cv.height = Math.max(1, Math.round(hgt * scale));
+  cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+  return cv;
+}
+function canvasBlob(cv, q){
+  return new Promise(function(res){
+    cv.toBlob(function(b){ res(b); }, 'image/jpeg', q);
+  });
+}
+function decode(file){
+  if (typeof createImageBitmap === 'function'){
+    return createImageBitmap(file).catch(function(){ return decodeViaImg(file); });
+  }
+  return decodeViaImg(file);
+}
+function decodeViaImg(file){
+  return new Promise(function(res, rej){
+    var url = URL.createObjectURL(file);
+    var img = new Image();
+    img.onload = function(){ URL.revokeObjectURL(url); res(img); };
+    img.onerror = function(){ URL.revokeObjectURL(url); rej(new Error('圖片無法讀取')); };
+    img.src = url;
+  });
+}
+function processImage(file){
+  return decode(file).then(function(src){
+    var full = drawTo(src, 2048), thumb = drawTo(src, 160);
+    if (src.close) src.close();
+    return canvasBlob(full, 0.85).then(function(blob){
+      return { blob: blob || file, thumb: thumb.toDataURL('image/jpeg', 0.7) };
+    });
+  });
+}
+
+var PHOTO_CACHE = [];
+function loadPhotos(){
+  return photosAll().then(function(list){
+    PHOTO_CACHE = list.sort(function(a, b){ return a.ts - b.ts; });
+    return PHOTO_CACHE;
+  }).catch(function(){ PHOTO_CACHE = []; return PHOTO_CACHE; });
+}
+function photosOf(slot){
+  return PHOTO_CACHE.filter(function(p){ return p.slot === slot; });
+}
+
+/* ── 拍照清單 ── */
+var pickSlot = null;
+
 function renderPH(){
   var st = load(LS.ph), box = $('ph-body'), n = 0;
   box.innerHTML = '';
   PHOTOS.forEach(function(p, i){
-    var done = !!st[i]; if (done) n++;
-    var b = document.createElement('button');
-    b.className = 'ph' + (done ? ' done' : '');
-    b.setAttribute('aria-pressed', done ? 'true' : 'false');
-    b.innerHTML =
+    var shots = photosOf(i);
+    var done = !!st[i] || shots.length > 0;
+    if (done) n++;
+
+    var row = document.createElement('div');
+    row.className = 'ph' + (done ? ' done' : '');
+
+    var thumbs = '';
+    if (shots.length){
+      thumbs = '<span class="thumbs">' +
+        shots.slice(0, 4).map(function(s){
+          return '<img src="' + s.thumb + '" alt="" data-id="' + s.id + '">';
+        }).join('') +
+        (shots.length > 4 ? '<span class="more">+' + (shots.length - 4) + '</span>' : '') +
+        '</span>';
+    }
+
+    row.innerHTML =
       '<span class="ic">' + ico(p.ic) + '</span>' +
-      '<span class="t">' + p.t + '<span class="s">' + p.s + '</span></span>' +
-      '<span class="box">' + CHECK + '</span>';
-    b.addEventListener('click', function(){
-      var cur = load(LS.ph); cur[i] = !cur[i]; save(LS.ph, cur); renderPH();
+      '<span class="body">' +
+        '<span class="t">' + p.t + '<span class="s">' + p.s + '</span></span>' +
+        thumbs +
+      '</span>' +
+      '<button class="shoot" aria-label="拍照">' + ico('camera') + '</button>' +
+      '<button class="box" aria-label="標記完成" aria-pressed="' + (done ? 'true' : 'false') + '">' + CHECK + '</button>';
+
+    row.querySelector('.shoot').addEventListener('click', function(e){
+      e.stopPropagation(); shoot(i);
     });
-    box.appendChild(b);
+    row.querySelector('.box').addEventListener('click', function(e){
+      e.stopPropagation();
+      var cur = load(LS.ph);
+      cur[i] = !(st[i] || shots.length > 0);
+      save(LS.ph, cur);
+      renderPH();
+    });
+    row.querySelectorAll('.thumbs img').forEach(function(im){
+      im.addEventListener('click', function(e){
+        e.stopPropagation(); openViewer(+im.dataset.id);
+      });
+    });
+    row.addEventListener('click', function(){ shoot(i); });
+
+    box.appendChild(row);
   });
   $('ph-prog').textContent = '已完成 ' + n + ' / ' + PHOTOS.length;
 
   var badge = $('tab-badge'), left = PHOTOS.length - n;
   badge.textContent = left;
   badge.classList.toggle('on', n > 0 && left > 0);
+  renderStorage();
 }
-$('ph-reset').addEventListener('click', function(){
-  save(LS.ph, {}); renderPH(); toast('拍照清單已重設');
+
+function shoot(slot){
+  pickSlot = slot;
+  var p = $('picker');
+  p.value = '';
+  p.click();
+}
+
+$('picker').addEventListener('change', function(){
+  var files = Array.prototype.slice.call(this.files || []);
+  if (!files.length || pickSlot === null) return;
+  var slot = pickSlot;
+  toast('處理中…');
+
+  /* 第一次存照片時申請永久儲存，避免瀏覽器清掉證據 */
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function(){});
+
+  files.reduce(function(chain, f){
+    return chain.then(function(){
+      if (!/^image\//.test(f.type)) return null;
+      return processImage(f).then(function(out){
+        return out.blob.arrayBuffer().then(function(buf){
+          return photoAdd({ slot:slot, buf:buf, type:'image/jpeg', thumb:out.thumb, ts:Date.now() });
+        });
+      });
+    });
+  }, Promise.resolve())
+  .then(loadPhotos)
+  .then(function(){
+    renderPH();
+    toast('已加入 ' + files.length + ' 張照片');
+  })
+  .catch(function(){ toast('照片儲存失敗，可能是空間不足'); });
 });
+
+/* ── 檢視器 ── */
+var viewId = null, viewUrl = null;
+
+function openViewer(id){
+  var rec = PHOTO_CACHE.filter(function(p){ return p.id === id; })[0];
+  if (!rec) return;
+  viewId = id;
+  if (viewUrl) URL.revokeObjectURL(viewUrl);
+  viewUrl = URL.createObjectURL(recBlob(rec));
+  $('viewer-img').src = viewUrl;
+  $('viewer-t').textContent = PHOTOS[rec.slot] ? PHOTOS[rec.slot].t : '照片';
+  $('viewer').classList.add('open');
+}
+function closeViewer(){
+  $('viewer').classList.remove('open');
+  if (viewUrl){ URL.revokeObjectURL(viewUrl); viewUrl = null; }
+  viewId = null;
+}
+$('viewer-close').addEventListener('click', closeViewer);
+$('viewer-del').addEventListener('click', function(){
+  if (viewId === null) return;
+  photoDel(viewId).then(loadPhotos).then(function(){
+    closeViewer(); renderPH(); toast('照片已刪除');
+  });
+});
+$('viewer-share').addEventListener('click', function(){
+  var rec = PHOTO_CACHE.filter(function(p){ return p.id === viewId; })[0];
+  if (!rec) return;
+  sharePhotos([rec]);
+});
+
+function sharePhotos(list){
+  if (!list.length){ toast('還沒有照片'); return; }
+  var files = list.map(function(r, i){
+    return new File([r.buf], '事故照片-' + (i + 1) + '.jpg', { type:'image/jpeg' });
+  });
+  if (navigator.canShare && navigator.canShare({ files:files })){
+    navigator.share({ files:files, title:'事故照片' }).catch(function(){});
+  } else {
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(recBlob(list[0]));
+    a.download = '事故照片.jpg';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+    toast(list.length > 1 ? '此裝置不支援批次分享，已下載第一張' : '已下載');
+  }
+}
+
+/* ── 容量 ── */
+function renderStorage(){
+  var el = $('storage-info');
+  if (!el) return;
+  var n = PHOTO_CACHE.length;
+  var bytes = PHOTO_CACHE.reduce(function(s, p){ return s + recSize(p); }, 0);
+  var mb = (bytes / 1048576).toFixed(1);
+  el.innerHTML = ico('camera') +
+    '<span>照片 ' + n + ' 張・約 ' + mb + ' MB，存在這支手機裡，不會上傳。' +
+    (n ? '建議拍完用「分享」再備份一份到相簿。' : '') + '</span>';
+}
+
+$('ph-reset').addEventListener('click', function(){
+  save(LS.ph, {}); renderPH(); toast('勾選狀態已重設（照片保留）');
+});
+$('btn-share-all').addEventListener('click', function(){ sharePhotos(PHOTO_CACHE); });
+$('btn-del-photos').addEventListener('click', function(){
+  if (!PHOTO_CACHE.length){ toast('目前沒有照片'); return; }
+  photosClear().then(loadPhotos).then(function(){ renderPH(); toast('所有照片已刪除'); });
+});
+loadPhotos().then(renderPH);
 renderPH();
 
 /* =========================================================
@@ -937,7 +1394,7 @@ var INSURERS = [
 var PREP = [
   { t:'保單號碼或車牌號碼', s:'找不到保單就直接報車牌，一樣查得到。' },
   { t:'事故發生的時間與地點', s:'路口、路段門牌越精確越好。' },
-  { t:'對方的車牌與聯絡方式', s:'有拿到就一起報，沒有也先出險。' },
+  { k:'other', t:'對方的車牌與聯絡方式', s:'有拿到就一起報，沒有也先出險。' },
   { t:'警方案件編號', s:'在「交通事故當事人登記聯單」上。' },
   { t:'現場照片', s:'理賠人員可能請你用 LINE 或簡訊傳過去。' }
 ];
@@ -983,9 +1440,15 @@ function openIns(i){
     '<p class="emg-hint" style="margin:0 0 30px">點擊後手機會再確認撥打</p>';
 
   html += '<p class="sec-label">' + ico('list') + '撥打前先準備</p><div class="card" style="margin-bottom:30px">';
+  var od = otherData();
   PREP.forEach(function(p){
+    var extra = '';
+    if (p.k === 'other' && (od.plate || '').trim()){
+      extra = '<span class="s" style="color:var(--green-ink);font-weight:600">已記錄：' +
+              od.plate.trim() + ((od.tel || '').trim() ? '　' + od.tel.trim() : '') + '</span>';
+    }
     html += '<div class="prep"><span class="dot"></span>' +
-            '<span class="t">' + p.t + '<span class="s">' + p.s + '</span></span></div>';
+            '<span class="t">' + p.t + '<span class="s">' + p.s + '</span>' + extra + '</span></div>';
   });
   html += '</div>';
 
@@ -1079,6 +1542,8 @@ document.addEventListener('keydown', function(e){
   if (e.key !== 'Escape') return;
   if ($('sheet').classList.contains('open')) closeSheet();
   if ($('ins-sheet').classList.contains('open')) $('ins-sheet').classList.remove('open');
+  if ($('other-sheet').classList.contains('open')){ $('other-sheet').classList.remove('open'); renderOther(); }
+  if ($('viewer').classList.contains('open')) closeViewer();
 });
 
 function openSheet(){ $('sheet').classList.add('open'); renderSheet(); }
@@ -1196,8 +1661,8 @@ function renderResult(){
    設定
    ========================================================= */
 $('btn-reset-all').addEventListener('click', function(){
-  save(LS.tl, {}); save(LS.ph, {}); save(LS.todo, {}); save(LS.claim, {});
-  renderTL(); renderPH(); renderCL();
+  save(LS.tl, {}); save(LS.ph, {}); save(LS.todo, {}); save(LS.claim, {}); save(LS.other, {});
+  renderTL(); renderPH(); renderCL(); renderOther();
   toast('所有進度已清除');
 });
 
