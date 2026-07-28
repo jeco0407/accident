@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>車禍緊急助手</title>
+<meta name="description" content="別慌，我陪你一步一步處理。車禍現場定位、報案、拍照存證與後續理賠的完整引導。">
+<meta name="theme-color" content="#FBF8F3">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="車禍助手">
+<style>
+:root{
+  --bg:#FBF8F3;
+  --card:#FFFFFF;
+  --ink:#1E1A15;
+  --ink-2:#4A423A;
+  --muted:#8C8177;
+  --line:#EDE6DC;
+  --line-soft:#F4EFE8;
+
+  --red:#C8362A;      --red-bg:#FDF1EF;  --red-line:#F3D9D4;
+  --amber:#B0700C;    --amber-bg:#FDF6E9; --amber-line:#F1E2C4;
+  --green-ink:#20654A; --green-bg:#EFF7F2; --green-line:#D5EADF;
+  --brand:#B0562E;
+
+  --r-lg:22px;
+  --r-md:16px;
+  --r-sm:12px;
+  --shadow:0 1px 2px rgba(30,26,21,.04), 0 8px 24px -12px rgba(30,26,21,.10);
+  --tap:64px;
+
+  --appbar:54px;
+  --tabbar:60px;
+  --top:calc(var(--appbar) + env(safe-area-inset-top));
+  --bottom:calc(var(--tabbar) + env(safe-area-inset-bottom));
+}
+.i{
+  width:1em;height:1em;flex:none;display:block;
+  fill:none;stroke:currentColor;stroke-width:1.5;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none !important}
+html,body{margin:0;padding:0;height:100%;overscroll-behavior:none}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Helvetica Neue",Roboto,"Segoe UI",sans-serif;
+  font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow:hidden;
+}
+button{font:inherit;color:inherit;background:none;border:0;margin:0;cursor:pointer}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:8px}
+
+/* ═══════════ App bar ═══════════ */
+.appbar{
+  position:fixed;top:0;left:0;right:0;z-index:30;
+  height:var(--top);padding-top:env(safe-area-inset-top);
+  background:rgba(251,248,243,.86);
+  -webkit-backdrop-filter:saturate(180%) blur(16px);
+  backdrop-filter:saturate(180%) blur(16px);
+  border-bottom:1px solid var(--line);
+}
+.appbar-in{
+  max-width:520px;margin:0 auto;height:var(--appbar);
+  padding:0 20px;display:flex;align-items:center;gap:10px;
+}
+.appbar .mark{font-size:21px;color:var(--brand)}
+.appbar h1{
+  flex:1;font-size:17px;font-weight:600;letter-spacing:-.01em;margin:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.chip-off{
+  display:none;align-items:center;gap:5px;
+  font-size:11.5px;font-weight:600;color:var(--amber);
+  background:var(--amber-bg);border:1px solid var(--amber-line);
+  padding:4px 9px;border-radius:999px;white-space:nowrap;
+}
+.chip-off .dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+body.is-offline .chip-off{display:flex}
+
+/* ═══════════ Views ═══════════ */
+.views{position:fixed;top:var(--top);bottom:var(--bottom);left:0;right:0}
+.view{
+  position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  opacity:0;visibility:hidden;transform:translateY(7px);
+  transition:opacity .2s ease, transform .24s cubic-bezier(.32,.72,0,1), visibility .24s;
+}
+.view.on{opacity:1;visibility:visible;transform:none}
+.view-in{max-width:520px;margin:0 auto;padding:22px 20px 40px}
+
+.greet{font-size:15.5px;color:var(--ink-2);margin:0 0 22px;letter-spacing:-.01em}
+.blk{margin-bottom:34px}
+.blk:last-child{margin-bottom:0}
+.sec-label{
+  display:flex;align-items:center;gap:7px;
+  font-size:13px;font-weight:600;color:var(--muted);
+  letter-spacing:.04em;margin:0 0 11px;padding-left:2px;
+}
+.sec-label .i{width:1.3em;height:1.3em}
+.card{
+  background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r-lg);box-shadow:var(--shadow);overflow:hidden;
+}
+
+/* ═══════════ Tab bar ═══════════ */
+.tabbar{
+  position:fixed;bottom:0;left:0;right:0;z-index:30;
+  height:var(--bottom);padding-bottom:env(safe-area-inset-bottom);
+  background:rgba(251,248,243,.9);
+  -webkit-backdrop-filter:saturate(180%) blur(16px);
+  backdrop-filter:saturate(180%) blur(16px);
+  border-top:1px solid var(--line);
+  display:flex;
+}
+.tabbar-in{max-width:520px;margin:0 auto;width:100%;height:var(--tabbar);display:flex}
+.tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  color:var(--muted);transition:color .18s ease;position:relative;
+}
+.tab .i{width:23px;height:23px;transition:transform .22s cubic-bezier(.32,.72,0,1)}
+.tab span{font-size:10.5px;font-weight:500;letter-spacing:.02em}
+.tab[aria-selected="true"]{color:var(--brand)}
+.tab[aria-selected="true"] .i{stroke-width:1.75;transform:translateY(-1px)}
+.tab[aria-selected="true"] span{font-weight:600}
+.tab .badge{
+  position:absolute;top:5px;left:calc(50% + 7px);
+  min-width:17px;height:17px;padding:0 4px;border-radius:999px;
+  background:var(--red);color:#fff;font-size:10px;font-weight:700;
+  display:none;align-items:center;justify-content:center;line-height:1;
+}
+.tab .badge.on{display:flex}
+
+/* ═══════════ 位置 ═══════════ */
+#loc-card{padding:20px;transition:background .45s ease, border-color .45s ease}
+#loc-card.ready{background:var(--green-bg);border-color:var(--green-line)}
+.btn-primary{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;min-height:var(--tap);
+  background:var(--ink);color:#fff;border-radius:var(--r-md);
+  font-size:18px;font-weight:600;letter-spacing:-.01em;
+  transition:transform .12s ease, opacity .2s ease;
+}
+.btn-primary:active{transform:scale(.985)}
+.btn-primary[disabled]{opacity:.45}
+.loc-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:6px}
+.loc-head h3{margin:0;font-size:15px;font-weight:600;color:var(--green-ink)}
+.loc-time{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+#loc-addr{font-size:20px;font-weight:600;line-height:1.45;letter-spacing:-.01em;margin:2px 0 0;word-break:break-word}
+#loc-coords{font-size:15px;color:var(--ink-2);margin:8px 0 0;font-variant-numeric:tabular-nums}
+.loc-note{
+  font-size:13px;color:var(--ink-2);line-height:1.55;margin:12px 0 0;
+  padding:12px 14px;background:rgba(255,255,255,.7);border-radius:var(--r-sm);
+}
+.loc-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.btn-ghost{
+  min-height:52px;border-radius:var(--r-sm);
+  background:rgba(255,255,255,.85);border:1px solid var(--green-line);
+  font-size:14px;font-weight:600;color:var(--green-ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  transition:transform .12s ease;
+}
+.btn-ghost:active{transform:scale(.97)}
+.btn-ghost[disabled]{opacity:.4}
+.btn-ghost .ic{font-size:19px;line-height:1;display:flex}
+.spinner{
+  width:18px;height:18px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.35);border-top-color:#fff;
+  animation:spin .7s linear infinite;display:inline-block;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.skeleton{
+  display:inline-block;height:1em;width:70%;border-radius:6px;
+  background:linear-gradient(90deg,#EFEAE2 25%,#F7F3EC 50%,#EFEAE2 75%);
+  background-size:200% 100%;animation:sk 1.3s ease infinite;vertical-align:middle;
+}
+@keyframes sk{to{background-position:-200% 0}}
+
+/* ═══════════ 緊急 ═══════════ */
+.emg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.emg-card{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px 12px 20px;border-radius:var(--r-lg);
+  border:1px solid;box-shadow:var(--shadow);transition:transform .12s ease;
+}
+.emg-card:active{transform:scale(.975)}
+.emg-card .ic{font-size:32px;line-height:1;margin-bottom:9px;display:flex}
+.emg-card .num{font-size:42px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.emg-card .lb{font-size:15px;font-weight:600;margin-top:7px}
+.emg-110{background:var(--red-bg);border-color:var(--red-line);color:var(--red)}
+.emg-119{background:var(--amber-bg);border-color:var(--amber-line);color:var(--amber)}
+.emg-hint{font-size:12.5px;color:var(--muted);text-align:center;margin:12px 0 0}
+.btn-line{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;min-height:56px;margin-top:12px;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);
+  font-size:16px;font-weight:600;box-shadow:var(--shadow);
+}
+.btn-line:active{transform:scale(.985)}
+
+/* ═══════════ 引導入口 ═══════════ */
+.guide-entry{padding:22px 20px;display:block;width:100%;text-align:left}
+.guide-entry .t{font-size:19px;font-weight:700;letter-spacing:-.01em;margin:0 0 6px}
+.guide-entry .d{font-size:14.5px;color:var(--ink-2);margin:0 0 18px;line-height:1.55}
+.guide-entry .go{
+  display:flex;align-items:center;justify-content:center;gap:8px;min-height:56px;
+  background:var(--brand);color:#fff;border-radius:var(--r-md);
+  font-size:17px;font-weight:600;
+}
+.guide-entry .go .i{width:.95em;height:.95em}
+
+/* ═══════════ Timeline ═══════════ */
+.tl-item{
+  display:flex;gap:14px;align-items:flex-start;width:100%;text-align:left;padding:18px;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--shadow);margin-bottom:10px;
+  transition:background .35s ease, border-color .35s ease;
+}
+.tl-item:active{transform:scale(.99)}
+.tl-item.done{background:var(--green-bg);border-color:var(--green-line)}
+.tl-item.done .tl-t,.tl-item.done .tl-d{color:var(--green-ink)}
+.tl-mark{
+  flex:0 0 44px;height:44px;border-radius:14px;background:var(--line-soft);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;line-height:1;color:var(--ink-2);transition:background .35s ease;
+}
+.tl-item.done .tl-mark{background:#D5EADF;color:var(--green-ink)}
+.tl-body{flex:1;min-width:0;display:block}
+.tl-step{font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.1em;display:block;margin-bottom:3px}
+.tl-t{display:block;font-size:16.5px;font-weight:600;letter-spacing:-.01em;line-height:1.45}
+.tl-d{display:block;font-size:13.5px;color:var(--ink-2);margin-top:5px;line-height:1.5}
+.tl-check{
+  flex:0 0 28px;height:28px;border-radius:50%;
+  border:1.5px solid var(--line);margin-top:8px;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .3s ease, border-color .3s ease;
+}
+.tl-item.done .tl-check{background:var(--green-ink);border-color:var(--green-ink)}
+.tl-check svg{width:15px;height:15px}
+.tl-check path{
+  stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;fill:none;
+  stroke-dasharray:20;stroke-dashoffset:20;
+}
+.tl-item.done .tl-check path{animation:draw .38s cubic-bezier(.65,0,.35,1) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.prog-bar{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding:0 4px}
+.prog-bar .n{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.btn-reset{font-size:13px;color:var(--muted);padding:6px 10px;border-radius:8px}
+
+/* ═══════════ 拍照 ═══════════ */
+.ph{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:15px 18px;min-height:66px}
+.ph + .ph{border-top:1px solid var(--line-soft)}
+.ph .ic{
+  flex:0 0 42px;height:42px;border-radius:13px;background:var(--line-soft);
+  display:flex;align-items:center;justify-content:center;
+  font-size:21px;line-height:1;color:var(--ink-2);transition:background .3s ease;
+}
+.ph.done .ic{background:#D5EADF;color:var(--green-ink)}
+.ph .t{flex:1;min-width:0;display:block;font-size:15.5px;font-weight:600;line-height:1.4}
+.ph .s{display:block;font-size:12.5px;color:var(--muted);font-weight:400;margin-top:3px;line-height:1.45}
+.ph.done .t{color:var(--green-ink)}
+.ph .box{
+  flex:0 0 24px;height:24px;border-radius:7px;border:1.5px solid var(--line);
+  display:flex;align-items:center;justify-content:center;transition:.25s ease;
+}
+.ph.done .box{background:var(--green-ink);border-color:var(--green-ink)}
+.ph .box svg{width:13px;height:13px}
+.ph .box path{stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;fill:none}
+
+/* ═══════════ 電話 ═══════════ */
+.ins{display:flex;align-items:center;gap:12px;padding:15px 18px;min-height:58px;width:100%;text-align:left}
+.ins + .ins{border-top:1px solid var(--line-soft)}
+.ins .t{flex:1;font-size:15.5px;font-weight:500}
+.ins .p{font-size:14.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.note{padding:14px 18px;font-size:12.5px;color:var(--muted);line-height:1.6;background:var(--line-soft)}
+
+/* ═══════════ 我的 ═══════════ */
+.ai{padding:22px 20px}
+.ai .t{font-size:19px;font-weight:700;letter-spacing:-.01em;margin:0 0 14px}
+.qs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.q{font-size:13.5px;color:var(--ink-2);background:var(--line-soft);padding:9px 14px;border-radius:999px;line-height:1.3}
+.btn-brand{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;min-height:var(--tap);border-radius:var(--r-md);
+  background:var(--ink);color:#fff;font-size:17px;font-weight:600;
+}
+.btn-brand:active{transform:scale(.985)}
+.fineprint{font-size:12.5px;color:var(--muted);line-height:1.6;margin:14px 0 0}
+.need-net{display:none;font-size:12.5px;color:var(--amber);margin-top:10px}
+body.is-offline .need-net{display:block}
+
+.person{padding:24px 20px;text-align:center}
+.avatar{
+  width:64px;height:64px;border-radius:50%;margin:0 auto 14px;
+  background:var(--line-soft);color:var(--ink-2);
+  display:flex;align-items:center;justify-content:center;font-size:30px;
+}
+.person .n{font-size:18px;font-weight:700;margin:0}
+.person .d{font-size:15px;color:var(--ink-2);margin:6px 0 20px}
+.person .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.person .row a{
+  min-height:56px;border-radius:var(--r-md);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:600;
+}
+.person .row a.fill{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+.row-btn{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:16px 18px;min-height:60px}
+.row-btn + .row-btn{border-top:1px solid var(--line-soft)}
+.row-btn .ic{font-size:20px;color:var(--muted);display:flex}
+.row-btn .t{flex:1;font-size:15.5px;font-weight:500}
+.row-btn .ar{color:var(--line);font-size:18px}
+.row-btn.warn .t,.row-btn.warn .ic{color:var(--red)}
+
+.person .row.one{grid-template-columns:1fr}
+.brandfoot{padding:26px 4px 8px;text-align:center}
+.brandfoot .b{font-size:13px;color:var(--muted);letter-spacing:.06em}
+.brandfoot p{font-size:11.5px;color:var(--muted);line-height:1.7;margin:10px 0 0}
+
+/* ═══════════ 引導 sheet ═══════════ */
+.sheet{
+  position:fixed;inset:0;z-index:100;background:var(--bg);
+  display:none;flex-direction:column;
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+}
+.sheet.open{display:flex;animation:up .32s cubic-bezier(.32,.72,0,1)}
+@keyframes up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+.sheet-top{display:flex;align-items:center;gap:14px;padding:14px 20px;max-width:520px;margin:0 auto;width:100%}
+.dots{flex:1;display:flex;gap:6px}
+.dot{flex:1;height:4px;border-radius:2px;background:var(--line);transition:background .3s ease}
+.dot.on{background:var(--brand)}
+.sheet-title{flex:1;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ins .ar{color:var(--line);font-size:18px;margin-left:2px}
+.call{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;min-height:72px;border-radius:var(--r-lg);margin-bottom:10px;
+  background:var(--red-bg);border:1px solid var(--red-line);color:var(--red);
+}
+.call:active{transform:scale(.985)}
+.call .i{width:26px;height:26px}
+.call .num{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.prep{display:flex;gap:12px;align-items:flex-start;padding:14px 18px}
+.prep + .prep{border-top:1px solid var(--line-soft)}
+.prep .dot{
+  flex:0 0 7px;height:7px;border-radius:50%;background:var(--brand);
+  margin-top:9px;opacity:.55;
+}
+.prep .t{flex:1;font-size:15px;line-height:1.5}
+.prep .s{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+.sheet-close{font-size:15px;color:var(--muted);padding:6px 4px;flex:0 0 auto}
+.sheet-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 20px 40px}
+.sheet-inner{max-width:520px;margin:0 auto;width:100%}
+.qhead{padding:30px 0 26px}
+.qhead .k{font-size:13px;font-weight:600;color:var(--brand);letter-spacing:.06em;margin:0 0 10px}
+.qhead h2{font-size:28px;line-height:1.3;letter-spacing:-.02em;font-weight:700;margin:0}
+.qhead .sub{font-size:15px;color:var(--ink-2);margin:12px 0 0;line-height:1.6}
+.opt{
+  display:flex;align-items:center;gap:14px;width:100%;text-align:left;
+  min-height:72px;padding:16px 18px;margin-bottom:10px;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--shadow);transition:transform .12s ease;
+}
+.opt:active{transform:scale(.985)}
+.opt .ic{font-size:26px;line-height:1;flex:0 0 auto;display:flex;color:var(--ink-2)}
+.opt .t{flex:1;min-width:0;display:block;font-size:17px;font-weight:600;letter-spacing:-.01em}
+.opt .s{display:block;font-size:13px;color:var(--muted);font-weight:400;margin-top:3px;line-height:1.45}
+.opt .ar{color:var(--line);font-size:20px}
+.opt.danger{background:var(--red-bg);border-color:var(--red-line)}
+.opt.danger .t,.opt.danger .ic{color:var(--red)}
+.sheet-back{margin-top:6px;font-size:14.5px;color:var(--muted);padding:12px 4px}
+.pin{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:var(--r-lg);margin-bottom:22px;border:1px solid}
+.pin .ic{font-size:30px;line-height:1;display:flex}
+.pin .b{flex:1;display:block;min-width:0}
+.pin .n{display:block;font-size:26px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.pin .d{display:block;font-size:13px;margin-top:3px;opacity:.85}
+.pin.a{background:var(--amber-bg);border-color:var(--amber-line);color:var(--amber)}
+.pin.r{background:var(--red-bg);border-color:var(--red-line);color:var(--red)}
+.res-h{padding:28px 0 20px}
+.res-h .k{font-size:13px;font-weight:600;color:var(--brand);letter-spacing:.06em;margin:0 0 10px}
+.res-h h2{font-size:27px;line-height:1.3;letter-spacing:-.02em;font-weight:700;margin:0}
+.res-h p{font-size:15px;color:var(--ink-2);margin:12px 0 0;line-height:1.6}
+.todo{
+  display:flex;gap:13px;align-items:flex-start;width:100%;text-align:left;padding:16px 18px;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);
+  box-shadow:var(--shadow);margin-bottom:9px;transition:background .3s ease,border-color .3s ease;
+}
+.todo.done{background:var(--green-bg);border-color:var(--green-line)}
+.todo .box{
+  flex:0 0 24px;height:24px;border-radius:7px;border:1.5px solid var(--line);margin-top:2px;
+  display:flex;align-items:center;justify-content:center;transition:.25s ease;
+}
+.todo.done .box{background:var(--green-ink);border-color:var(--green-ink)}
+.todo .box svg{width:13px;height:13px}
+.todo .box path{stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.todo .t{flex:1;min-width:0;display:block;font-size:15.5px;line-height:1.5;font-weight:500}
+.todo .s{display:block;font-size:13px;color:var(--muted);font-weight:400;margin-top:4px;line-height:1.5}
+.todo.done .t{color:var(--green-ink)}
+.sheet-done{
+  display:flex;align-items:center;justify-content:center;width:100%;min-height:var(--tap);
+  margin:20px 0 8px;background:var(--ink);color:#fff;border-radius:var(--r-md);
+  font-size:17px;font-weight:600;
+}
+
+/* ═══════════ 安裝提示 ═══════════ */
+.install{
+  position:fixed;left:0;right:0;bottom:var(--bottom);z-index:60;
+  background:var(--card);border-top:1px solid var(--line);padding:16px 20px;
+  box-shadow:0 -8px 30px -18px rgba(30,26,21,.35);display:none;
+}
+.install.open{display:block;animation:up .34s cubic-bezier(.32,.72,0,1)}
+.install-in{max-width:520px;margin:0 auto}
+.install .t{font-size:15.5px;font-weight:700;margin:0 0 4px}
+.install .d{font-size:13.5px;color:var(--ink-2);margin:0 0 14px;line-height:1.55}
+.install .steps{font-size:13.5px;color:var(--ink-2);line-height:1.7;margin:0 0 14px}
+.install .row{display:grid;grid-template-columns:1fr auto;gap:10px}
+.install .row button{min-height:48px;border-radius:var(--r-sm);font-size:15px;font-weight:600}
+.install .go{background:var(--ink);color:#fff}
+.install .no{color:var(--muted);padding:0 16px}
+
+.toast{
+  position:fixed;left:50%;bottom:calc(var(--bottom) + 20px);transform:translate(-50%,16px);
+  background:var(--ink);color:#fff;font-size:14px;font-weight:500;
+  padding:12px 20px;border-radius:999px;z-index:200;
+  opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;
+  max-width:calc(100vw - 40px);text-align:center;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<svg id="sprite" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+<symbol id="ic-pin" viewBox="0 0 24 24"><path d="M19 10.2c0 4.9-5.4 9.8-6.6 10.8a.6.6 0 0 1-.8 0C10.4 20 5 15.1 5 10.2a7 7 0 0 1 14 0Z"/><circle cx="12" cy="10" r="2.4"/></symbol>
+<symbol id="ic-car" viewBox="0 0 24 24"><path d="M2.8 15.2v-2.3c0-.4.1-.8.3-1.1l1.9-3.2c.4-.6 1-1 1.7-1h10.6c.7 0 1.3.4 1.7 1l1.9 3.2c.2.3.3.7.3 1.1v2.3"/><path d="M4.5 11.4h15"/><circle cx="7.2" cy="15.2" r="1.7"/><circle cx="16.8" cy="15.2" r="1.7"/><path d="M2.8 15.2h2.7M8.9 15.2h6.2M18.5 15.2h2.7"/></symbol>
+<symbol id="ic-alert" viewBox="0 0 24 24"><path d="M12 4.6 3.8 18.4a.9.9 0 0 0 .8 1.4h14.8a.9.9 0 0 0 .8-1.4Z"/><path d="M12 10.4v3.4"/><circle cx="12" cy="16.6" r=".95" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 3.6 5 6.3v5.3c0 4 2.9 7.5 7 8.8 4.1-1.3 7-4.8 7-8.8V6.3Z"/><path d="m9.2 12 2 2 3.6-3.8"/></symbol>
+<symbol id="ic-cross" viewBox="0 0 24 24"><rect x="3.6" y="3.6" width="16.8" height="16.8" rx="4.6"/><path d="M12 8.4v7.2M8.4 12h7.2"/></symbol>
+<symbol id="ic-truck" viewBox="0 0 24 24"><path d="M2.8 14.8V8.6c0-.6.5-1.1 1.1-1.1h8.3c.6 0 1.1.5 1.1 1.1v6.2"/><path d="M13.3 10.4h3c.4 0 .7.2.9.5l2.2 3c.2.2.3.5.3.8v.1"/><circle cx="6.6" cy="14.8" r="1.7"/><circle cx="16.6" cy="14.8" r="1.7"/><path d="M2.8 14.8h2.1M8.3 14.8h6.6M18.3 14.8h2.4"/></symbol>
+<symbol id="ic-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="m15.2 8.8-1.9 4.5-4.5 1.9 1.9-4.5Z"/></symbol>
+<symbol id="ic-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="m8.4 12.2 2.5 2.5 4.7-5"/></symbol>
+<symbol id="ic-camera" viewBox="0 0 24 24"><path d="M3.4 18V9.6c0-.9.7-1.6 1.6-1.6h2.2l1.3-2h6.9l1.3 2H19c.9 0 1.6.7 1.6 1.6V18c0 .9-.7 1.6-1.6 1.6H5c-.9 0-1.6-.7-1.6-1.6Z"/><circle cx="12" cy="13.4" r="3.4"/></symbol>
+<symbol id="ic-sparkle" viewBox="0 0 24 24"><path d="M12 3.4c0 4.2 1.9 6.1 6.1 6.1-4.2 0-6.1 1.9-6.1 6.1 0-4.2-1.9-6.1-6.1-6.1 4.2 0 6.1-1.9 6.1-6.1Z"/><path d="M17.4 15.2c0 2-.9 2.9-2.9 2.9 2 0 2.9.9 2.9 2.9 0-2 .9-2.9 2.9-2.9-2 0-2.9-.9-2.9-2.9Z"/></symbol>
+<symbol id="ic-chat" viewBox="0 0 24 24"><path d="M20.4 12.6c0 3.6-3.8 6.5-8.4 6.5-.9 0-1.8-.1-2.6-.3l-4.4 1.6 1.4-3.6c-1.4-1.1-2.2-2.6-2.2-4.2 0-3.6 3.8-6.5 8.4-6.5s7.8 2.9 7.8 6.5Z"/></symbol>
+<symbol id="ic-phone" viewBox="0 0 24 24"><path d="M8.2 4.4 6 4c-.9-.2-1.8.4-2 1.3-.9 4.9 3.6 12.6 8.2 14.4.9.3 1.9-.2 2.1-1.1l.6-2.2a1.4 1.4 0 0 0-.7-1.6l-2.1-1.1a1.4 1.4 0 0 0-1.7.3l-.7.8c-1.4-.9-2.5-2.7-3-4.4l1-.4c.7-.3 1.1-1 .9-1.7l-.5-2.3c-.1-.7-.6-1.2-1.3-1.3Z"/></symbol>
+<symbol id="ic-person" viewBox="0 0 24 24"><circle cx="12" cy="8.4" r="3.8"/><path d="M4.8 20c.6-3.7 3.6-6.2 7.2-6.2s6.6 2.5 7.2 6.2"/></symbol>
+<symbol id="ic-copy" viewBox="0 0 24 24"><rect x="8.4" y="8.4" width="11.2" height="11.2" rx="2.4"/><path d="M15.6 5.6c0-1.1-.9-2-2-2H6.4c-1.5 0-2.8 1.3-2.8 2.8v7.2c0 1.1.9 2 2 2"/></symbol>
+<symbol id="ic-share" viewBox="0 0 24 24"><path d="M12 14.6V3.8"/><path d="m8.4 7.2 3.6-3.4 3.6 3.4"/><path d="M7.4 10.4H6c-1.2 0-2.2 1-2.2 2.2v5.6c0 1.2 1 2.2 2.2 2.2h12c1.2 0 2.2-1 2.2-2.2v-5.6c0-1.2-1-2.2-2.2-2.2h-1.4"/></symbol>
+<symbol id="ic-map" viewBox="0 0 24 24"><path d="m9.2 5.4-4.6 1.8c-.5.2-.8.6-.8 1.1v9.6c0 .8.8 1.3 1.5 1l3.9-1.5 5.6 2.2 4.6-1.8c.5-.2.8-.6.8-1.1V7.1c0-.8-.8-1.3-1.5-1l-3.9 1.5Z"/><path d="M9.2 5.4v13.2M14.8 7.6v13.2"/></symbol>
+<symbol id="ic-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M6.1 6.1 17.9 17.9"/></symbol>
+<symbol id="ic-road" viewBox="0 0 24 24"><path d="M8.6 3.8 5.4 20.2M15.4 3.8l3.2 16.4"/><path d="M12 4.4v2.6M12 10.2v3.4M12 16.8v3.2"/></symbol>
+<symbol id="ic-burst" viewBox="0 0 24 24"><path d="M3.8 12h4.6M8.4 12 6.1 9.7M8.4 12l-2.3 2.3"/><path d="M20.2 12h-4.6M15.6 12l2.3-2.3M15.6 12l2.3 2.3"/><path d="M12 8.4V6M12 18v-2.4M9.8 9.8 8.3 8.3M14.2 9.8l1.5-1.5M9.8 14.2l-1.5 1.5M14.2 14.2l1.5 1.5"/></symbol>
+<symbol id="ic-plate" viewBox="0 0 24 24"><rect x="3.2" y="6.6" width="17.6" height="10.8" rx="2.2"/><path d="M7.2 11.6v2.4M10.4 10v4M13.6 10v4M16.8 11.6v2.4"/></symbol>
+<symbol id="ic-id" viewBox="0 0 24 24"><rect x="2.8" y="5.2" width="18.4" height="13.6" rx="2.4"/><circle cx="8.6" cy="10.8" r="2"/><path d="M5.4 15.8c.4-1.4 1.7-2.3 3.2-2.3s2.8.9 3.2 2.3"/><path d="M14.6 10.4h3.8M14.6 13.8h3.8"/></symbol>
+<symbol id="ic-wave" viewBox="0 0 24 24"><path d="M2.8 9.4c1.6-2.2 3.2-2.2 4.8 0s3.2 2.2 4.8 0 3.2-2.2 4.8 0 3.2 2.2 4.8 0"/><path d="M2.8 15.4c1.6-2.2 3.2-2.2 4.8 0s3.2 2.2 4.8 0 3.2-2.2 4.8 0 3.2 2.2 4.8 0"/></symbol>
+<symbol id="ic-video" viewBox="0 0 24 24"><rect x="2.8" y="6.6" width="12.6" height="10.8" rx="2.4"/><path d="m15.4 13 4 2.6c.6.4 1.4 0 1.4-.7V9.1c0-.7-.8-1.1-1.4-.7l-4 2.6Z"/></symbol>
+<symbol id="ic-cone" viewBox="0 0 24 24"><path d="M11 5.2h2l3.9 11H7.1Z"/><path d="M5.2 16.2h13.6c.6 0 1 .5 1 1v1.6c0 .6-.4 1-1 1H5.2c-.6 0-1-.4-1-1v-1.6c0-.5.4-1 1-1Z"/></symbol>
+<symbol id="ic-question" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M9.6 9.6a2.5 2.5 0 0 1 3.3-2.4c1 .4 1.7 1.3 1.7 2.4 0 1.4-1.1 1.9-1.8 2.4-.5.4-.8.9-.8 1.6"/><circle cx="12" cy="16.6" r=".95" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ic-list" viewBox="0 0 24 24"><path d="M9.4 6.6h10M9.4 12h10M9.4 17.4h10"/><circle cx="5.2" cy="6.6" r=".95" fill="currentColor" stroke="none"/><circle cx="5.2" cy="12" r=".95" fill="currentColor" stroke="none"/><circle cx="5.2" cy="17.4" r=".95" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ic-siren" viewBox="0 0 24 24"><path d="M8 13.2a4 4 0 0 1 8 0"/><path d="M6.4 13.2h11.2c.6 0 1 .5 1 1v2c0 .6-.4 1-1 1H6.4c-.6 0-1-.4-1-1v-2c0-.5.4-1 1-1Z"/><path d="M12 5.6V3.8M6.6 7.6 5.3 6.3M17.4 7.6l1.3-1.3"/></symbol>
+<symbol id="ic-arrow" viewBox="0 0 24 24"><path d="M4.5 12h15M14 6.5l5.5 5.5L14 17.5"/></symbol>
+</svg>
+
+<!-- ═══════════ App bar ═══════════ -->
+<header class="appbar">
+  <div class="appbar-in">
+    <svg class="i mark"><use href="#ic-car"/></svg>
+    <h1 id="view-title">車禍緊急助手</h1>
+    <span class="chip-off"><span class="dot"></span>離線</span>
+  </div>
+</header>
+
+<!-- ═══════════ Views ═══════════ -->
+<div class="views">
+
+  <!-- ───── 現場 ───── -->
+  <section class="view on" id="v-scene" role="tabpanel" aria-label="現場">
+    <div class="view-in">
+      <p class="greet">別慌，我陪你一步一步處理。</p>
+
+      <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-pin"/></svg>我的位置</p>
+        <div class="card" id="loc-card">
+          <div id="loc-idle">
+            <button class="btn-primary" id="loc-btn">取得我的位置</button>
+            <p class="loc-note" style="background:var(--line-soft)">先確認自己在哪裡。報案時第一句話就是位置。</p>
+          </div>
+          <div id="loc-ready" hidden>
+            <div class="loc-head">
+              <h3>已定位</h3>
+              <span class="loc-time" id="loc-time"></span>
+            </div>
+            <p id="loc-addr"></p>
+            <p id="loc-coords"></p>
+            <p class="loc-note" id="loc-tip">將座標唸給 110 接線員，是最準確的定位方式。</p>
+            <div class="loc-actions">
+              <button class="btn-ghost" id="btn-copy"><span class="ic"><svg class="i"><use href="#ic-copy"/></svg></span>複製</button>
+              <button class="btn-ghost" id="btn-share"><span class="ic"><svg class="i"><use href="#ic-share"/></svg></span>分享</button>
+              <button class="btn-ghost" id="btn-map"><span class="ic"><svg class="i"><use href="#ic-map"/></svg></span>地圖</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-alert"/></svg>緊急聯絡</p>
+        <div class="emg">
+          <a class="emg-card emg-110" href="tel:110">
+            <span class="ic"><svg class="i"><use href="#ic-siren"/></svg></span>
+            <span class="num">110</span><span class="lb">報警</span>
+          </a>
+          <a class="emg-card emg-119" href="tel:119">
+            <span class="ic"><svg class="i"><use href="#ic-cross"/></svg></span>
+            <span class="num">119</span><span class="lb">有人受傷</span>
+          </a>
+        </div>
+        <p class="emg-hint">點擊後手機會再確認撥打</p>
+        <a class="btn-line" id="tow" hidden><svg class="i"><use href="#ic-truck"/></svg>道路救援</a>
+      </div>
+
+      <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-compass"/></svg>引導模式</p>
+        <div class="card">
+          <button class="guide-entry" id="guide-open">
+            <p class="t">不知道現在該做什麼？</p>
+            <p class="d">回答三個問題，我幫你判斷現場狀況，並產生專屬於你的後續待辦清單。</p>
+            <span class="go">開始引導<svg class="i"><use href="#ic-arrow"/></svg></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-check"/></svg>現場處理</p>
+        <div id="tl"></div>
+        <div class="prog-bar">
+          <span class="n" id="tl-prog"></span>
+          <button class="btn-reset" id="tl-reset">重設</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── 拍照 ───── -->
+  <section class="view" id="v-photo" role="tabpanel" aria-label="拍照">
+    <div class="view-in">
+      <p class="greet">車輛移動前先拍。這七項是理賠與肇責認定最常被要求的證據。</p>
+      <div class="card" id="ph-body"></div>
+      <div class="prog-bar">
+        <span class="n" id="ph-prog"></span>
+        <button class="btn-reset" id="ph-reset">重設</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── 出險 ───── -->
+  <section class="view" id="v-claim" role="tabpanel" aria-label="出險">
+    <div class="view-in">
+      <p class="greet">五日內通知保險公司，越早通知，理賠流程越順。</p>
+
+      <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-phone"/></svg>找到你的保險公司</p>
+        <div class="card" id="ins-body"></div>
+      </div>
+
+      <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-check"/></svg>出險流程</p>
+        <div id="cl"></div>
+        <div class="prog-bar">
+          <span class="n" id="cl-prog"></span>
+          <button class="btn-reset" id="cl-reset">重設</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── 我的 ───── -->
+  <section class="view" id="v-me" role="tabpanel" aria-label="我的">
+    <div class="view-in">
+      <div class="blk" id="agent-blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-person"/></svg>需要有人陪你嗎？</p>
+        <div class="card person">
+          <div class="avatar"><svg class="i"><use href="#ic-person"/></svg></div>
+          <p class="n" id="agent-name">聯繫你的業務員</p>
+          <p class="d" id="agent-slogan">有任何不確定的地方，直接問他最快。</p>
+          <div class="row one" id="agent-row">
+            <a class="fill" id="agent-line" target="_blank" rel="noopener">
+              <svg class="i"><use href="#ic-chat"/></svg>用 LINE 聯繫
+            </a>
+          </div>
+          <p class="need-net" style="margin-top:12px">需要網路連線才能開啟 LINE</p>
+        </div>
+      </div>
+
+      <div class="blk" id="ai-blk" hidden>
+        <p class="sec-label"><svg class="i"><use href="#ic-sparkle"/></svg>AI 助手</p>
+        <div class="card ai">
+          <p class="t">有問題？直接問</p>
+          <div class="qs">
+            <span class="q">對方不願意報警怎麼辦？</span>
+            <span class="q">我該不該和解？</span>
+            <span class="q">初判表要去哪裡申請？</span>
+            <span class="q">對方要我先私下賠錢</span>
+          </div>
+          <a class="btn-brand" id="ai-line" target="_blank" rel="noopener">
+            <svg class="i"><use href="#ic-chat"/></svg>用 LINE 問 AI 助手
+          </a>
+          <p class="fineprint" id="ai-fine"></p>
+          <p class="need-net">需要網路連線才能開啟 LINE</p>
+        </div>
+      </div>
+
+      <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg>設定</p>
+        <div class="card">
+          <button class="row-btn" id="btn-install">
+            <span class="ic"><svg class="i"><use href="#ic-share"/></svg></span>
+            <span class="t">加入主畫面</span><span class="ar">›</span>
+          </button>
+          <button class="row-btn warn" id="btn-reset-all">
+            <span class="ic"><svg class="i"><use href="#ic-ban"/></svg></span>
+            <span class="t">清除所有進度</span><span class="ar">›</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="brandfoot" id="brandfoot"></div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════ Tab bar ═══════════ -->
+<nav class="tabbar" role="tablist">
+  <div class="tabbar-in">
+    <button class="tab" role="tab" data-v="scene" aria-selected="true">
+      <svg class="i"><use href="#ic-alert"/></svg><span>現場</span>
+    </button>
+    <button class="tab" role="tab" data-v="photo" aria-selected="false">
+      <svg class="i"><use href="#ic-camera"/></svg><span>拍照</span>
+      <span class="badge" id="tab-badge"></span>
+    </button>
+    <button class="tab" role="tab" data-v="claim" aria-selected="false">
+      <svg class="i"><use href="#ic-shield"/></svg><span>出險</span>
+    </button>
+    <button class="tab" role="tab" data-v="me" aria-selected="false">
+      <svg class="i"><use href="#ic-person"/></svg><span>我的</span>
+    </button>
+  </div>
+</nav>
+
+<!-- 引導模式 -->
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="引導模式">
+  <div class="sheet-top">
+    <div class="dots" id="dots"></div>
+    <button class="sheet-close" id="sheet-close">關閉</button>
+  </div>
+  <div class="sheet-scroll">
+    <div class="sheet-inner" id="sheet-body"></div>
+  </div>
+</div>
+
+<!-- 保險公司詳情 -->
+<div class="sheet" id="ins-sheet" role="dialog" aria-modal="true" aria-label="出險資訊">
+  <div class="sheet-top">
+    <span class="sheet-title" id="ins-title"></span>
+    <button class="sheet-close" id="ins-close">關閉</button>
+  </div>
+  <div class="sheet-scroll"><div class="sheet-inner" id="ins-detail"></div></div>
+</div>
+
+<!-- 加入主畫面 -->
+<div class="install" id="install">
+  <div class="install-in">
+    <p class="t">把它加到主畫面</p>
+    <p class="d">車禍現場往往沒有網路。加到主畫面後，即使離線也能開啟。</p>
+    <div id="install-steps"></div>
+    <div class="row">
+      <button class="go" id="install-go">加入主畫面</button>
+      <button class="no" id="install-no">以後再說</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+
+var LS = {
+  tl:'aa.timeline.v1', ph:'aa.photos.v1', todo:'aa.todo.v1',
+  install:'aa.install.dismissed.v1', claim:'aa.claim.v1'
+};
+function load(k){ try{ return JSON.parse(localStorage.getItem(k)) || {}; }catch(e){ return {}; } }
+function save(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+
+var $ = function(id){ return document.getElementById(id); };
+var CHECK = '<svg viewBox="0 0 24 24"><path d="M5 13l4 4 10-10"/></svg>';
+function ico(n){ return '<svg class="i"><use href="#ic-' + n + '"/></svg>'; }
+
+var toastT;
+function toast(msg){
+  var el = $('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(function(){ el.classList.remove('show'); }, 2200);
+}
+
+/* =========================================================
+   分頁切換（hash 路由，Android 返回鍵可用）
+   ========================================================= */
+var VIEWS = { scene:'車禍緊急助手', photo:'拍照存證', claim:'出險', me:'我的' };
+var current = null;
+
+function go(name, push){
+  if (!VIEWS[name] || name === current) return;
+  current = name;
+  Object.keys(VIEWS).forEach(function(k){
+    $('v-' + k).classList.toggle('on', k === name);
+  });
+  document.querySelectorAll('.tab').forEach(function(t){
+    t.setAttribute('aria-selected', t.dataset.v === name ? 'true' : 'false');
+  });
+  $('view-title').textContent = VIEWS[name];
+  if (push !== false && location.hash !== '#' + name) location.hash = name;
+}
+
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click', function(){
+    var v = t.dataset.v;
+    if (v === current){ $('v-' + v).scrollTo({ top:0, behavior:'smooth' }); return; }
+    go(v);
+  });
+});
+window.addEventListener('hashchange', function(){
+  go((location.hash || '').replace('#','') || 'scene', false);
+});
+/* 緊急情境：每次開啟一律回到「現場」，不記憶上次分頁 */
+go('scene', false);
+
+/* =========================================================
+   連線狀態
+   ========================================================= */
+function syncNet(){
+  document.body.classList.toggle('is-offline', !navigator.onLine);
+  var m = $('btn-map');
+  if (m) m.disabled = !navigator.onLine;
+}
+window.addEventListener('online', function(){ syncNet(); if(state.coords && !state.addr) reverseGeocode(); });
+window.addEventListener('offline', syncNet);
+
+/* =========================================================
+   部署設定 — 每位業務員部署自己的一份，改這裡就好
+   留空字串的項目會自動隱藏，不會出現空按鈕
+   ========================================================= */
+var CONFIG = {
+  agentLine:  'https://line.me/R/ti/p/@PLACEHOLDER',  // 業務員 LINE（必填）
+  agentName:  '',                                     // 例：'王小明'，留空顯示「聯繫你的業務員」
+  agentOrg:   '',                                     // 例：'○○產物保險'，顯示在頁尾
+  agentSay:   '',                                     // 例：'我陪你完成後續理賠。'
+  agentTel:   '',                                     // 例：'0912345678'，填了才出現電話按鈕
+  towTel:     '',                                     // 道路救援，填了才出現該按鈕
+  aiLine:     ''                                      // 專屬 AI bot LINE，留空則整個 AI 區塊隱藏
+};
+
+function who(){ return CONFIG.agentName || '你的業務員'; }
+
+(function applyConfig(){
+  /* 業務員卡片 */
+  if (CONFIG.agentName) $('agent-name').textContent = CONFIG.agentName;
+  if (CONFIG.agentSay)  $('agent-slogan').textContent = CONFIG.agentSay;
+  $('agent-line').href = CONFIG.agentLine;
+
+  if (CONFIG.agentTel){
+    var row = $('agent-row');
+    row.classList.remove('one');
+    var tel = document.createElement('a');
+    tel.href = 'tel:' + CONFIG.agentTel;
+    tel.innerHTML = ico('phone') + '電話';
+    row.appendChild(tel);
+  }
+
+  /* 道路救援：沒設定就不顯示 */
+  var tow = $('tow');
+  if (CONFIG.towTel){ tow.href = 'tel:' + CONFIG.towTel; tow.hidden = false; }
+  else tow.hidden = true;
+
+  /* AI 助手：沒有專屬 bot 就整塊隱藏 */
+  if (CONFIG.aiLine){
+    $('ai-blk').hidden = false;
+    $('ai-line').href = CONFIG.aiLine;
+    $('ai-fine').textContent = 'AI 提供一般性資訊，不構成法律或理賠承諾。複雜情況請直接聯絡' + who() + '。';
+  } else $('ai-blk').hidden = true;
+
+  $('brandfoot').innerHTML =
+    (CONFIG.agentOrg ? '<div class="b">' + CONFIG.agentOrg + '</div>' : '') +
+    '<p>本 App 提供一般性事故處理資訊，<br>實際權益依保單條款與主管機關規定為準。</p>';
+})();
+
+/* =========================================================
+   我的位置
+   ========================================================= */
+var state = { coords:null, addr:null, watchId:null };
+
+$('loc-btn').addEventListener('click', function(){
+  var btn = this;
+  if (!navigator.geolocation){ toast('此裝置不支援定位'); return; }
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> 定位中…';
+  navigator.geolocation.getCurrentPosition(onPos, onPosErr, {
+    enableHighAccuracy:true, timeout:15000, maximumAge:0
+  });
+});
+
+function onPosErr(err){
+  var btn = $('loc-btn');
+  btn.disabled = false;
+  btn.textContent = '重新取得我的位置';
+  toast(err && err.code === 1 ? '請允許定位權限後再試一次' : '定位失敗，請再試一次');
+}
+
+function onPos(pos){
+  var first = !state.coords;
+  state.coords = { lat: pos.coords.latitude, lon: pos.coords.longitude, acc: pos.coords.accuracy };
+  if (first){
+    $('loc-idle').hidden = true;
+    $('loc-ready').hidden = false;
+    $('loc-card').classList.add('ready');
+    syncNet();
+    if (navigator.geolocation.watchPosition && state.watchId === null){
+      state.watchId = navigator.geolocation.watchPosition(onPos, function(){}, {
+        enableHighAccuracy:true, maximumAge:15000, timeout:30000
+      });
+    }
+  }
+  renderLoc();
+  if (navigator.onLine) reverseGeocode();
+}
+
+function fmtCoords(){ return state.coords.lat.toFixed(5) + ', ' + state.coords.lon.toFixed(5); }
+
+function renderLoc(){
+  $('loc-coords').textContent = '座標 ' + fmtCoords();
+  var d = new Date();
+  $('loc-time').textContent = '更新於 ' + ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2);
+
+  var addrEl = $('loc-addr');
+  if (state.addr){
+    addrEl.textContent = state.addr;
+    $('loc-tip').textContent = '報案時可直接唸出這個地址；若接線員需要更精確位置，再補上座標。';
+  } else if (!navigator.onLine){
+    addrEl.innerHTML = '<span style="font-size:16px;color:var(--ink-2);font-weight:500">離線中，以下為你的座標</span>';
+    $('loc-tip').textContent = '將座標唸給 110 接線員，是最準確的定位方式。';
+  } else {
+    addrEl.innerHTML = '<span class="skeleton"></span>';
+    $('loc-tip').textContent = '正在查詢地址…同時可先把座標唸給接線員。';
+  }
+}
+
+var geoAbort = null;
+function reverseGeocode(){
+  if (!state.coords || !navigator.onLine) return;
+  if (geoAbort) geoAbort.abort();
+  geoAbort = new AbortController();
+  var url = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=zh-TW' +
+            '&lat=' + state.coords.lat + '&lon=' + state.coords.lon;
+  var t = setTimeout(function(){ geoAbort.abort(); }, 8000);
+  fetch(url, { signal: geoAbort.signal, headers:{ 'Accept':'application/json' } })
+    .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+    .then(function(j){
+      clearTimeout(t);
+      var name = j && (j.display_name || '');
+      if (!name) throw 0;
+      state.addr = name.split(',').slice(0,5).reverse().join('').replace(/\s+/g,'');
+      renderLoc();
+    })
+    .catch(function(){
+      clearTimeout(t);
+      if (state.addr) return;
+      $('loc-addr').innerHTML = '<span style="font-size:16px;color:var(--ink-2);font-weight:500">地址查詢失敗，請直接使用座標</span>';
+      $('loc-tip').textContent = '將座標唸給 110 接線員，是最準確的定位方式。';
+    });
+}
+
+function shareText(){
+  var s = state.addr ? state.addr + '\n' : '';
+  return s + '座標 ' + fmtCoords() + '\nhttps://www.google.com/maps?q=' +
+         state.coords.lat + ',' + state.coords.lon;
+}
+
+$('btn-copy').addEventListener('click', function(){
+  var txt = shareText();
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){ toast('位置已複製'); }, fallbackCopy);
+  } else fallbackCopy();
+  function fallbackCopy(){
+    var ta = document.createElement('textarea');
+    ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); toast('位置已複製'); }
+    catch(e){ toast('複製失敗，請長按選取'); }
+    document.body.removeChild(ta);
+  }
+});
+
+$('btn-share').addEventListener('click', function(){
+  var url = 'https://www.google.com/maps?q=' + state.coords.lat + ',' + state.coords.lon;
+  if (navigator.share){
+    navigator.share({ title:'我的事故位置', text: state.addr || ('座標 ' + fmtCoords()), url: url }).catch(function(){});
+  } else $('btn-copy').click();
+});
+
+$('btn-map').addEventListener('click', function(){
+  if (!navigator.onLine){ toast('需要網路連線'); return; }
+  window.open('https://www.google.com/maps?q=' + state.coords.lat + ',' + state.coords.lon, '_blank');
+});
+
+/* =========================================================
+   現場處理 Timeline
+   ========================================================= */
+var STEPS = [
+  { ic:'alert',  t:'開雙黃燈、放三角警示架', d:'一般道路後方 30 公尺、高速公路 100 公尺，先確保自己不會被追撞。' },
+  { ic:'camera', t:'拍照存證', d:'車輛移動前先拍。勾選後會跳到拍照清單。', jump:'photo' },
+  { ic:'siren',  t:'撥 110 報案，索取登記聯單', d:'向處理員警索取「交通事故當事人登記聯單」，後續申請文件都要用到。' },
+  { ic:'ban',    t:'不私下和解、不隨意移車', d:'除非警方指示。現場一旦破壞就回不來了。' },
+  { ic:'phone',  t:'五日內通知保險公司出險', d:'越早通知，理賠流程越順。出險專線在「出險」分頁。' }
+];
+
+function renderTL(){
+  var st = load(LS.tl), box = $('tl'), n = 0;
+  box.innerHTML = '';
+  STEPS.forEach(function(s, i){
+    var done = !!st[i]; if (done) n++;
+    var b = document.createElement('button');
+    b.className = 'tl-item' + (done ? ' done' : '');
+    b.setAttribute('aria-pressed', done ? 'true' : 'false');
+    b.innerHTML =
+      '<span class="tl-mark">' + ico(s.ic) + '</span>' +
+      '<span class="tl-body">' +
+        '<span class="tl-step">STEP ' + (i+1) + '</span>' +
+        '<span class="tl-t">' + s.t + '</span>' +
+        '<span class="tl-d">' + s.d + '</span>' +
+      '</span>' +
+      '<span class="tl-check">' + CHECK + '</span>';
+    b.addEventListener('click', function(){
+      var cur = load(LS.tl);
+      cur[i] = !cur[i];
+      save(LS.tl, cur);
+      renderTL();
+      if (cur[i] && s.jump) setTimeout(function(){ go(s.jump); }, 380);
+    });
+    box.appendChild(b);
+  });
+  $('tl-prog').textContent = '已完成 ' + n + ' / ' + STEPS.length;
+}
+$('tl-reset').addEventListener('click', function(){
+  save(LS.tl, {}); renderTL(); toast('現場處理進度已重設');
+});
+renderTL();
+
+/* =========================================================
+   拍照清單
+   ========================================================= */
+var PHOTOS = [
+  { ic:'road',  t:'現場全景', s:'含車道線、號誌、路口，看得出相對位置' },
+  { ic:'burst', t:'碰撞點特寫', s:'兩車接觸的位置，近拍' },
+  { ic:'car',   t:'車損各角度', s:'自己與對方，前後左右都拍' },
+  { ic:'plate', t:'對方車牌', s:'車牌要清晰可辨識' },
+  { ic:'id',    t:'對方駕照與行照', s:'徵得同意後拍攝' },
+  { ic:'wave',  t:'煞車痕與散落物', s:'地面痕跡、碎片位置，會影響肇責認定' },
+  { ic:'video', t:'行車記錄器備份', s:'當場存檔，避免循環錄影覆蓋' }
+];
+
+function renderPH(){
+  var st = load(LS.ph), box = $('ph-body'), n = 0;
+  box.innerHTML = '';
+  PHOTOS.forEach(function(p, i){
+    var done = !!st[i]; if (done) n++;
+    var b = document.createElement('button');
+    b.className = 'ph' + (done ? ' done' : '');
+    b.setAttribute('aria-pressed', done ? 'true' : 'false');
+    b.innerHTML =
+      '<span class="ic">' + ico(p.ic) + '</span>' +
+      '<span class="t">' + p.t + '<span class="s">' + p.s + '</span></span>' +
+      '<span class="box">' + CHECK + '</span>';
+    b.addEventListener('click', function(){
+      var cur = load(LS.ph); cur[i] = !cur[i]; save(LS.ph, cur); renderPH();
+    });
+    box.appendChild(b);
+  });
+  $('ph-prog').textContent = '已完成 ' + n + ' / ' + PHOTOS.length;
+
+  var badge = $('tab-badge'), left = PHOTOS.length - n;
+  badge.textContent = left;
+  badge.classList.toggle('on', n > 0 && left > 0);
+}
+$('ph-reset').addEventListener('click', function(){
+  save(LS.ph, {}); renderPH(); toast('拍照清單已重設');
+});
+renderPH();
+
+/* =========================================================
+   出險電話
+   ========================================================= */
+/* note 欄位留給各公司的補充說明，沒有就留空字串 */
+var INSURERS = [
+  { n:'富邦產險',     tel:'0800-009-888', note:'' },
+  { n:'國泰產險',     tel:'0800-212-880', note:'' },
+  { n:'和泰產險',     tel:'0800-077-568', note:'' },
+  { n:'新安東京海上', tel:'0800-050-119', note:'' },
+  { n:'明台產險',     tel:'0800-078-888', note:'' },
+  { n:'兆豐保險',     tel:'0800-053-588', note:'' },
+  { n:'南山產物',     tel:'0800-00-5678', note:'' },
+  { n:'新光產險',     tel:'0800-789-999', note:'' },
+  { n:'臺灣產物',     tel:'0809-068-888', note:'' },
+  { n:'中國信託產險', tel:'0800-075-777', note:'' }
+];
+
+/* 撥打出險專線前先備齊，接線員一定會問 */
+var PREP = [
+  { t:'保單號碼或車牌號碼', s:'找不到保單就直接報車牌，一樣查得到。' },
+  { t:'事故發生的時間與地點', s:'路口、路段門牌越精確越好。' },
+  { t:'對方的車牌與聯絡方式', s:'有拿到就一起報，沒有也先出險。' },
+  { t:'警方案件編號', s:'在「交通事故當事人登記聯單」上。' },
+  { t:'現場照片', s:'理賠人員可能請你用 LINE 或簡訊傳過去。' }
+];
+
+/* 各家產險的作業大同小異，這裡只寫共通流程，不臆測個別公司的細節 */
+var CLAIM_STEPS = [
+  { ic:'phone',  t:'撥打出險專線通知', d:'事故後五日內。打不通也先留紀錄，之後補通知。' },
+  { ic:'list',   t:'提供事故基本資料', d:'保單或車牌、時間地點、對方資料、警方案件編號。' },
+  { ic:'camera', t:'交付照片與行車記錄器', d:'現場全景、車損、對方車牌，以及行車記錄器影片。' },
+  { ic:'car',    t:'配合車輛定損與估價', d:'依理賠人員安排的時間與地點，別自己先動工。' },
+  { ic:'id',     t:'送修並保留所有單據', d:'估價單、維修單、收據正本都留著，理賠與求償都要用。' }
+];
+
+(function renderINS(){
+  var box = $('ins-body');
+  INSURERS.forEach(function(ins, i){
+    var b = document.createElement('button');
+    b.className = 'ins';
+    b.innerHTML = '<span class="t">' + ins.n + '</span>' +
+                  '<span class="p">' + ins.tel + '</span>' +
+                  '<span class="ar">›</span>';
+    b.addEventListener('click', function(){ openIns(i); });
+    box.appendChild(b);
+  });
+  var note = document.createElement('p');
+  note.className = 'note';
+  note.textContent = '找不到你的保險公司？請撥打保單上的客服電話，或直接聯絡' + who() + '協助報案。';
+  box.appendChild(note);
+})();
+
+function openIns(i){
+  var ins = INSURERS[i];
+  $('ins-title').textContent = ins.n;
+
+  var html =
+    '<div class="qhead" style="padding-bottom:20px">' +
+      '<p class="k">出險專線</p>' +
+      '<h2>' + ins.n + '</h2>' +
+    '</div>' +
+    '<a class="call" href="tel:' + ins.tel.replace(/-/g, '') + '">' +
+      ico('phone') + '<span class="num">' + ins.tel + '</span>' +
+    '</a>' +
+    '<p class="emg-hint" style="margin:0 0 30px">點擊後手機會再確認撥打</p>';
+
+  html += '<p class="sec-label">' + ico('list') + '撥打前先準備</p><div class="card" style="margin-bottom:30px">';
+  PREP.forEach(function(p){
+    html += '<div class="prep"><span class="dot"></span>' +
+            '<span class="t">' + p.t + '<span class="s">' + p.s + '</span></span></div>';
+  });
+  html += '</div>';
+
+  html += '<p class="sec-label">' + ico('check') + '接下來會發生什麼</p><div class="card" style="margin-bottom:22px">';
+  CLAIM_STEPS.forEach(function(s, n){
+    html += '<div class="prep"><span class="dot"></span>' +
+            '<span class="t">' + (n + 1) + '. ' + s.t + '<span class="s">' + s.d + '</span></span></div>';
+  });
+  html += '</div>';
+
+  if (ins.note) html += '<p class="note" style="border-radius:var(--r-md);margin-bottom:14px">' + ins.note + '</p>';
+
+  html += '<p class="fineprint">各家產險的作業細節可能略有不同，實際流程以理賠人員說明為準。</p>';
+
+  $('ins-detail').innerHTML = html;
+  $('sheet') && $('sheet').classList.remove('open');
+  $('ins-sheet').classList.add('open');
+  $('ins-sheet').querySelector('.sheet-scroll').scrollTop = 0;
+}
+$('ins-close').addEventListener('click', function(){ $('ins-sheet').classList.remove('open'); });
+
+/* ── 出險流程勾選 ── */
+function renderCL(){
+  var st = load(LS.claim), box = $('cl'), n = 0;
+  box.innerHTML = '';
+  CLAIM_STEPS.forEach(function(s, i){
+    var done = !!st[i]; if (done) n++;
+    var b = document.createElement('button');
+    b.className = 'tl-item' + (done ? ' done' : '');
+    b.setAttribute('aria-pressed', done ? 'true' : 'false');
+    b.innerHTML =
+      '<span class="tl-mark">' + ico(s.ic) + '</span>' +
+      '<span class="tl-body">' +
+        '<span class="tl-step">STEP ' + (i + 1) + '</span>' +
+        '<span class="tl-t">' + s.t + '</span>' +
+        '<span class="tl-d">' + s.d + '</span>' +
+      '</span>' +
+      '<span class="tl-check">' + CHECK + '</span>';
+    b.addEventListener('click', function(){
+      var cur = load(LS.claim);
+      cur[i] = !cur[i];
+      save(LS.claim, cur);
+      renderCL();
+    });
+    box.appendChild(b);
+  });
+  $('cl-prog').textContent = '已完成 ' + n + ' / ' + CLAIM_STEPS.length;
+}
+$('cl-reset').addEventListener('click', function(){
+  save(LS.claim, {}); renderCL(); toast('出險流程進度已重設');
+});
+renderCL();
+
+/* =========================================================
+   引導模式 — 純 JS 決策樹，完全離線
+   ========================================================= */
+var FLOW = [
+  {
+    key:'injured', k:'第 1 題 / 共 3 題', q:'有人受傷嗎？',
+    sub:'包含你自己、乘客、對方與路人。只要有人喊痛，就算受傷。',
+    opts:[
+      { v:'yes',   ic:'cross',    t:'有人受傷', s:'先救人，其他都可以等', danger:true },
+      { v:'no',    ic:'check',    t:'沒有人受傷', s:'大家都能正常走動、說話' },
+      { v:'maybe', ic:'question', t:'不確定', s:'有人說不舒服，但看不出外傷' }
+    ]
+  },
+  {
+    key:'movable', k:'第 2 題 / 共 3 題', q:'車輛可以移動嗎？',
+    sub:'判斷要不要把車移到路邊，避免二次事故。',
+    opts:[
+      { v:'yes',   ic:'check',    t:'可以，只是輕微擦撞', s:'車還能發動、能開' },
+      { v:'no',    ic:'cone',     t:'不能動', s:'車損嚴重、卡住或漏油' },
+      { v:'maybe', ic:'question', t:'不確定', s:'保持現場最安全' }
+    ]
+  },
+  {
+    key:'reported', k:'第 3 題 / 共 3 題', q:'報警了嗎？',
+    sub:'有報警才有事故紀錄，後續理賠與肇責認定都靠它。',
+    opts:[
+      { v:'yes', ic:'siren', t:'已經報警了', s:'警方已到場或在路上' },
+      { v:'no',  ic:'phone', t:'還沒報警', s:'不論大小事故，都建議報警' }
+    ]
+  }
+];
+
+var ans = {}, idx = 0;
+
+$('guide-open').addEventListener('click', function(){ ans = {}; idx = 0; openSheet(); });
+$('sheet-close').addEventListener('click', closeSheet);
+document.addEventListener('keydown', function(e){
+  if (e.key !== 'Escape') return;
+  if ($('sheet').classList.contains('open')) closeSheet();
+  if ($('ins-sheet').classList.contains('open')) $('ins-sheet').classList.remove('open');
+});
+
+function openSheet(){ $('sheet').classList.add('open'); renderSheet(); }
+function closeSheet(){ $('sheet').classList.remove('open'); }
+
+function renderDots(){
+  var d = $('dots'); d.innerHTML = '';
+  for (var i = 0; i <= FLOW.length; i++){
+    var s = document.createElement('span');
+    s.className = 'dot' + (i <= idx ? ' on' : '');
+    d.appendChild(s);
+  }
+}
+
+function pinHTML(){
+  var h = '';
+  if (ans.injured === 'yes' || ans.injured === 'maybe'){
+    h += '<a class="pin a" href="tel:119"><span class="ic">' + ico('cross') + '</span><span class="b">' +
+         '<span class="n">119</span><span class="d">有人受傷 — 立刻撥打</span></span></a>';
+  }
+  if (ans.reported === 'no'){
+    h += '<a class="pin r" href="tel:110"><span class="ic">' + ico('siren') + '</span><span class="b">' +
+         '<span class="n">110</span><span class="d">還沒報警 — 立刻撥打</span></span></a>';
+  }
+  return h;
+}
+
+function renderSheet(){
+  renderDots();
+  var body = $('sheet-body');
+  $('sheet').querySelector('.sheet-scroll').scrollTop = 0;
+  if (idx >= FLOW.length){ renderResult(); return; }
+
+  var q = FLOW[idx], html = pinHTML();
+  html += '<div class="qhead"><p class="k">' + q.k + '</p><h2>' + q.q + '</h2>' +
+          '<p class="sub">' + q.sub + '</p></div>';
+  q.opts.forEach(function(o, i){
+    html += '<button class="opt' + (o.danger ? ' danger' : '') + '" data-i="' + i + '">' +
+              '<span class="ic">' + ico(o.ic) + '</span>' +
+              '<span class="t">' + o.t + '<span class="s">' + o.s + '</span></span>' +
+              '<span class="ar">›</span></button>';
+  });
+  if (idx > 0) html += '<button class="sheet-back" id="back">← 上一題</button>';
+  body.innerHTML = html;
+
+  body.querySelectorAll('.opt').forEach(function(b){
+    b.addEventListener('click', function(){
+      ans[q.key] = q.opts[+b.dataset.i].v;
+      idx++;
+      renderSheet();
+    });
+  });
+  var bk = $('back');
+  if (bk) bk.addEventListener('click', function(){ idx--; renderSheet(); });
+}
+
+function buildTodos(){
+  var list = [];
+  if (ans.injured === 'yes'){
+    list.push({ t:'撥 119，先處理傷者', s:'不要移動明顯受傷的人，等待救護人員。' });
+    list.push({ t:'就醫並索取「診斷證明書」', s:'即使當下覺得還好，也建議當天就醫留紀錄。' });
+    list.push({ t:'保留所有醫療收據正本', s:'掛號費、藥費、後續復健都要留。' });
+    list.push({ t:'了解強制險傷害給付', s:'強制汽車責任保險不論肇責都有醫療給付，細節可問' + who() + '。' });
+  } else if (ans.injured === 'maybe'){
+    list.push({ t:'讓不舒服的人先就醫', s:'頭頸與內傷不一定當下有症狀，就醫並留下紀錄。' });
+    list.push({ t:'保留醫療收據與診斷證明', s:'之後要申請都靠這些文件。' });
+  } else {
+    list.push({ t:'接下來 48 小時留意身體狀況', s:'若出現頭暈、頸背疼痛，立刻就醫並主動告知是車禍造成。' });
+  }
+  if (ans.movable === 'yes'){
+    list.push({ t:'先拍照，再把車移到路邊', s:'車輛移動前務必完成拍照，避免二次事故。' });
+  } else {
+    list.push({ t:'保持現場，人員退到安全處', s:'放三角警示架，人不要站在車道上或車輛後方。' });
+  }
+  if (ans.reported === 'no'){
+    list.push({ t:'立刻撥 110 報案', s:'不論事故大小都建議報警，這是後續一切文件的起點。' });
+  }
+  list.push({ t:'索取「交通事故當事人登記聯單」', s:'向現場處理員警索取，上面有案件編號與雙方基本資料。' });
+  list.push({ t:'完成拍照清單七個項目', s:'現場全景、碰撞點、車損、車牌、證件、地面痕跡、行車記錄器。' });
+  list.push({ t:'不要在現場私下和解或簽任何文件', s:'金額與肇責都還沒釐清，先不承諾任何事。' });
+  list.push({ t:'五日內通知保險公司出險', s:'越早通知流程越順，出險專線在「出險」分頁。' });
+  list.push({ t:'向警方申請「初步分析研判表」', s:'申請時間、地點與方式請洽現場處理單位或交通隊。' });
+  list.push({ t:'保留修車估價單與相關收據', s:'理賠求償時要用。' });
+  return list;
+}
+
+function renderResult(){
+  var todos = buildTodos();
+  save(LS.todo, {});
+  var html = pinHTML();
+  html += '<div class="res-h"><p class="k">你的專屬清單</p><h2>接下來，這樣做就好</h2>' +
+          '<p>依照你剛剛的回答整理出 ' + todos.length + ' 件事。一件一件來，不用急。</p></div>';
+  todos.forEach(function(t, i){
+    html += '<button class="todo" data-i="' + i + '">' +
+              '<span class="box">' + CHECK + '</span>' +
+              '<span class="t">' + t.t + '<span class="s">' + t.s + '</span></span></button>';
+  });
+  html += '<button class="sheet-done" id="done">回到現場</button>' +
+          '<button class="sheet-back" id="restart">重新回答一次</button>';
+
+  var body = $('sheet-body');
+  body.innerHTML = html;
+  body.querySelectorAll('.todo').forEach(function(b){
+    b.addEventListener('click', function(){
+      var st = load(LS.todo), i = b.dataset.i;
+      st[i] = !st[i]; save(LS.todo, st);
+      b.classList.toggle('done', !!st[i]);
+    });
+  });
+  $('done').addEventListener('click', function(){ closeSheet(); go('scene'); });
+  $('restart').addEventListener('click', function(){ ans = {}; idx = 0; renderSheet(); });
+}
+
+/* =========================================================
+   設定
+   ========================================================= */
+$('btn-reset-all').addEventListener('click', function(){
+  save(LS.tl, {}); save(LS.ph, {}); save(LS.todo, {}); save(LS.claim, {});
+  renderTL(); renderPH(); renderCL();
+  toast('所有進度已清除');
+});
+
+/* =========================================================
+   加入主畫面
+   ========================================================= */
+var deferredPrompt = null;
+var isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                   window.navigator.standalone === true;
+var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault(); deferredPrompt = e; showInstall(false);
+});
+
+function showInstall(force){
+  if (isStandalone){ if (force) toast('已經在主畫面上了'); return; }
+  if (!force){
+    try{ if (localStorage.getItem(LS.install)) return; }catch(e){}
+  }
+  var steps = $('install-steps'), goBtn = $('install-go');
+  if (isIOS){
+    steps.className = 'steps';
+    steps.innerHTML = '1. 點下方工具列的「分享」↗<br>2. 往下滑，選擇「加入主畫面」<br>3. 右上角點「加入」';
+    goBtn.style.display = 'none';
+  } else if (deferredPrompt){
+    steps.innerHTML = ''; steps.className = '';
+    goBtn.style.display = '';
+  } else {
+    steps.className = 'steps';
+    steps.innerHTML = '開啟瀏覽器選單 ⋮ → 選擇「安裝應用程式」或「加到主畫面」';
+    goBtn.style.display = 'none';
+  }
+  $('install').classList.add('open');
+}
+
+$('btn-install').addEventListener('click', function(){ showInstall(true); });
+$('install-go').addEventListener('click', function(){
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(function(){
+    deferredPrompt = null;
+    $('install').classList.remove('open');
+  });
+});
+$('install-no').addEventListener('click', function(){
+  $('install').classList.remove('open');
+  try{ localStorage.setItem(LS.install, '1'); }catch(e){}
+});
+
+setTimeout(function(){
+  if (!$('install').classList.contains('open')) showInstall(false);
+}, 3500);
+
+/* Service Worker */
+if ('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+
+syncNet();
+
+})();
+</script>
+</body>
+</html>
