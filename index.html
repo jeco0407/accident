@@ -202,6 +202,29 @@ body.is-offline .chip-off{display:flex}
   margin:10px 0 0;padding-top:10px;border-top:1px solid var(--line-soft);
   font-size:13px;color:var(--muted);line-height:1.5;
 }
+/* 手動輸入：定位失敗時唯一能記下事故地點的路徑，不是次要選項 */
+.loc-manual{margin-top:14px}
+.loc-manual label{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:7px}
+.loc-manual input{
+  width:100%;min-height:48px;padding:12px 14px;border-radius:var(--r-sm);
+  border:1px solid var(--line);background:var(--bg);color:var(--ink);
+  font-size:16px;font-family:inherit;line-height:1.5;
+}
+.loc-manual input:focus{outline:none;border-color:var(--brand);background:var(--card)}
+.loc-manual .hint{font-size:12.5px;color:var(--muted);line-height:1.6;margin:8px 0 12px}
+/* 手動輸入是退路，用外框樣式讓它不跟主要的定位按鈕搶視覺重量 */
+.btn-outline{
+  width:100%;min-height:52px;border-radius:var(--r-md);
+  border:1.5px solid var(--line);background:transparent;color:var(--ink);
+  font-size:16px;font-weight:600;
+  transition:transform .12s ease, border-color .2s ease;
+}
+.btn-outline:active{transform:scale(.985)}
+.loc-link{
+  display:block;width:100%;margin-top:14px;padding:6px 0;
+  font-size:13.5px;font-weight:600;color:var(--muted);
+  text-decoration:underline;text-underline-offset:3px;
+}
 .loc-cur button{
   appearance:none;border:0;background:none;padding:0;cursor:pointer;
   font:inherit;font-weight:600;color:var(--brand);text-decoration:underline;
@@ -622,6 +645,14 @@ a.row-btn{color:inherit;text-decoration:none}
           <div id="loc-idle">
             <button class="btn-primary" id="loc-btn">取得我的位置</button>
             <p class="loc-note" style="background:var(--line-soft)">先確認自己在哪裡。報案時第一句話就是位置。這個地點與時間會被記下來，之後移動也不會被蓋掉。</p>
+            <div class="loc-manual" id="loc-manual" hidden>
+              <label for="loc-manual-in">手動輸入事故地點</label>
+              <input type="text" id="loc-manual-in" inputmode="text" autocomplete="off"
+                     placeholder="例：台北市中正區北平西路3號　或　中山路與民權路口">
+              <p class="hint">地下停車場、隧道、室內常常定位不到。寫得出路名或路口就夠報案用。</p>
+              <button class="btn-outline" id="loc-manual-ok">記下這個地點</button>
+            </div>
+            <button class="loc-link" id="loc-manual-open">定位不到？手動輸入地點</button>
           </div>
           <div id="loc-ready" hidden>
             <div class="loc-head">
@@ -977,6 +1008,16 @@ function setSite(c){
   if (navigator.onLine) reverseGeocode();
 }
 
+/* 手動輸入的事故地點沒有座標。地下停車場、隧道、室內定位不到是常態，
+   而「記不下事故地點」比「記下的地點沒有座標」嚴重得多。 */
+function setManualSite(text){
+  state.site = { lat:null, lon:null, acc:null, at:Date.now(), addr:text, manual:true };
+  saveSite();
+  showSite();
+}
+
+function hasCoords(s){ return !!s && typeof s.lat === 'number' && typeof s.lon === 'number'; }
+
 function startWatch(){
   if (!navigator.geolocation || !navigator.geolocation.watchPosition) return;
   if (state.watchId !== null) return;
@@ -999,18 +1040,42 @@ function onPosErr(err){
   var btn = $('loc-btn');
   btn.disabled = false;
   btn.textContent = '重新取得我的位置';
-  toast(err && err.code === 1 ? '請允許定位權限後再試一次' : '定位失敗，請再試一次');
+  toast(err && err.code === 1 ? '請允許定位權限後再試一次' : '定位失敗，改用手動輸入也可以');
+  openManual();   // 失敗當下就把退路攤開，不要讓使用者自己去找
+}
+
+function openManual(){
+  $('loc-manual').hidden = false;
+  $('loc-manual-open').hidden = true;
+  $('loc-manual-in').focus();
+}
+
+$('loc-manual-open').addEventListener('click', openManual);
+
+$('loc-manual-ok').addEventListener('click', function(){
+  var v = $('loc-manual-in').value.trim();
+  if (!v){ toast('請先輸入地點'); $('loc-manual-in').focus(); return; }
+  setManualSite(v);
+  toast('事故地點已記下');
+});
+
+$('loc-manual-in').addEventListener('keydown', function(e){
+  if (e.key === 'Enter'){ e.preventDefault(); $('loc-manual-ok').click(); }
+});
+
+function applyPos(pos){
+  state.coords = { lat: pos.coords.latitude, lon: pos.coords.longitude, acc: pos.coords.accuracy };
+  startWatch();
 }
 
 function onPos(pos){
-  state.coords = { lat: pos.coords.latitude, lon: pos.coords.longitude, acc: pos.coords.accuracy };
+  applyPos(pos);
   if (!state.site){
     setSite(state.coords);
     syncNet();
   } else {
     renderCur();
   }
-  startWatch();
 }
 
 function fmtLL(c){ return c.lat.toFixed(5) + ', ' + c.lon.toFixed(5); }
@@ -1025,11 +1090,16 @@ function fmtWhen(ts){
 function renderLoc(){
   var s = state.site;
   if (!s) return;
-  $('loc-coords').textContent = '座標 ' + fmtLL(s);
+  var coords = hasCoords(s);
+  $('loc-coords').hidden = !coords;
+  if (coords) $('loc-coords').textContent = '座標 ' + fmtLL(s);
   $('loc-time').textContent = '記錄於 ' + fmtWhen(s.at);
 
   var addrEl = $('loc-addr');
-  if (s.addr){
+  if (s.manual){
+    addrEl.textContent = s.addr;
+    $('loc-tip').textContent = '這是你手動輸入的地點，沒有座標。若之後定位得到，可以再補上精確位置。';
+  } else if (s.addr){
     addrEl.textContent = s.addr;
     $('loc-tip').textContent = '報案時可直接唸出這個地址；若接線員需要更精確位置，再補上座標。';
   } else if (!navigator.onLine){
@@ -1047,16 +1117,55 @@ function renderLoc(){
 function renderCur(){
   var el = $('loc-cur'), s = state.site;
   if (!s){ el.hidden = true; return; }
+  el.innerHTML = '';
+
+  function locate(){
+    if (!navigator.geolocation){ toast('此裝置不支援定位'); return; }
+    navigator.geolocation.getCurrentPosition(onPos, function(){
+      toast('還是定位不到，維持目前的地點');
+    }, { enableHighAccuracy:true, timeout:15000, maximumAge:0 });
+  }
+  function replaceWithCur(){
+    if (!confirm('要用目前位置取代已記錄的事故地點嗎？原本的地點會被覆蓋。')) return;
+    setSite(state.coords);
+    toast('事故地點已更新');
+  }
+  /* 手動地點按「再試一次定位」的意圖就是要換掉它，成功後直接問，
+     不要讓使用者定位完還得自己找第二顆按鈕。 */
+  function locateThenReplace(){
+    if (!navigator.geolocation){ toast('此裝置不支援定位'); return; }
+    toast('定位中…');
+    navigator.geolocation.getCurrentPosition(function(pos){
+      applyPos(pos);
+      if (confirm('定位成功。要用目前位置取代手動輸入的地點嗎？')){
+        setSite(state.coords);
+        toast('事故地點已更新');
+      } else renderCur();
+    }, function(){
+      toast('還是定位不到，維持目前的地點');
+    }, { enableHighAccuracy:true, timeout:15000, maximumAge:0 });
+  }
+
+  // 手動輸入的地點沒有座標，算不出距離，改為提供補上定位與修改文字兩條路
+  if (s.manual){
+    el.hidden = false;
+    el.appendChild(document.createTextNode('手動輸入的地點　'));
+    el.appendChild(mkAction('修改', function(){
+      $('loc-ready').hidden = true;
+      $('loc-idle').hidden = false;
+      $('loc-card').classList.remove('ready');
+      $('loc-manual-in').value = s.addr || '';
+      openManual();
+    }));
+    el.appendChild(mkAction(state.coords ? '改用目前定位' : '再試一次定位',
+                            state.coords ? replaceWithCur : locateThenReplace));
+    return;
+  }
 
   if (!state.coords){
     el.hidden = false;
-    el.innerHTML = '';
     el.appendChild(document.createTextNode('目前位置尚未取得　'));
-    el.appendChild(mkAction('取得目前位置', function(){
-      navigator.geolocation && navigator.geolocation.getCurrentPosition(onPos, function(){
-        toast('定位失敗，請再試一次');
-      }, { enableHighAccuracy:true, timeout:15000, maximumAge:0 });
-    }));
+    el.appendChild(mkAction('取得目前位置', locate));
     return;
   }
 
@@ -1064,14 +1173,9 @@ function renderCur(){
   if (m < 40){ el.hidden = true; return; }
 
   el.hidden = false;
-  el.innerHTML = '';
   var txt = m < 1000 ? ('約 ' + Math.round(m / 10) * 10 + ' 公尺') : ((m/1000).toFixed(1) + ' 公里');
   el.appendChild(document.createTextNode('你目前距離事故地點 ' + txt));
-  el.appendChild(mkAction('改設為事故地點', function(){
-    if (!confirm('要用目前位置取代已記錄的事故地點嗎？原本的地點會被覆蓋。')) return;
-    setSite(state.coords);
-    toast('事故地點已更新');
-  }));
+  el.appendChild(mkAction('改設為事故地點', replaceWithCur));
 }
 
 function mkAction(label, fn){
@@ -1151,16 +1255,17 @@ function reverseGeocode(){
 function shareText(){
   var s = state.site;
   if (!s) return '';
-  return '事故時間 ' + new Date(s.at).toLocaleString('zh-TW', { hour12:false }) + '\n' +
-         (s.addr ? s.addr + '\n' : '') +
-         '座標 ' + fmtLL(s) + '\nhttps://www.google.com/maps?q=' + s.lat + ',' + s.lon;
+  var out = '事故時間 ' + new Date(s.at).toLocaleString('zh-TW', { hour12:false }) + '\n';
+  if (s.addr) out += s.addr + '\n';
+  if (hasCoords(s)) out += '座標 ' + fmtLL(s) + '\n' + siteMapUrl();
+  return out.replace(/\n$/, '');
 }
 
 /* 開啟 App 時復原上次記錄的事故地點。刻意不主動呼叫定位 ——
    一進來就跳權限對話框既擾人，也不是每次開 App 都在現場。 */
 (function(){
   var s = load(LS.site);
-  if (s && typeof s.lat === 'number' && typeof s.lon === 'number'){
+  if (s && (hasCoords(s) || (s.manual && s.addr))){
     state.site = s;
     if (!s.at) s.at = Date.now();
     showSite();
@@ -1183,17 +1288,23 @@ $('btn-copy').addEventListener('click', function(){
   }
 });
 
+/* 有座標就用座標，手動輸入的地點只能拿地址去搜尋 —— 後者不保證找得到，
+   但總比按了沒反應好。 */
 function siteMapUrl(){
   var s = state.site;
-  return s ? 'https://www.google.com/maps?q=' + s.lat + ',' + s.lon : '';
+  if (!s) return '';
+  if (hasCoords(s)) return 'https://www.google.com/maps?q=' + s.lat + ',' + s.lon;
+  return s.addr ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(s.addr) : '';
 }
 
 $('btn-share').addEventListener('click', function(){
   var s = state.site;
   if (!s) return;
   if (navigator.share){
-    navigator.share({ title:'事故地點', text: s.addr || ('座標 ' + fmtLL(s)), url: siteMapUrl() })
-      .catch(function(){});
+    var d = { title:'事故地點', text: s.addr || ('座標 ' + fmtLL(s)) };
+    var u = siteMapUrl();
+    if (u) d.url = u;
+    navigator.share(d).catch(function(){});
   } else $('btn-copy').click();
 });
 
@@ -1201,10 +1312,10 @@ $('btn-share').addEventListener('click', function(){
    改用臨時 <a target="_blank"> 由瀏覽器自己處理，行為一致得多。 */
 $('btn-map').addEventListener('click', function(){
   if (!navigator.onLine){ toast('需要網路連線'); return; }
-  var s = state.site;
-  if (!s) return;
+  var url = siteMapUrl();
+  if (!url){ toast('這個地點沒有座標，無法開啟地圖'); return; }
   var a = document.createElement('a');
-  a.href = siteMapUrl();
+  a.href = url;
   a.target = '_blank';
   a.rel = 'noopener';
   document.body.appendChild(a);
@@ -1922,6 +2033,9 @@ $('btn-reset-all').addEventListener('click', function(){
   $('loc-card').classList.remove('ready');
   $('loc-btn').disabled = false;
   $('loc-btn').textContent = '取得我的位置';
+  $('loc-manual').hidden = true;
+  $('loc-manual-open').hidden = false;
+  $('loc-manual-in').value = '';
   renderTL(); renderPH(); renderCL(); renderOther();
   toast('所有進度已清除');
 });
