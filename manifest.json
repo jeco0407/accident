@@ -8,9 +8,13 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#FBF8F3",
+  "background_color": "#FCF8F3",
   "theme_color": "#FBF8F3",
-  "categories": ["utilities", "travel", "navigation"],
+  "categories": [
+    "utilities",
+    "travel",
+    "navigation"
+  ],
   "icons": [
     {
       "src": "icons/icon-192.png",

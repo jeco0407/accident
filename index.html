@@ -7,7 +7,9 @@
 <meta name="description" content="別慌，我陪你一步一步處理。車禍現場定位、報案、拍照存證與後續理賠的完整引導。">
 <meta name="theme-color" content="#FBF8F3">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="車禍助手">
@@ -977,8 +979,30 @@ function renderLoc(){
 }
 
 var geoAbort = null;
+var lastGeo = { lat:null, lon:null, at:0 };
+
+function distM(a1, o1, a2, o2){
+  var R = 6371000, t = Math.PI / 180;
+  var dLat = (a2 - a1) * t, dLon = (o2 - o1) * t;
+  var s = Math.sin(dLat/2) * Math.sin(dLat/2) +
+          Math.cos(a1*t) * Math.cos(a2*t) * Math.sin(dLon/2) * Math.sin(dLon/2);
+  return 2 * R * Math.asin(Math.sqrt(s));
+}
+
+/* watchPosition 會頻繁回報，若每次都查地址會違反 Nominatim 的使用限制
+   （每秒上限一次、禁止大量使用），網域可能被封鎖。
+   因此只在「還沒有地址」或「確實移動了一段距離」時才重新查詢。 */
 function reverseGeocode(){
   if (!state.coords || !navigator.onLine) return;
+
+  var now = Date.now();
+  if (now - lastGeo.at < 5000) return;
+  if (state.addr && lastGeo.lat !== null){
+    var moved = distM(lastGeo.lat, lastGeo.lon, state.coords.lat, state.coords.lon);
+    if (moved < 50 || now - lastGeo.at < 30000) return;
+  }
+  lastGeo = { lat:state.coords.lat, lon:state.coords.lon, at:now };
+
   if (geoAbort) geoAbort.abort();
   geoAbort = new AbortController();
   var url = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=zh-TW' +
