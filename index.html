@@ -1284,13 +1284,21 @@ var geoAt = 0;
 
    台灣的欄位對應要注意：直轄市的「區」放在 suburb，縣的「鄉鎮」放在 town；
    而 city_district 在直轄市是「里」、在縣是「村」，兩者都是雜訊，只當最後退路。 */
+/* house_number 有時只有數字（「3」），有時已經寫成完整門牌（「16之3號」）。
+   一律補「號」會變成「16之3號號」，所以只在結尾不是號／樓／室時才補。 */
+function houseNo(v){
+  var h = (v == null ? '' : String(v)).trim();
+  if (!h) return '';
+  return /[號樓室F]$/i.test(h) ? h : h + '號';
+}
+
 function fmtAddr(j){
   var a = j && j.address;
   if (!a) return (j && j.display_name || '').split(',').slice(0,4).reverse().join('').replace(/\s+/g,'');
   var parts = [
     a.city || a.county || a.state || '',
     a.suburb || a.town || a.city_district || a.village || '',
-    (a.road || '') + (a.house_number ? a.house_number + '號' : '')
+    (a.road || '') + houseNo(a.house_number)
   ];
   var out = '';
   for (var i = 0; i < parts.length; i++){
