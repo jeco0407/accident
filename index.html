@@ -453,6 +453,56 @@ a.row-btn{color:inherit;text-decoration:none}
 .seg button[aria-pressed="true"]{
   background:var(--solid-bg);color:var(--solid-fg);border-color:var(--solid-bg);
 }
+/* ── 求償 ── */
+.comp-f{display:flex;align-items:center;gap:12px;padding:13px 18px}
+.comp-f + .comp-f{border-top:1px solid var(--line-soft)}
+.comp-f .lbl{flex:1;min-width:0}
+.comp-f .lbl b{display:block;font-size:14.5px;font-weight:600}
+.comp-f .lbl span{display:block;font-size:12px;color:var(--muted);line-height:1.5;margin-top:2px}
+.comp-f .amt{
+  flex:0 0 118px;min-height:44px;padding:10px 12px;border-radius:var(--r-sm);
+  border:1px solid var(--line);background:var(--bg);color:var(--ink);
+  font-size:16px;font-family:inherit;text-align:right;
+  font-variant-numeric:tabular-nums;
+}
+.comp-f .amt:focus{outline:none;border-color:var(--brand);background:var(--card)}
+.comp-sum{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  margin-top:10px;padding:16px 18px;border-radius:var(--r-md);
+  background:var(--green-bg);border:1px solid var(--green-line);
+}
+.comp-sum .k{font-size:14px;font-weight:600;color:var(--green-ink)}
+.comp-sum .v{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.note-soft{font-size:12.5px;color:var(--muted);line-height:1.65;margin:10px 2px 0}
+.card-pad{padding:20px}
+.card-pad .lead{font-size:18px;font-weight:700;letter-spacing:-.01em;margin:0 0 8px}
+.card-pad .body{font-size:14px;color:var(--ink-2);line-height:1.75;margin:0 0 14px}
+.card-pad .sub-h{font-size:12.5px;font-weight:600;color:var(--brand);letter-spacing:.06em;margin:0 0 8px}
+.bullets{margin:0 0 14px;padding-left:18px}
+.bullets li{font-size:14px;color:var(--ink-2);line-height:1.7;margin-bottom:4px}
+.hint-sm{font-size:12px;color:var(--muted);line-height:1.6;margin:10px 0 0;text-align:center}
+a.btn-outline{display:flex;align-items:center;justify-content:center;text-decoration:none}
+.path{padding:16px 18px}
+.path + .path{border-top:1px solid var(--line-soft)}
+.path .h{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.path .h b{font-size:15.5px;font-weight:600}
+.path .tag{
+  font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;
+  background:var(--inset);color:var(--muted);white-space:nowrap;
+}
+.path .tag.free{background:var(--green-bg);color:var(--green-ink)}
+.path p{font-size:13.5px;color:var(--ink-2);line-height:1.7;margin:0}
+.path .meta{font-size:12.5px;color:var(--muted);margin-top:8px}
+.legal-foot{
+  font-size:12px;color:var(--muted);line-height:1.75;
+  margin:24px 2px 8px;padding:14px 16px;
+  background:var(--inset);border-radius:var(--r-sm);
+}
+/* 尚未查證的法律內容標成醒目色，避免混在一般說明裡被當成已確認的資訊 */
+.path .meta.tbd{
+  color:var(--red);background:var(--red-bg);
+  padding:8px 11px;border-radius:var(--r-sm);
+}
 .brandfoot{padding:26px 4px 8px;text-align:center}
 .brandfoot .b{font-size:15px;font-weight:700;color:var(--ink-2);letter-spacing:.08em}
 .brandfoot p{font-size:11.5px;color:var(--muted);line-height:1.7;margin:10px 0 0}
@@ -620,6 +670,9 @@ a.row-btn{color:inherit;text-decoration:none}
 <symbol id="ic-list" viewBox="0 0 24 24"><path d="M9.4 6.6h10M9.4 12h10M9.4 17.4h10"/><circle cx="5.2" cy="6.6" r=".95" fill="currentColor" stroke="none"/><circle cx="5.2" cy="12" r=".95" fill="currentColor" stroke="none"/><circle cx="5.2" cy="17.4" r=".95" fill="currentColor" stroke="none"/></symbol>
 <symbol id="ic-siren" viewBox="0 0 24 24"><path d="M8 13.2a4 4 0 0 1 8 0"/><path d="M6.4 13.2h11.2c.6 0 1 .5 1 1v2c0 .6-.4 1-1 1H6.4c-.6 0-1-.4-1-1v-2c0-.5.4-1 1-1Z"/><path d="M12 5.6V3.8M6.6 7.6 5.3 6.3M17.4 7.6l1.3-1.3"/></symbol>
 <symbol id="ic-arrow" viewBox="0 0 24 24"><path d="M4.5 12h15M14 6.5l5.5 5.5L14 17.5"/></symbol>
+<symbol id="ic-scale" viewBox="0 0 24 24"><path d="M12 5.4v14.2M8.4 19.6h7.2"/><path d="M4.6 8.2h14.8"/><path d="M4.6 8.2 2.2 13.4h4.8Z"/><path d="M19.4 8.2 17 13.4h4.8Z"/><circle cx="12" cy="4.5" r="1.1"/></symbol>
+<symbol id="ic-doc" viewBox="0 0 24 24"><path d="M13.4 3.6H7.2c-.9 0-1.6.7-1.6 1.6v13.6c0 .9.7 1.6 1.6 1.6h9.6c.9 0 1.6-.7 1.6-1.6V8.4Z"/><path d="M13.4 3.6v4.8h5"/><path d="M8.8 13.2h6.4M8.8 16.4h4.2"/></symbol>
+<symbol id="ic-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M12 7.4v9.2M14.4 9.6c-.5-.6-1.4-1-2.4-1-1.5 0-2.5.7-2.5 1.8s.9 1.5 2.5 1.8c1.6.3 2.5.7 2.5 1.8s-1 1.8-2.5 1.8c-1 0-1.9-.4-2.4-1"/></symbol>
 </svg>
 
 <!-- ═══════════ App bar ═══════════ -->
@@ -753,6 +806,55 @@ a.row-btn{color:inherit;text-decoration:none}
   </section>
 
   <!-- ───── 我的 ───── -->
+  <!-- ───── 求償 ───── -->
+  <section class="view" id="v-comp" role="tabpanel" aria-label="求償">
+    <div class="view-in">
+      <p class="greet">調解與求償是事發之後幾週到幾個月的事。慢慢來，先把數字算清楚。</p>
+
+      <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-coin"/></svg>算得出來的損失</p>
+        <div class="card" id="comp-form"></div>
+        <div class="comp-sum">
+          <span class="k">有憑據的小計</span>
+          <span class="v" id="comp-total">$0</span>
+        </div>
+        <p class="note-soft">只填你<strong>拿得出單據</strong>的金額。這份小計的力量在於每一筆都有收據、估價單或薪資證明可以佐證。</p>
+      </div>
+
+      <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-scale"/></svg>精神慰撫金</p>
+        <div class="card card-pad">
+          <p class="lead">沒有公式，也沒有行情表。</p>
+          <p class="body">法院是就個案衡量，同樣的傷勢判下來可以差好幾倍。任何人給你一個「大概多少」的數字，都是在猜。</p>
+          <p class="sub-h">法院會看這些</p>
+          <ul class="bullets" id="comp-factors"></ul>
+          <p class="body">最實在的做法是<strong>查類似案件的實際判決</strong>，用真實判決當談判基準 —— 這在調解桌上是能拿出來講的東西，比自己開一個數字有力得多。</p>
+          <a class="btn-outline" id="btn-judicial" href="https://judgment.judicial.gov.tw/FJUD/default.aspx" target="_blank" rel="noopener">開啟司法院判決查詢</a>
+          <p class="hint-sm">搜尋關鍵字可以用「車禍 慰撫金」加上傷勢名稱。需要網路連線。</p>
+        </div>
+      </div>
+
+      <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-doc"/></svg>調解怎麼做</p>
+        <div class="card" id="comp-paths"></div>
+      </div>
+
+      <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg>調解要帶的東西</p>
+        <div class="card" id="comp-docs"></div>
+      </div>
+
+      <div class="blk">
+        <button class="row-btn" id="btn-comp-copy">
+          <span class="ic"><svg class="i"><use href="#ic-copy"/></svg></span>
+          <span class="t">複製求償明細</span><span class="ar">›</span>
+        </button>
+      </div>
+
+      <p class="legal-foot">以上為一般性資訊整理，不構成法律意見。個案認定請諮詢律師，或洽<strong>法律扶助基金會</strong>。</p>
+    </div>
+  </section>
+
   <section class="view" id="v-me" role="tabpanel" aria-label="我的">
     <div class="view-in">
       <div class="blk">
@@ -821,6 +923,9 @@ a.row-btn{color:inherit;text-decoration:none}
     </button>
     <button class="tab" role="tab" data-v="claim" aria-selected="false">
       <svg class="i"><use href="#ic-shield"/></svg><span>出險</span>
+    </button>
+    <button class="tab" role="tab" data-v="comp" aria-selected="false">
+      <svg class="i"><use href="#ic-scale"/></svg><span>求償</span>
     </button>
     <button class="tab" role="tab" data-v="me" aria-selected="false">
       <svg class="i"><use href="#ic-person"/></svg><span>我的</span>
@@ -894,7 +999,7 @@ a.row-btn{color:inherit;text-decoration:none}
 var LS = {
   tl:'aa.timeline.v1', ph:'aa.photos.v1', todo:'aa.todo.v1',
   install:'aa.install.dismissed.v1', claim:'aa.claim.v1', other:'aa.other.v1',
-  site:'aa.site.v1'
+  site:'aa.site.v1', comp:'aa.comp.v1'
 };
 function load(k){ try{ return JSON.parse(localStorage.getItem(k)) || {}; }catch(e){ return {}; } }
 function save(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
@@ -914,7 +1019,7 @@ function toast(msg){
 /* =========================================================
    分頁切換（hash 路由，Android 返回鍵可用）
    ========================================================= */
-var VIEWS = { scene:'Guardy', photo:'存證', claim:'出險', me:'我的' };
+var VIEWS = { scene:'Guardy', photo:'存證', claim:'出險', comp:'求償', me:'我的' };
 var current = null;
 
 function go(name, push){
@@ -1273,19 +1378,24 @@ function shareText(){
   }
 })();
 
-$('btn-copy').addEventListener('click', function(){
-  var txt = shareText();
-  if (navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(txt).then(function(){ toast('位置已複製'); }, fallbackCopy);
-  } else fallbackCopy();
-  function fallbackCopy(){
+/* execCommand 已經廢棄，但在沒有 clipboard API 或非安全內容的環境下
+   仍是唯一能用的退路，所以保留。 */
+function copyText(txt, okMsg){
+  function fallback(){
     var ta = document.createElement('textarea');
     ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0';
     document.body.appendChild(ta); ta.select();
-    try{ document.execCommand('copy'); toast('位置已複製'); }
+    try{ document.execCommand('copy'); toast(okMsg); }
     catch(e){ toast('複製失敗，請長按選取'); }
     document.body.removeChild(ta);
   }
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){ toast(okMsg); }, fallback);
+  } else fallback();
+}
+
+$('btn-copy').addEventListener('click', function(){
+  copyText(shareText(), '位置已複製');
 });
 
 /* 有座標就用座標，手動輸入的地點只能拿地址去搜尋 —— 後者不保證找得到，
@@ -2022,10 +2132,200 @@ function renderResult(){
 }
 
 /* =========================================================
+   求償
+
+   原則：把「算得出來的」跟「算不出來的」嚴格分開。
+   前者是使用者自己單據上的數字，我們只做加總；
+   後者（精神慰撫金）沒有公式，任何估算都是誤導，只提供查詢實際判決的路徑。
+   ========================================================= */
+var COMP_FIELDS = [
+  { k:'med',   t:'醫療費用',      d:'掛號、藥費、住院、手術。收據正本要留著' },
+  { k:'rehab', t:'後續醫療與復健', d:'已經發生的部分。未來的費用需要診斷證明佐證' },
+  { k:'care',  t:'看護費用',      d:'請看護的收據；親屬照顧也可能主張，需要證明' },
+  { k:'trans', t:'就醫交通費',    d:'計程車收據、復康巴士。自行開車較難舉證' },
+  { k:'work',  t:'工作損失',      d:'薪資證明 × 無法工作天數。自營者需所得資料' },
+  { k:'car',   t:'車輛修復',      d:'估價單或維修發票。對方可能主張折舊' },
+  { k:'prop',  t:'其他財物損失',  d:'手機、安全帽、眼鏡、衣物等' }
+];
+
+/* 法院衡量慰撫金的因素。這些是通則，不是能換算成金額的權重。 */
+var COMP_FACTORS = [
+  '雙方的身分、地位與經濟狀況',
+  '傷勢的嚴重程度與治療期間長短',
+  '是否留下後遺症或外觀損傷',
+  '對日常生活與工作能力的影響',
+  '加害人的過失程度與事後態度',
+  '雙方的過失比例'
+];
+
+var COMP_PATHS = [
+  {
+    t:'鄉鎮市區調解委員會',
+    tag:'免費', free:true,
+    d:'向事故發生地或對方住所地的公所申請。委員會安排雙方到場，由調解委員居中協調。',
+    m:'調解成立後經法院核定的效力【待查證：與確定判決同一效力之依據條文】'
+  },
+  {
+    t:'法院調解',
+    tag:'須繳費',
+    d:'起訴前向法院聲請調解。部分民事案件在起訴前必須先經法院調解。',
+    m:'【待查證：強制調解事件的範圍與費用】'
+  },
+  {
+    t:'直接提起民事訴訟',
+    tag:'耗時',
+    d:'調解不成立，或對方完全不願協商時的途徑。需要準備完整證據並可能委任律師。',
+    m:'請求權時效【待查證：民法侵權行為損害賠償請求權的時效規定】'
+  }
+];
+
+var COMP_DOCS = [
+  { t:'交通事故當事人登記聯單', d:'現場向處理員警索取' },
+  { t:'道路交通事故初步分析研判表', d:'向警方申請，是責任歸屬的重要參考' },
+  { t:'醫療費用收據正本與診斷證明書', d:'求償金額的主要憑據' },
+  { t:'薪資證明或在職證明', d:'主張工作損失時必備' },
+  { t:'車輛維修估價單或發票', d:'財損部分的憑據' },
+  { t:'現場與車損照片', d:'「存證」分頁裡的照片可以直接分享' },
+  { t:'雙方保險資料', d:'強制險與任意險的保單資訊' },
+  { t:'身分證與印章', d:'調解成立時簽署調解書要用' }
+];
+
+function compData(){ return load(LS.comp); }
+
+function money(n){
+  return '$' + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function compTotal(){
+  var d = compData(), sum = 0;
+  COMP_FIELDS.forEach(function(f){
+    var v = parseInt(d[f.k], 10);
+    if (!isNaN(v) && v > 0) sum += v;
+  });
+  return sum;
+}
+
+function renderComp(){
+  var d = compData(), box = $('comp-form');
+  box.innerHTML = '';
+  COMP_FIELDS.forEach(function(f){
+    var row = document.createElement('div');
+    row.className = 'comp-f';
+
+    var lbl = document.createElement('label');
+    lbl.className = 'lbl';
+    lbl.setAttribute('for', 'comp-' + f.k);
+    var b = document.createElement('b'); b.textContent = f.t;
+    var s = document.createElement('span'); s.textContent = f.d;
+    lbl.appendChild(b); lbl.appendChild(s);
+
+    var inp = document.createElement('input');
+    inp.className = 'amt';
+    inp.id = 'comp-' + f.k;
+    inp.type = 'text';
+    inp.inputMode = 'numeric';
+    inp.placeholder = '0';
+    inp.value = d[f.k] || '';
+    inp.addEventListener('input', function(){
+      // 中文鍵盤打得出全形數字，先轉成半形再濾掉逗號、負號等雜訊
+      this.value = this.value
+        .replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); })
+        .replace(/[^0-9]/g, '');
+      var cur = compData();
+      if (this.value) cur[f.k] = this.value; else delete cur[f.k];
+      save(LS.comp, cur);
+      $('comp-total').textContent = money(compTotal());
+    });
+
+    row.appendChild(lbl);
+    row.appendChild(inp);
+    box.appendChild(row);
+  });
+  $('comp-total').textContent = money(compTotal());
+
+  var ul = $('comp-factors');
+  ul.innerHTML = '';
+  COMP_FACTORS.forEach(function(t){
+    var li = document.createElement('li');
+    li.textContent = t;
+    ul.appendChild(li);
+  });
+
+  var paths = $('comp-paths');
+  paths.innerHTML = '';
+  COMP_PATHS.forEach(function(p){
+    var el = document.createElement('div');
+    el.className = 'path';
+    var h = document.createElement('div'); h.className = 'h';
+    var b = document.createElement('b'); b.textContent = p.t;
+    var tag = document.createElement('span');
+    tag.className = 'tag' + (p.free ? ' free' : '');
+    tag.textContent = p.tag;
+    h.appendChild(b); h.appendChild(tag);
+    var d1 = document.createElement('p'); d1.textContent = p.d;
+    el.appendChild(h); el.appendChild(d1);
+    if (p.m){
+      var m = document.createElement('p');
+      m.className = 'meta' + (/【待查證/.test(p.m) ? ' tbd' : '');
+      m.textContent = p.m;
+      el.appendChild(m);
+    }
+    paths.appendChild(el);
+  });
+
+  var docs = $('comp-docs');
+  docs.innerHTML = '';
+  COMP_DOCS.forEach(function(x){
+    var el = document.createElement('div');
+    el.className = 'path';
+    var b = document.createElement('b');
+    b.style.cssText = 'font-size:15px;font-weight:600;display:block;margin-bottom:4px';
+    b.textContent = x.t;
+    var p = document.createElement('p'); p.textContent = x.d;
+    el.appendChild(b); el.appendChild(p);
+    docs.appendChild(el);
+  });
+}
+
+/* 產生可以直接貼進 LINE 或列印帶去調解的明細。
+   刻意不含慰撫金 —— 那個數字不該由這個 App 產生。 */
+function compText(){
+  var d = compData(), lines = ['【求償明細】'], sum = 0;
+  var s = state.site;
+  if (s){
+    lines.push('事故時間　' + new Date(s.at).toLocaleString('zh-TW', { hour12:false }));
+    if (s.addr) lines.push('事故地點　' + s.addr);
+    lines.push('');
+  }
+  COMP_FIELDS.forEach(function(f){
+    var v = parseInt(d[f.k], 10);
+    if (!isNaN(v) && v > 0){
+      sum += v;
+      lines.push(f.t + '　' + money(v));
+    }
+  });
+  if (!sum) return '';
+  lines.push('');
+  lines.push('有憑據的小計　' + money(sum));
+  lines.push('');
+  lines.push('※ 以上為檢附單據之金額，精神慰撫金另計。');
+  return lines.join('\n');
+}
+
+$('btn-comp-copy').addEventListener('click', function(){
+  var txt = compText();
+  if (!txt){ toast('還沒有填入任何金額'); return; }
+  copyText(txt, '求償明細已複製');
+});
+
+renderComp();
+
+/* =========================================================
    設定
    ========================================================= */
 $('btn-reset-all').addEventListener('click', function(){
-  save(LS.tl, {}); save(LS.ph, {}); save(LS.todo, {}); save(LS.claim, {}); save(LS.other, {});
+  save(LS.tl, {}); save(LS.ph, {}); save(LS.todo, {}); save(LS.claim, {});
+  save(LS.other, {}); save(LS.comp, {});
   try{ localStorage.removeItem(LS.site); }catch(e){}
   state.site = null;
   $('loc-ready').hidden = true;
@@ -2036,7 +2336,7 @@ $('btn-reset-all').addEventListener('click', function(){
   $('loc-manual').hidden = true;
   $('loc-manual-open').hidden = false;
   $('loc-manual-in').value = '';
-  renderTL(); renderPH(); renderCL(); renderOther();
+  renderTL(); renderPH(); renderCL(); renderOther(); renderComp();
   toast('所有進度已清除');
 });
 
