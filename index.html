@@ -515,21 +515,18 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 /* 應備文件做成可勾選，跟其他分頁一致。
    一長串待辦看了讓人卻步，能一項一項打勾就變成看得到盡頭的事。 */
 .doc{
-  display:flex;align-items:center;gap:13px;width:100%;text-align:left;
-  padding:14px 18px;min-height:62px;transition:background .3s ease;
+  display:flex;align-items:center;gap:14px;width:100%;text-align:left;
+  padding:16px 18px;min-height:64px;transition:background .3s ease;
 }
 .doc + .doc{border-top:1px solid var(--line-soft)}
-.doc .body{flex:1;min-width:0}
-.doc .t{display:block;font-size:16px;font-weight:600;line-height:1.45}
-.doc .d{display:block;font-size:13.5px;color:var(--muted);line-height:1.55;margin-top:3px}
+.doc .t{flex:1;min-width:0;font-size:19px;font-weight:600;line-height:1.5}
 .doc .box{
-  flex:0 0 26px;height:26px;border-radius:50%;
+  flex:0 0 28px;height:28px;border-radius:50%;
   border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;
   transition:background .3s ease, border-color .3s ease;
 }
 .doc.done{background:var(--green-bg)}
 .doc.done .t{color:var(--green-ink)}
-.doc.done .d{color:var(--green-ink);opacity:.75}
 .doc.done .box{background:var(--green-ink);border-color:var(--green-ink)}
 .doc .box svg{width:14px;height:14px}
 .doc .box path{
@@ -853,8 +850,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <!-- ───── 求償 ───── -->
   <section class="view" id="v-comp" role="tabpanel" aria-label="求償">
     <div class="view-in">
-      <p class="greet">這一頁是幾週、甚至幾個月的事。不用今天填完，填多少就存多少。</p>
-
       <div class="blk">
         <p class="sec-label"><svg class="i"><use href="#ic-coin"/></svg>把有單據的先算出來</p>
         <div class="card" id="comp-form"></div>
@@ -2238,15 +2233,17 @@ var COMP_PATHS = [
   }
 ];
 
+/* 刻意只留品名。這是到現場前的核對清單，掃過去要能一眼看完，
+   說明文字反而讓人讀得慢。 */
 var COMP_DOCS = [
-  { t:'交通事故當事人登記聯單', d:'現場向處理員警索取' },
-  { t:'道路交通事故初步分析研判表', d:'向警方申請，是責任歸屬的重要參考' },
-  { t:'醫療費用收據正本與診斷證明書', d:'求償金額的主要憑據' },
-  { t:'薪資證明或在職證明', d:'主張工作損失時必備' },
-  { t:'車輛維修估價單或發票', d:'財損部分的憑據' },
-  { t:'現場與車損照片', d:'「存證」分頁裡的照片可以直接分享' },
-  { t:'雙方保險資料', d:'強制險與任意險的保單資訊' },
-  { t:'身分證與印章', d:'調解成立時簽署調解書要用' }
+  '交通事故當事人登記聯單',
+  '道路交通事故初步分析研判表',
+  '醫療費用收據正本與診斷證明書',
+  '薪資證明或在職證明',
+  '車輛維修估價單或發票',
+  '現場與車損照片',
+  '行照跟駕照',
+  '身分證與印章'
 ];
 
 function compData(){ return load(LS.comp); }
@@ -2374,14 +2371,8 @@ function renderDocs(){
     var b = document.createElement('button');
     b.className = 'doc' + (done ? ' done' : '');
     b.setAttribute('aria-pressed', done ? 'true' : 'false');
-    b.innerHTML =
-      '<span class="body">' +
-        '<span class="t"></span>' +
-        '<span class="d"></span>' +
-      '</span>' +
-      '<span class="box">' + CHECK + '</span>';
-    b.querySelector('.t').textContent = x.t;
-    b.querySelector('.d').textContent = x.d;
+    b.innerHTML = '<span class="t"></span><span class="box">' + CHECK + '</span>';
+    b.querySelector('.t').textContent = x;
     b.addEventListener('click', function(){
       var cur = load(LS.compdoc);
       cur[i] = !cur[i];
