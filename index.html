@@ -44,9 +44,8 @@
   --sk-1:#EFEAE2;      --sk-2:#F7F3EC;       /* 骨架動畫 */
   --tap:64px;
 
-  --appbar:54px;
   --tabbar:60px;
-  --top:calc(var(--appbar) + env(safe-area-inset-top));
+  --top:env(safe-area-inset-top);
   --bottom:calc(var(--tabbar) + env(safe-area-inset-bottom));
 }
 
@@ -96,29 +95,15 @@ button{font:inherit;color:inherit;background:none;border:0;margin:0;cursor:point
 a{color:inherit;text-decoration:none}
 :focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:8px}
 
-/* ═══════════ App bar ═══════════ */
-.appbar{
-  position:fixed;top:0;left:0;right:0;z-index:30;
-  height:var(--top);padding-top:env(safe-area-inset-top);
-  background:var(--chrome);
-  -webkit-backdrop-filter:saturate(180%) blur(16px);
-  backdrop-filter:saturate(180%) blur(16px);
-  border-bottom:1px solid var(--line);
-}
-.appbar-in{
-  max-width:520px;margin:0 auto;height:var(--appbar);
-  padding:0 20px;display:flex;align-items:center;gap:10px;
-}
-.appbar .mark{width:26px;height:26px;flex:none;display:block}
-.appbar h1{
-  flex:1;font-size:18px;font-weight:600;letter-spacing:-.01em;margin:0;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
+/* ═══════════ 離線標示 ═══════════ */
 .chip-off{
+  position:fixed;z-index:30;
+  top:calc(env(safe-area-inset-top) + 10px); right:16px;
   display:none;align-items:center;gap:5px;
   font-size:12.5px;font-weight:600;color:var(--amber);
   background:var(--amber-bg);border:1px solid var(--amber-line);
-  padding:4px 9px;border-radius:999px;white-space:nowrap;
+  padding:5px 11px;border-radius:999px;white-space:nowrap;
+  box-shadow:var(--shadow);
 }
 .chip-off .dot{width:5px;height:5px;border-radius:50%;background:currentColor}
 body.is-offline .chip-off{display:flex}
@@ -131,7 +116,7 @@ body.is-offline .chip-off{display:flex}
   transition:opacity .2s ease, transform .24s cubic-bezier(.32,.72,0,1), visibility .24s;
 }
 .view.on{opacity:1;visibility:visible;transform:none}
-.view-in{max-width:520px;margin:0 auto;padding:22px 20px 40px}
+.view-in{max-width:520px;margin:0 auto;padding:26px 20px 40px}
 
 .greet{font-size:16.5px;color:var(--ink-2);margin:0 0 22px;letter-spacing:-.01em}
 .blk{margin-bottom:34px}
@@ -717,14 +702,8 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 <symbol id="ic-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M12 7.4v9.2M14.4 9.6c-.5-.6-1.4-1-2.4-1-1.5 0-2.5.7-2.5 1.8s.9 1.5 2.5 1.8c1.6.3 2.5.7 2.5 1.8s-1 1.8-2.5 1.8c-1 0-1.9-.4-2.4-1"/></symbol>
 </svg>
 
-<!-- ═══════════ App bar ═══════════ -->
-<header class="appbar">
-  <div class="appbar-in">
-    <img class="mark" src="icons/mark.png" alt="Guardy" width="26" height="26">
-    <h1 id="view-title">車禍緊急助手</h1>
-    <span class="chip-off"><span class="dot"></span>離線</span>
-  </div>
-</header>
+<!-- 離線標示：只在斷線時浮出，是「地圖鍵為什麼不能按」的唯一解釋 -->
+<span class="chip-off"><span class="dot"></span>離線</span>
 
 <!-- ═══════════ Views ═══════════ -->
 <div class="views">
@@ -1069,7 +1048,8 @@ function toast(msg){
 /* =========================================================
    分頁切換（hash 路由，Android 返回鍵可用）
    ========================================================= */
-var VIEWS = { scene:'Guardy', photo:'存證', claim:'出險', comp:'求償', me:'我的' };
+/* 有效的分頁名稱。標題只留作註解 —— 頂欄移除後畫面上不再顯示 */
+var VIEWS = { scene:'現場', photo:'存證', claim:'出險', comp:'求償', me:'我的' };
 var current = null;
 
 function go(name, push){
@@ -1081,7 +1061,6 @@ function go(name, push){
   document.querySelectorAll('.tab').forEach(function(t){
     t.setAttribute('aria-selected', t.dataset.v === name ? 'true' : 'false');
   });
-  $('view-title').textContent = VIEWS[name];
   if (push !== false && location.hash !== '#' + name) location.hash = name;
 }
 
