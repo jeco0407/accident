@@ -454,25 +454,42 @@ a.row-btn{color:inherit;text-decoration:none}
   background:var(--solid-bg);color:var(--solid-fg);border-color:var(--solid-bg);
 }
 /* ── 求償 ── */
-.comp-f{display:flex;align-items:center;gap:12px;padding:13px 18px}
+.comp-g{
+  padding:13px 18px 5px;font-size:12px;font-weight:600;
+  color:var(--muted);letter-spacing:.08em;
+}
+.comp-f + .comp-g{border-top:1px solid var(--line-soft);margin-top:4px}
+.comp-f{display:flex;align-items:center;gap:12px;padding:12px 18px}
 .comp-f + .comp-f{border-top:1px solid var(--line-soft)}
 .comp-f .lbl{flex:1;min-width:0}
 .comp-f .lbl b{display:block;font-size:14.5px;font-weight:600}
 .comp-f .lbl span{display:block;font-size:12px;color:var(--muted);line-height:1.5;margin-top:2px}
-.comp-f .amt{
-  flex:0 0 118px;min-height:44px;padding:10px 12px;border-radius:var(--r-sm);
+.amt-box{position:relative;flex:0 0 124px}
+.amt-box .cur{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  font-size:15px;color:var(--muted);pointer-events:none;transition:color .2s ease;
+}
+.amt-box .amt{
+  width:100%;min-height:46px;padding:10px 12px 10px 26px;border-radius:var(--r-sm);
   border:1px solid var(--line);background:var(--bg);color:var(--ink);
   font-size:16px;font-family:inherit;text-align:right;
   font-variant-numeric:tabular-nums;
 }
-.comp-f .amt:focus{outline:none;border-color:var(--brand);background:var(--card)}
+.amt-box .amt:focus{outline:none;border-color:var(--brand);background:var(--card)}
+.amt-box .amt:focus + .cur,.amt-box.has .cur{color:var(--ink-2)}
+.amt-box.has .amt{border-color:var(--green-line);background:var(--green-bg);font-weight:600}
 .comp-sum{
-  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
-  margin-top:10px;padding:16px 18px;border-radius:var(--r-md);
-  background:var(--green-bg);border:1px solid var(--green-line);
+  margin-top:10px;padding:18px;border-radius:var(--r-md);
+  border:1px solid var(--line);background:var(--card);
+  transition:background .35s ease, border-color .35s ease;
 }
+.comp-sum.on{background:var(--green-bg);border-color:var(--green-line)}
+.comp-sum .empty .t{font-size:14.5px;font-weight:600;color:var(--ink-2);margin:0}
+.comp-sum .empty .d{font-size:12.5px;color:var(--muted);line-height:1.6;margin:5px 0 0}
+.comp-sum .row{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
 .comp-sum .k{font-size:14px;font-weight:600;color:var(--green-ink)}
-.comp-sum .v{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.comp-sum .v{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.comp-sum .n{font-size:12.5px;color:var(--green-ink);opacity:.8;margin:6px 0 0}
 .note-soft{font-size:12.5px;color:var(--muted);line-height:1.65;margin:10px 2px 0}
 .card-pad{padding:20px}
 .card-pad .lead{font-size:18px;font-weight:700;letter-spacing:-.01em;margin:0 0 8px}
@@ -493,6 +510,31 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 .path .tag.free{background:var(--green-bg);color:var(--green-ink)}
 .path p{font-size:13.5px;color:var(--ink-2);line-height:1.7;margin:0}
 .path .meta{font-size:12.5px;color:var(--muted);margin-top:8px}
+/* 應備文件做成可勾選，跟其他分頁一致。
+   一長串待辦看了讓人卻步，能一項一項打勾就變成看得到盡頭的事。 */
+.doc{
+  display:flex;align-items:center;gap:13px;width:100%;text-align:left;
+  padding:14px 18px;min-height:62px;transition:background .3s ease;
+}
+.doc + .doc{border-top:1px solid var(--line-soft)}
+.doc .body{flex:1;min-width:0}
+.doc .t{display:block;font-size:15px;font-weight:600;line-height:1.45}
+.doc .d{display:block;font-size:12.5px;color:var(--muted);line-height:1.55;margin-top:3px}
+.doc .box{
+  flex:0 0 26px;height:26px;border-radius:50%;
+  border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;
+  transition:background .3s ease, border-color .3s ease;
+}
+.doc.done{background:var(--green-bg)}
+.doc.done .t{color:var(--green-ink)}
+.doc.done .d{color:var(--green-ink);opacity:.75}
+.doc.done .box{background:var(--green-ink);border-color:var(--green-ink)}
+.doc .box svg{width:14px;height:14px}
+.doc .box path{
+  stroke:var(--on-green);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;fill:none;
+  stroke-dasharray:20;stroke-dashoffset:20;
+}
+.doc.done .box path{animation:draw .38s cubic-bezier(.65,0,.35,1) forwards}
 .legal-foot{
   font-size:12px;color:var(--muted);line-height:1.75;
   margin:24px 2px 8px;padding:14px 16px;
@@ -809,39 +851,52 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <!-- ───── 求償 ───── -->
   <section class="view" id="v-comp" role="tabpanel" aria-label="求償">
     <div class="view-in">
-      <p class="greet">調解與求償是事發之後幾週到幾個月的事。慢慢來，先把數字算清楚。</p>
+      <p class="greet">這一頁是幾週、甚至幾個月的事。不用今天填完，填多少就存多少。</p>
 
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-coin"/></svg>算得出來的損失</p>
+        <p class="sec-label"><svg class="i"><use href="#ic-coin"/></svg>把有單據的先算出來</p>
         <div class="card" id="comp-form"></div>
-        <div class="comp-sum">
-          <span class="k">有憑據的小計</span>
-          <span class="v" id="comp-total">$0</span>
+        <div class="comp-sum" id="comp-sum">
+          <div class="empty" id="comp-sum-empty">
+            <p class="t">還沒有填入金額</p>
+            <p class="d">手邊有幾張收據就先填幾張，之後隨時可以再補。</p>
+          </div>
+          <div class="filled" id="comp-sum-filled" hidden>
+            <div class="row">
+              <span class="k">有憑據的小計</span>
+              <span class="v" id="comp-total">$0</span>
+            </div>
+            <p class="n" id="comp-count"></p>
+          </div>
         </div>
-        <p class="note-soft">只填你<strong>拿得出單據</strong>的金額。這份小計的力量在於每一筆都有收據、估價單或薪資證明可以佐證。</p>
+        <p class="note-soft">只填你<strong>拿得出單據</strong>的金額。這份小計的力量，在於每一筆都有收據、估價單或薪資證明可以攤在桌上。</p>
       </div>
 
       <div class="blk">
         <p class="sec-label"><svg class="i"><use href="#ic-scale"/></svg>精神慰撫金</p>
         <div class="card card-pad">
-          <p class="lead">沒有公式，也沒有行情表。</p>
-          <p class="body">法院是就個案衡量，同樣的傷勢判下來可以差好幾倍。任何人給你一個「大概多少」的數字，都是在猜。</p>
+          <p class="lead">你受的苦是真的，只是它沒有價目表。</p>
+          <p class="body">法院是就個案衡量的，同樣的傷勢判下來可以差上好幾倍。所以這裡不會給你一個「大概多少」—— 那種數字是猜的，而拿著猜來的數字上調解桌，開太高談不攏、開太低自己吃虧。</p>
           <p class="sub-h">法院會看這些</p>
           <ul class="bullets" id="comp-factors"></ul>
-          <p class="body">最實在的做法是<strong>查類似案件的實際判決</strong>，用真實判決當談判基準 —— 這在調解桌上是能拿出來講的東西，比自己開一個數字有力得多。</p>
-          <a class="btn-outline" id="btn-judicial" href="https://judgment.judicial.gov.tw/FJUD/default.aspx" target="_blank" rel="noopener">開啟司法院判決查詢</a>
-          <p class="hint-sm">搜尋關鍵字可以用「車禍 慰撫金」加上傷勢名稱。需要網路連線。</p>
+          <p class="body">比較踏實的做法，是<strong>去查類似案件的實際判決</strong>。真實判決在調解桌上是能攤開來講的東西，比自己開一個數字有力得多。</p>
+          <a class="btn-outline" id="btn-judicial" href="https://judgment.judicial.gov.tw/FJUD/default.aspx" target="_blank" rel="noopener">查詢類似案件的判決</a>
+          <p class="hint-sm">關鍵字可以用「車禍 慰撫金」加上你的傷勢名稱。需要網路連線。</p>
         </div>
       </div>
 
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-doc"/></svg>調解怎麼做</p>
+        <p class="sec-label"><svg class="i"><use href="#ic-doc"/></svg>調解有三條路</p>
         <div class="card" id="comp-paths"></div>
       </div>
 
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg>調解要帶的東西</p>
+        <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg>調解前，一樣一樣準備</p>
         <div class="card" id="comp-docs"></div>
+        <div class="prog-bar">
+          <span class="n" id="doc-prog"></span>
+          <button class="btn-reset" id="doc-reset">重設</button>
+        </div>
       </div>
 
       <div class="blk">
@@ -851,7 +906,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
         </button>
       </div>
 
-      <p class="legal-foot">以上為一般性資訊整理，不構成法律意見。個案認定請諮詢律師，或洽<strong>法律扶助基金會</strong>。</p>
+      <p class="legal-foot">以上為一般性資訊整理，不構成法律意見。個案認定請諮詢律師。若擔心費用，可洽<strong>法律扶助基金會</strong>申請扶助。</p>
     </div>
   </section>
 
@@ -999,7 +1054,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 var LS = {
   tl:'aa.timeline.v1', ph:'aa.photos.v1', todo:'aa.todo.v1',
   install:'aa.install.dismissed.v1', claim:'aa.claim.v1', other:'aa.other.v1',
-  site:'aa.site.v1', comp:'aa.comp.v1'
+  site:'aa.site.v1', comp:'aa.comp.v1', compdoc:'aa.compdoc.v1'
 };
 function load(k){ try{ return JSON.parse(localStorage.getItem(k)) || {}; }catch(e){ return {}; } }
 function save(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
@@ -2139,10 +2194,12 @@ function renderResult(){
    後者（精神慰撫金）沒有公式，任何估算都是誤導，只提供查詢實際判決的路徑。
    ========================================================= */
 var COMP_FIELDS = [
+  { g:'身體與照護' },
   { k:'med',   t:'醫療費用',      d:'掛號、藥費、住院、手術。收據正本要留著' },
   { k:'rehab', t:'後續醫療與復健', d:'已經發生的部分。未來的費用需要診斷證明佐證' },
   { k:'care',  t:'看護費用',      d:'請看護的收據；親屬照顧也可能主張，需要證明' },
   { k:'trans', t:'就醫交通費',    d:'計程車收據、復康巴士。自行開車較難舉證' },
+  { g:'收入與財物' },
   { k:'work',  t:'工作損失',      d:'薪資證明 × 無法工作天數。自營者需所得資料' },
   { k:'car',   t:'車輛修復',      d:'估價單或維修發票。對方可能主張折舊' },
   { k:'prop',  t:'其他財物損失',  d:'手機、安全帽、眼鏡、衣物等' }
@@ -2196,19 +2253,41 @@ function money(n){
   return '$' + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-function compTotal(){
-  var d = compData(), sum = 0;
+function compStats(){
+  var d = compData(), sum = 0, n = 0;
   COMP_FIELDS.forEach(function(f){
+    if (!f.k) return;
     var v = parseInt(d[f.k], 10);
-    if (!isNaN(v) && v > 0) sum += v;
+    if (!isNaN(v) && v > 0){ sum += v; n++; }
   });
-  return sum;
+  return { sum:sum, n:n };
+}
+
+/* 小計卡片有兩種面貌：一筆都沒填時給一句鼓勵，而不是一個冷冰冰的 $0。
+   $0 看起來像「你什麼都沒有」，但實際情況只是還沒開始填。 */
+function renderCompSum(){
+  var st = compStats();
+  $('comp-sum').classList.toggle('on', st.n > 0);
+  $('comp-sum-empty').hidden = st.n > 0;
+  $('comp-sum-filled').hidden = st.n === 0;
+  if (st.n){
+    $('comp-total').textContent = money(st.sum);
+    $('comp-count').textContent = '目前填了 ' + st.n + ' 項，隨時可以再補';
+  }
 }
 
 function renderComp(){
   var d = compData(), box = $('comp-form');
   box.innerHTML = '';
   COMP_FIELDS.forEach(function(f){
+    if (f.g){
+      var g = document.createElement('p');
+      g.className = 'comp-g';
+      g.textContent = f.g;
+      box.appendChild(g);
+      return;
+    }
+
     var row = document.createElement('div');
     row.className = 'comp-f';
 
@@ -2219,12 +2298,14 @@ function renderComp(){
     var s = document.createElement('span'); s.textContent = f.d;
     lbl.appendChild(b); lbl.appendChild(s);
 
+    var wrap = document.createElement('div');
+    wrap.className = 'amt-box' + (d[f.k] ? ' has' : '');
+
     var inp = document.createElement('input');
     inp.className = 'amt';
     inp.id = 'comp-' + f.k;
     inp.type = 'text';
     inp.inputMode = 'numeric';
-    inp.placeholder = '0';
     inp.value = d[f.k] || '';
     inp.addEventListener('input', function(){
       // 中文鍵盤打得出全形數字，先轉成半形再濾掉逗號、負號等雜訊
@@ -2234,14 +2315,21 @@ function renderComp(){
       var cur = compData();
       if (this.value) cur[f.k] = this.value; else delete cur[f.k];
       save(LS.comp, cur);
-      $('comp-total').textContent = money(compTotal());
+      wrap.classList.toggle('has', !!this.value);
+      renderCompSum();
     });
 
+    var cur = document.createElement('span');
+    cur.className = 'cur';
+    cur.textContent = '$';
+
+    wrap.appendChild(inp);
+    wrap.appendChild(cur);
     row.appendChild(lbl);
-    row.appendChild(inp);
+    row.appendChild(wrap);
     box.appendChild(row);
   });
-  $('comp-total').textContent = money(compTotal());
+  renderCompSum();
 
   var ul = $('comp-factors');
   ul.innerHTML = '';
@@ -2273,19 +2361,41 @@ function renderComp(){
     paths.appendChild(el);
   });
 
-  var docs = $('comp-docs');
-  docs.innerHTML = '';
-  COMP_DOCS.forEach(function(x){
-    var el = document.createElement('div');
-    el.className = 'path';
-    var b = document.createElement('b');
-    b.style.cssText = 'font-size:15px;font-weight:600;display:block;margin-bottom:4px';
-    b.textContent = x.t;
-    var p = document.createElement('p'); p.textContent = x.d;
-    el.appendChild(b); el.appendChild(p);
-    docs.appendChild(el);
-  });
+  renderDocs();
 }
+
+function renderDocs(){
+  var st = load(LS.compdoc), docs = $('comp-docs'), n = 0;
+  docs.innerHTML = '';
+  COMP_DOCS.forEach(function(x, i){
+    var done = !!st[i]; if (done) n++;
+    var b = document.createElement('button');
+    b.className = 'doc' + (done ? ' done' : '');
+    b.setAttribute('aria-pressed', done ? 'true' : 'false');
+    b.innerHTML =
+      '<span class="body">' +
+        '<span class="t"></span>' +
+        '<span class="d"></span>' +
+      '</span>' +
+      '<span class="box">' + CHECK + '</span>';
+    b.querySelector('.t').textContent = x.t;
+    b.querySelector('.d').textContent = x.d;
+    b.addEventListener('click', function(){
+      var cur = load(LS.compdoc);
+      cur[i] = !cur[i];
+      save(LS.compdoc, cur);
+      renderDocs();
+    });
+    docs.appendChild(b);
+  });
+  $('doc-prog').textContent = n === COMP_DOCS.length
+    ? '都準備好了'
+    : '已備妥 ' + n + ' / ' + COMP_DOCS.length;
+}
+
+$('doc-reset').addEventListener('click', function(){
+  save(LS.compdoc, {}); renderDocs(); toast('準備進度已重設');
+});
 
 /* 產生可以直接貼進 LINE 或列印帶去調解的明細。
    刻意不含慰撫金 —— 那個數字不該由這個 App 產生。 */
@@ -2298,6 +2408,7 @@ function compText(){
     lines.push('');
   }
   COMP_FIELDS.forEach(function(f){
+    if (!f.k) return;                 // 分組標題列，沒有金額
     var v = parseInt(d[f.k], 10);
     if (!isNaN(v) && v > 0){
       sum += v;
@@ -2325,7 +2436,7 @@ renderComp();
    ========================================================= */
 $('btn-reset-all').addEventListener('click', function(){
   save(LS.tl, {}); save(LS.ph, {}); save(LS.todo, {}); save(LS.claim, {});
-  save(LS.other, {}); save(LS.comp, {});
+  save(LS.other, {}); save(LS.comp, {}); save(LS.compdoc, {});
   try{ localStorage.removeItem(LS.site); }catch(e){}
   state.site = null;
   $('loc-ready').hidden = true;
