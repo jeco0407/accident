@@ -418,6 +418,7 @@ body.is-offline .chip-off{display:flex}
 .row-btn .t{flex:1;font-size:15.5px;font-weight:500}
 .row-btn .ar{color:var(--line);font-size:18px}
 .row-btn.warn .t,.row-btn.warn .ic{color:var(--red)}
+a.row-btn{color:inherit;text-decoration:none}
 
 .seg{display:flex;gap:7px;padding:14px 16px}
 .seg button{
@@ -757,6 +758,16 @@ body.is-offline .chip-off{display:flex}
       </div>
 
       <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-shield"/></svg>關於</p>
+        <div class="card">
+          <a class="row-btn" href="privacy.html">
+            <span class="ic"><svg class="i"><use href="#ic-id"/></svg></span>
+            <span class="t">隱私權政策</span><span class="ar">›</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="blk">
         <div class="card">
           <p class="storage" id="storage-info"></p>
         </div>
@@ -898,8 +909,15 @@ document.querySelectorAll('.tab').forEach(function(t){
 window.addEventListener('hashchange', function(){
   go((location.hash || '').replace('#','') || 'scene', false);
 });
-/* 緊急情境：每次開啟一律回到「現場」，不記憶上次分頁 */
-go('scene', false);
+/* 緊急情境：預設一律回到「現場」，因為 110／119 只有那一頁看得到。
+   唯一例外是主畫面捷徑（manifest shortcuts）帶進來的 hash —— 那是使用者
+   明確指定要去哪一頁。重新整理或上一頁造成的 hash 不算，仍回到現場。 */
+(function(){
+  var h = (location.hash || '').replace('#', '');
+  var nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || null;
+  var fresh = !nav || nav.type === 'navigate';
+  go(fresh && VIEWS[h] ? h : 'scene', false);
+})();
 
 /* =========================================================
    連線狀態

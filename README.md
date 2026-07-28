@@ -73,14 +73,47 @@ var VERSION = 'aa-v4';   // → 'aa-v5'
 
 service worker 採 cache-first，版號沒變的話舊快取不會被清掉，已經安裝的使用者會一直看到舊版本。這是唯一一個漏掉就會出事的步驟。
 
+## 上架商店
+
+### 已經備好的
+
+- `privacy.html` — 隱私權政策。**兩邊商店都強制要求一個公開網址**，App 內「我的 → 關於」也有入口。上架前務必把裡面的 `PLACEHOLDER_EMAIL` 換成真實聯絡信箱
+- `manifest.json` — 已有 `id`、`description`、`categories`、`screenshots`、`shortcuts`，Bubblewrap 與 PWABuilder 需要的欄位都齊了
+- `screenshots/` — 1080×1920，manifest 與商店列表共用。**不放進 service worker 快取**，那會為了離線用不到的東西多塞 1MB
+
+### Google Play：可行，用 TWA
+
+用 [Bubblewrap](https://github.com/GoogleChromeLabs/bubblewrap) 或 PWABuilder 把這個 PWA 包成 Trusted Web Activity。順序：
+
+1. 綁自己的網域並上 HTTPS（TWA 的網域驗證不能用 `*.vercel.app`）
+2. `bubblewrap init --manifest https://你的網域/manifest.json`
+3. 把它產生的簽章 SHA-256 指紋寫進 `/.well-known/assetlinks.json` 並部署。**指紋沒對上，App 開起來會多一條網址列**，這是最常見的失敗點
+4. Play Console 開發者帳號（一次性 25 美元）、填 Data safety 表單、內容分級
+
+Data safety 照實填即可：不蒐集、不分享任何資料。唯一要揭露的是查詢地址時會把座標送給 OpenStreetMap。
+
+### App Store：有實質的被拒風險
+
+Apple 的審查指南 **4.2 Minimum Functionality** 明文排除「把網站包起來」的 App。純 WKWebView 殼被拒是常態，要過審通常得補上網頁做不到的原生能力。上架前先評估這件事值不值得，不要先付了 99 美元年費才發現。
+
+Google Play 也有類似條款，但對 TWA 的容忍度高很多，因為 TWA 本身就是 Google 推的方案。
+
+### 上架前還要處理
+
+- **Vercel Hobby 方案禁止商業用途**，若這個 App 會帶來任何商業利益，要升級到 Pro
+- 10 支出險專線重新查證一次
+- 換掉隱私權政策裡的聯絡信箱
+
 ## 檔案結構
 
 ```
 index.html      主程式，CSS 與 JS 全部內嵌
+privacy.html    隱私權政策（商店上架必要）
 manifest.json   PWA manifest
 sw.js           service worker，cache-first 快取 app shell
 vercel.json     快取標頭設定
 icons/          192 / 512 / maskable 512
+screenshots/    商店列表與 manifest 用，1080×1920
 ```
 
 ## 免責

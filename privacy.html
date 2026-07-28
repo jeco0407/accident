@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>隱私權政策 — Guardy</title>
+<meta name="theme-color" content="#FBF8F3">
+<meta name="description" content="Guardy 車禍緊急助手的隱私權政策。所有資料只存在你的手機裡。">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root{
+  --bg:#FBF8F3; --card:#FFFFFF; --ink:#1C1A17; --ink-2:#4A443C; --muted:#8A8177;
+  --line:#E5DED2; --inset:#F4EFE7; --brand:#B0562E;
+}
+:root[data-theme="dark"]{
+  --bg:#16130F; --card:#1F1B15; --ink:#F2EDE4; --ink-2:#C8C0B4; --muted:#8F877C;
+  --line:#332C23; --inset:#262019; --brand:#E08A5C;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  line-height:1.75; -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:680px;margin:0 auto;padding:32px 20px calc(48px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+header img{width:28px;height:28px;display:block}
+header .b{font-size:17px;font-weight:700;letter-spacing:.04em}
+h1{font-size:26px;line-height:1.35;letter-spacing:-.02em;margin:0 0 6px}
+.updated{font-size:13px;color:var(--muted);margin:0 0 28px}
+h2{font-size:17px;letter-spacing:-.01em;margin:32px 0 10px}
+p,li{font-size:15px;color:var(--ink-2);margin:0 0 12px}
+ul{padding-left:20px;margin:0 0 12px}
+li{margin:0 0 6px}
+strong{color:var(--ink);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:0 0 8px}
+.card p:last-child{margin-bottom:0}
+a{color:var(--brand)}
+.back{display:inline-block;margin-top:36px;font-size:15px;font-weight:600;color:var(--brand);text-decoration:none}
+footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+</style>
+<script>
+(function(){
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  function apply(){
+    var p = 'auto';
+    try{ p = localStorage.getItem('aa.theme.v1') || 'auto'; }catch(e){}
+    var dark = p === 'dark' || (p === 'auto' && mq.matches);
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', dark ? '#16130F' : '#FBF8F3');
+  }
+  mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply);
+  apply();
+})();
+</script>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <img src="icons/mark.png" alt="" width="28" height="28">
+  <span class="b">Guardy</span>
+</header>
+
+<h1>隱私權政策</h1>
+<p class="updated">最後更新：2026 年 7 月 28 日</p>
+
+<div class="card">
+  <p><strong>簡短版本：Guardy 沒有伺服器，也沒有帳號。</strong>你在 App 裡輸入的資料與拍下的照片，全部只存在你自己的手機裡，我們看不到，也無法取得。</p>
+</div>
+
+<h2>我們蒐集哪些資料</h2>
+<p><strong>不蒐集任何個人資料。</strong>Guardy 沒有註冊、沒有登入、沒有使用者帳號，也沒有安裝任何分析、廣告或追蹤工具。</p>
+
+<h2>資料存在哪裡</h2>
+<p>以下資料由你自己輸入或產生，只寫入你手機瀏覽器的本機儲存空間：</p>
+<ul>
+  <li><strong>事故地點與時間</strong>：你按下定位當下的座標與時間</li>
+  <li><strong>對方資料</strong>：車牌、姓名、電話等你手動填入的欄位</li>
+  <li><strong>現場照片</strong>：你拍攝或選取的照片</li>
+  <li><strong>處理進度</strong>：各步驟的勾選狀態、外觀設定</li>
+</ul>
+<p>這些資料<strong>不會上傳到任何地方</strong>。它們也不會在裝置之間同步 —— 換手機或重裝就沒有了。你可以隨時在「我的 → 清除所有進度／刪除所有照片」自行刪除；清除瀏覽器資料或移除 App 也會一併刪除。</p>
+
+<h2>會對外連線的部分</h2>
+<p>Guardy 的核心功能完全離線可用。只有兩種情況會產生對外連線：</p>
+<ul>
+  <li><strong>查詢地址</strong>：為了把座標翻譯成中文地址，App 會把<strong>事故地點的經緯度</strong>送到 OpenStreetMap 的 Nominatim 服務（<a href="https://osmfoundation.org/wiki/Privacy_Policy" target="_blank" rel="noopener">隱私權政策</a>）。每個事故只查一次，且不會附帶任何可辨識你身分的資訊。你在離線狀態下仍可使用座標報案。</li>
+  <li><strong>開啟地圖</strong>：你主動按下「地圖」時，會用你的預設瀏覽器開啟 Google 地圖並帶上事故地點座標。</li>
+</ul>
+
+<h2>App 會要求的權限</h2>
+<ul>
+  <li><strong>位置</strong>：取得事故地點。你不同意也能使用其他功能。</li>
+  <li><strong>相機／相片</strong>：拍攝或選取現場存證照片。照片不會離開你的手機，除非你自己按「分享」。</li>
+</ul>
+<p>兩項權限都只在你主動操作時才會使用，App 不會在背景取得位置或開啟相機。</p>
+
+<h2>撥打電話</h2>
+<p>App 內的 110、119 與各保險公司出險專線，按下後由你的手機撥號程式處理，會再跳出一次確認。Guardy 不會記錄你撥了哪些號碼。</p>
+
+<h2>兒童</h2>
+<p>本 App 不針對兒童設計，也不會蒐集任何年齡資訊。</p>
+
+<h2>政策異動</h2>
+<p>若本政策有所調整，會更新本頁最上方的日期。因為我們不蒐集資料，也無從主動通知你。</p>
+
+<h2>聯絡我們</h2>
+<p>對隱私權有任何疑問，請來信：<a href="mailto:PLACEHOLDER_EMAIL">PLACEHOLDER_EMAIL</a></p>
+
+<a class="back" href="index.html">← 回到 Guardy</a>
+
+<footer>
+  Guardy 提供一般性事故處理資訊，不構成法律或理賠承諾。實際權益依保單條款與主管機關規定為準。
+</footer>
+
+</div>
+</body>
+</html>

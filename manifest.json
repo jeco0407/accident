@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "Guardy — 車禍緊急助手",
   "short_name": "Guardy",
   "description": "別慌，我陪你一步一步處理。車禍現場定位、報案、拍照存證與後續理賠的完整引導。",
@@ -33,6 +34,50 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/01-scene.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "事故現場：定位、報案與逐步引導"
+    },
+    {
+      "src": "screenshots/02-photo.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "存證：照片清單與對方資料"
+    },
+    {
+      "src": "screenshots/03-claim.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "出險：各家保險公司專線"
+    },
+    {
+      "src": "screenshots/04-claim-detail.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "出險流程與撥打前的準備"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "拍照存證",
+      "short_name": "存證",
+      "url": "./index.html#photo",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "出險專線",
+      "short_name": "出險",
+      "url": "./index.html#claim",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }
