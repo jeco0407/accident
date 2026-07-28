@@ -30,12 +30,48 @@
   --r-md:16px;
   --r-sm:12px;
   --shadow:0 1px 2px rgba(30,26,21,.04), 0 8px 24px -12px rgba(30,26,21,.10);
+  --shadow-up:0 -8px 30px -18px rgba(30,26,21,.35);
+
+  /* 語意 token：深色模式只要覆寫這些，元件不必動 */
+  --solid-bg:#1E1A15;  --solid-fg:#FFFFFF;   /* 主要按鈕 */
+  --cta-bg:#B0562E;    --cta-fg:#FFFFFF;     /* 引導入口 */
+  --toast-bg:#1E1A15;  --toast-fg:#FFFFFF;
+  --on-red:#FFFFFF;    --on-green:#FFFFFF;
+  --chrome:rgba(251,248,243,.88);            /* 頂欄／分頁列毛玻璃 */
+  --inset:rgba(255,255,255,.75);             /* 有底色卡片內的淺色區塊 */
+  --sk-1:#EFEAE2;      --sk-2:#F7F3EC;       /* 骨架動畫 */
   --tap:64px;
 
   --appbar:54px;
   --tabbar:60px;
   --top:calc(var(--appbar) + env(safe-area-inset-top));
   --bottom:calc(var(--tabbar) + env(safe-area-inset-bottom));
+}
+
+:root[data-theme="dark"]{
+  --bg:#16130F;
+  --card:#1F1B15;
+  --ink:#F2EDE4;
+  --ink-2:#C2B8A9;
+  --muted:#9A9083;
+  --line:#332C23;
+  --line-soft:#262119;
+
+  --red:#FF8A78;       --red-bg:#2B1714;   --red-line:#48261F;
+  --amber:#E9AE55;     --amber-bg:#2A2113; --amber-line:#463619;
+  --green-ink:#63CFA0; --green-bg:#13241D; --green-line:#264034;
+  --brand:#E08A5C;
+
+  --shadow:0 1px 2px rgba(0,0,0,.32), 0 8px 24px -12px rgba(0,0,0,.55);
+  --shadow-up:0 -8px 30px -18px rgba(0,0,0,.7);
+
+  --solid-bg:#E8E0D4;  --solid-fg:#1A1610;
+  --cta-bg:#A9532C;    --cta-fg:#FFF6F1;
+  --toast-bg:#3A332A;  --toast-fg:#F2EDE4;
+  --on-red:#2B1008;    --on-green:#0E1F18;
+  --chrome:rgba(22,19,15,.88);
+  --inset:rgba(255,255,255,.05);
+  --sk-1:#242019;      --sk-2:#2E2921;
 }
 .i{
   width:1em;height:1em;flex:none;display:block;
@@ -62,7 +98,7 @@ a{color:inherit;text-decoration:none}
 .appbar{
   position:fixed;top:0;left:0;right:0;z-index:30;
   height:var(--top);padding-top:env(safe-area-inset-top);
-  background:rgba(251,248,243,.86);
+  background:var(--chrome);
   -webkit-backdrop-filter:saturate(180%) blur(16px);
   backdrop-filter:saturate(180%) blur(16px);
   border-bottom:1px solid var(--line);
@@ -113,7 +149,7 @@ body.is-offline .chip-off{display:flex}
 .tabbar{
   position:fixed;bottom:0;left:0;right:0;z-index:30;
   height:var(--bottom);padding-bottom:env(safe-area-inset-bottom);
-  background:rgba(251,248,243,.9);
+  background:var(--chrome);
   -webkit-backdrop-filter:saturate(180%) blur(16px);
   backdrop-filter:saturate(180%) blur(16px);
   border-top:1px solid var(--line);
@@ -132,7 +168,7 @@ body.is-offline .chip-off{display:flex}
 .tab .badge{
   position:absolute;top:5px;left:calc(50% + 7px);
   min-width:17px;height:17px;padding:0 4px;border-radius:999px;
-  background:var(--red);color:#fff;font-size:10px;font-weight:700;
+  background:var(--red);color:var(--on-red);font-size:10px;font-weight:700;
   display:none;align-items:center;justify-content:center;line-height:1;
 }
 .tab .badge.on{display:flex}
@@ -143,7 +179,7 @@ body.is-offline .chip-off{display:flex}
 .btn-primary{
   display:flex;align-items:center;justify-content:center;gap:10px;
   width:100%;min-height:var(--tap);
-  background:var(--ink);color:#fff;border-radius:var(--r-md);
+  background:var(--solid-bg);color:var(--solid-fg);border-radius:var(--r-md);
   font-size:18px;font-weight:600;letter-spacing:-.01em;
   transition:transform .12s ease, opacity .2s ease;
 }
@@ -156,12 +192,12 @@ body.is-offline .chip-off{display:flex}
 #loc-coords{font-size:15px;color:var(--ink-2);margin:8px 0 0;font-variant-numeric:tabular-nums}
 .loc-note{
   font-size:13px;color:var(--ink-2);line-height:1.55;margin:12px 0 0;
-  padding:12px 14px;background:rgba(255,255,255,.7);border-radius:var(--r-sm);
+  padding:12px 14px;background:var(--inset);border-radius:var(--r-sm);
 }
 .loc-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
 .btn-ghost{
   min-height:52px;border-radius:var(--r-sm);
-  background:rgba(255,255,255,.85);border:1px solid var(--green-line);
+  background:var(--inset);border:1px solid var(--green-line);
   font-size:14px;font-weight:600;color:var(--green-ink);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
   transition:transform .12s ease;
@@ -171,13 +207,13 @@ body.is-offline .chip-off{display:flex}
 .btn-ghost .ic{font-size:19px;line-height:1;display:flex}
 .spinner{
   width:18px;height:18px;border-radius:50%;
-  border:2px solid rgba(255,255,255,.35);border-top-color:#fff;
+  border:2px solid rgba(127,127,127,.35);border-top-color:currentColor;
   animation:spin .7s linear infinite;display:inline-block;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 .skeleton{
   display:inline-block;height:1em;width:70%;border-radius:6px;
-  background:linear-gradient(90deg,#EFEAE2 25%,#F7F3EC 50%,#EFEAE2 75%);
+  background:linear-gradient(90deg,var(--sk-1) 25%,var(--sk-2) 50%,var(--sk-1) 75%);
   background-size:200% 100%;animation:sk 1.3s ease infinite;vertical-align:middle;
 }
 @keyframes sk{to{background-position:-200% 0}}
@@ -210,7 +246,7 @@ body.is-offline .chip-off{display:flex}
 .guide-entry .d{font-size:14.5px;color:var(--ink-2);margin:0 0 18px;line-height:1.55}
 .guide-entry .go{
   display:flex;align-items:center;justify-content:center;gap:8px;min-height:56px;
-  background:var(--brand);color:#fff;border-radius:var(--r-md);
+  background:var(--cta-bg);color:var(--cta-fg);border-radius:var(--r-md);
   font-size:17px;font-weight:600;
 }
 .guide-entry .go .i{width:.95em;height:.95em}
@@ -230,7 +266,7 @@ body.is-offline .chip-off{display:flex}
   display:flex;align-items:center;justify-content:center;
   font-size:22px;line-height:1;color:var(--ink-2);transition:background .35s ease;
 }
-.tl-item.done .tl-mark{background:#D5EADF;color:var(--green-ink)}
+.tl-item.done .tl-mark{background:var(--green-line);color:var(--green-ink)}
 .tl-body{flex:1;min-width:0;display:block}
 .tl-step{font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.1em;display:block;margin-bottom:3px}
 .tl-t{display:block;font-size:16.5px;font-weight:600;letter-spacing:-.01em;line-height:1.45}
@@ -244,7 +280,7 @@ body.is-offline .chip-off{display:flex}
 .tl-item.done .tl-check{background:var(--green-ink);border-color:var(--green-ink)}
 .tl-check svg{width:15px;height:15px}
 .tl-check path{
-  stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;fill:none;
+  stroke:var(--on-green);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;fill:none;
   stroke-dasharray:20;stroke-dashoffset:20;
 }
 .tl-item.done .tl-check path{animation:draw .38s cubic-bezier(.65,0,.35,1) forwards}
@@ -261,7 +297,7 @@ body.is-offline .chip-off{display:flex}
   display:flex;align-items:center;justify-content:center;
   font-size:21px;line-height:1;color:var(--ink-2);transition:background .3s ease;
 }
-.ph.done .ic{background:#D5EADF;color:var(--green-ink)}
+.ph.done .ic{background:var(--green-line);color:var(--green-ink)}
 .ph .t{flex:1;min-width:0;display:block;font-size:15.5px;font-weight:600;line-height:1.4}
 .ph .s{display:block;font-size:12.5px;color:var(--muted);font-weight:400;margin-top:3px;line-height:1.45}
 .ph.done .t{color:var(--green-ink)}
@@ -271,7 +307,7 @@ body.is-offline .chip-off{display:flex}
 }
 .ph.done .box{background:var(--green-ink);border-color:var(--green-ink)}
 .ph .box svg{width:13px;height:13px}
-.ph .box path{stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.ph .box path{stroke:var(--on-green);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;fill:none}
 
 /* ═══════════ 電話 ═══════════ */
 .ph{cursor:pointer}
@@ -370,6 +406,16 @@ body.is-offline .chip-off{display:flex}
 .row-btn .ar{color:var(--line);font-size:18px}
 .row-btn.warn .t,.row-btn.warn .ic{color:var(--red)}
 
+.seg{display:flex;gap:7px;padding:14px 16px}
+.seg button{
+  flex:1;min-height:46px;border-radius:11px;
+  border:1px solid var(--line);background:var(--bg);
+  font-size:14px;font-weight:600;color:var(--muted);
+  transition:background .2s ease, color .2s ease, border-color .2s ease;
+}
+.seg button[aria-pressed="true"]{
+  background:var(--solid-bg);color:var(--solid-fg);border-color:var(--solid-bg);
+}
 .brandfoot{padding:26px 4px 8px;text-align:center}
 .brandfoot .b{font-size:13px;color:var(--muted);letter-spacing:.06em}
 .brandfoot p{font-size:11.5px;color:var(--muted);line-height:1.7;margin:10px 0 0}
@@ -448,13 +494,13 @@ body.is-offline .chip-off{display:flex}
 }
 .todo.done .box{background:var(--green-ink);border-color:var(--green-ink)}
 .todo .box svg{width:13px;height:13px}
-.todo .box path{stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.todo .box path{stroke:var(--on-green);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;fill:none}
 .todo .t{flex:1;min-width:0;display:block;font-size:15.5px;line-height:1.5;font-weight:500}
 .todo .s{display:block;font-size:13px;color:var(--muted);font-weight:400;margin-top:4px;line-height:1.5}
 .todo.done .t{color:var(--green-ink)}
 .sheet-done{
   display:flex;align-items:center;justify-content:center;width:100%;min-height:var(--tap);
-  margin:20px 0 8px;background:var(--ink);color:#fff;border-radius:var(--r-md);
+  margin:20px 0 8px;background:var(--solid-bg);color:var(--solid-fg);border-radius:var(--r-md);
   font-size:17px;font-weight:600;
 }
 
@@ -462,7 +508,7 @@ body.is-offline .chip-off{display:flex}
 .install{
   position:fixed;left:0;right:0;bottom:var(--bottom);z-index:60;
   background:var(--card);border-top:1px solid var(--line);padding:16px 20px;
-  box-shadow:0 -8px 30px -18px rgba(30,26,21,.35);display:none;
+  box-shadow:var(--shadow-up);display:none;
 }
 .install.open{display:block;animation:up .34s cubic-bezier(.32,.72,0,1)}
 .install-in{max-width:520px;margin:0 auto}
@@ -471,12 +517,12 @@ body.is-offline .chip-off{display:flex}
 .install .steps{font-size:13.5px;color:var(--ink-2);line-height:1.7;margin:0 0 14px}
 .install .row{display:grid;grid-template-columns:1fr auto;gap:10px}
 .install .row button{min-height:48px;border-radius:var(--r-sm);font-size:15px;font-weight:600}
-.install .go{background:var(--ink);color:#fff}
+.install .go{background:var(--solid-bg);color:var(--solid-fg)}
 .install .no{color:var(--muted);padding:0 16px}
 
 .toast{
   position:fixed;left:50%;bottom:calc(var(--bottom) + 20px);transform:translate(-50%,16px);
-  background:var(--ink);color:#fff;font-size:14px;font-weight:500;
+  background:var(--toast-bg);color:var(--toast-fg);font-size:14px;font-weight:500;
   padding:12px 20px;border-radius:999px;z-index:200;
   opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;
   max-width:calc(100vw - 40px);text-align:center;
@@ -487,6 +533,24 @@ body.is-offline .chip-off{display:flex}
   *{animation-duration:.01ms !important;transition-duration:.01ms !important}
 }
 </style>
+<script>
+/* 必須在首次繪製前執行，否則深色使用者會看到一閃的白畫面 */
+(function(){
+  var KEY = 'aa.theme.v1';
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  function pref(){ try{ return localStorage.getItem(KEY) || 'auto'; }catch(e){ return 'auto'; } }
+  function apply(){
+    var p = pref();
+    var dark = p === 'dark' || (p === 'auto' && mq.matches);
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', dark ? '#16130F' : '#FBF8F3');
+  }
+  window.__theme = { get:pref, set:function(v){ try{ localStorage.setItem(KEY, v); }catch(e){} apply(); }, apply:apply };
+  mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply);
+  apply();
+})();
+</script>
 </head>
 <body>
 
@@ -645,6 +709,17 @@ body.is-offline .chip-off{display:flex}
   <!-- ───── 我的 ───── -->
   <section class="view" id="v-me" role="tabpanel" aria-label="我的">
     <div class="view-in">
+      <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg>外觀</p>
+        <div class="card">
+          <div class="seg" id="seg-theme">
+            <button data-v="auto">跟隨系統</button>
+            <button data-v="light">淺色</button>
+            <button data-v="dark">深色</button>
+          </div>
+        </div>
+      </div>
+
       <div class="blk">
         <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg>設定</p>
         <div class="card">
@@ -1665,6 +1740,26 @@ $('btn-reset-all').addEventListener('click', function(){
   renderTL(); renderPH(); renderCL(); renderOther();
   toast('所有進度已清除');
 });
+
+/* =========================================================
+   外觀
+   ========================================================= */
+(function(){
+  var seg = $('seg-theme');
+  function paint(){
+    var cur = window.__theme ? window.__theme.get() : 'auto';
+    seg.querySelectorAll('button').forEach(function(b){
+      b.setAttribute('aria-pressed', b.dataset.v === cur ? 'true' : 'false');
+    });
+  }
+  seg.querySelectorAll('button').forEach(function(b){
+    b.addEventListener('click', function(){
+      if (window.__theme) window.__theme.set(b.dataset.v);
+      paint();
+    });
+  });
+  paint();
+})();
 
 /* =========================================================
    加入主畫面
