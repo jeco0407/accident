@@ -7,7 +7,12 @@ import asyncio, json, subprocess, urllib.request
 
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 PORT = 9337
-URL = "http://127.0.0.1:8899/index.html"
+import time as _time
+
+# service worker 是 cache-first，直接開 index.html 會拿到上一版。
+# 元素找不到時 querySelector 回 null，JSON 又會把 undefined 的鍵整個丟掉 ——
+# 看起來像「欄位不見了」，其實是在測舊版。每次跑都帶一個唯一的 query 繞過。
+URL = "http://127.0.0.1:8899/index.html?t=%d" % int(_time.time())
 SEED_PAGE = "http://127.0.0.1:8899/manifest.json"   # 同源、不載入 App
 
 # 模擬 v26 使用者：8 個舊 key 都有資料
@@ -65,9 +70,9 @@ CHECK_MIGRATION = r"""
     oldKeyStillThere: localStorage.getItem('aa.site.v1') !== null,
     locOnScreen: (document.getElementById('loc-addr')||{}).textContent,
     photosLoaded: (window.__t ? 0 : document.querySelectorAll('#ph-body .ph.done').length),
-    caseTitle: (document.querySelector('#case-cur .ttl')||{}).textContent,
-    caseTag: (document.querySelector('#case-cur .case-tag')||{}).textContent,
-    histHidden: document.getElementById('case-hist-blk').hidden
+    caseTitle: (document.querySelector('#case-box .case-row.is-cur .ttl')||{}).textContent,
+    curRows: document.querySelectorAll('#case-box .case-row.is-cur').length,
+    otherRows: document.querySelectorAll('#case-box .case-row:not(.is-cur)').length
   };
 })()
 """
@@ -155,7 +160,7 @@ async def run():
             # ---- 3. 建立新案件，確認資料隔離 ----
             await js("""
               (function(){
-                var b = document.querySelector('#case-cur [data-act="new"]');
+                var b = document.querySelector('#case-box [data-act="new"]');
                 window.confirm = function(){ return true; };
                 b.click();
               })()
@@ -172,17 +177,19 @@ async def run():
                   locCardReady: document.getElementById('loc-card').classList.contains('ready'),
                   tlDone: document.querySelectorAll('#tl .done').length,
                   otherPlate: (document.querySelector('[name=plate],#f-plate')||{}).value,
-                  caseTitle: (document.querySelector('#case-cur .ttl')||{}).textContent,
-                  histHidden: document.getElementById('case-hist-blk').hidden,
-                  histRows: document.querySelectorAll('#case-hist .case-row').length,
-                  histTitle: (document.querySelector('#case-hist .ttl')||{}).textContent,
+                  caseTitle: (document.querySelector('#case-box .case-row.is-cur .ttl')||{}).textContent,
+                  curRows: document.querySelectorAll('#case-box .case-row.is-cur').length,
+                  otherRows: document.querySelectorAll('#case-box .case-row:not(.is-cur)').length,
+                  otherTitle: (document.querySelector('#case-box .case-row:not(.is-cur) .ttl')||{}).textContent,
+                  curHasDelete: !!document.querySelector('#case-box .case-row.is-cur [data-del]'),
                   photosShown: document.querySelectorAll('#ph-body .ph.done').length
                 };
               })()
             """), ensure_ascii=False, indent=2))
 
             # ---- 4. 切回舊案件，資料要回來 ----
-            await js("document.querySelector('#case-hist [data-go]').click()", awaitp=False)
+            await js("document.querySelector('#case-box .case-row:not(.is-cur) [data-go]').click()",
+                     awaitp=False)
             await asyncio.sleep(1.2)
             print("\n=== 切回第一件 ===")
             print(json.dumps(await js("""
@@ -195,7 +202,8 @@ async def run():
                   locCardReady: document.getElementById('loc-card').classList.contains('ready'),
                   tlDone: document.querySelectorAll('#tl .done').length,
                   photosShown: document.querySelectorAll('#ph-body .ph.done').length,
-                  caseTitle: (document.querySelector('#case-cur .ttl')||{}).textContent
+                  caseTitle: (document.querySelector('#case-box .case-row.is-cur .ttl')||{}).textContent,
+                  toast: (document.getElementById('toast')||{}).textContent
                 };
               })()
             """), ensure_ascii=False, indent=2))
@@ -207,15 +215,15 @@ async def run():
               (function(){
                 return {
                   locOnScreen: (document.getElementById('loc-addr')||{}).textContent,
-                  caseTitle: (document.querySelector('#case-cur .ttl')||{}).textContent,
-                  histRows: document.querySelectorAll('#case-hist .case-row').length
+                  caseTitle: (document.querySelector('#case-box .case-row.is-cur .ttl')||{}).textContent,
+                  otherRows: document.querySelectorAll('#case-box .case-row:not(.is-cur)').length
                 };
               })()
             """), ensure_ascii=False, indent=2))
 
             # ---- 6. 結案 ----
             await js("window.confirm=function(){return true;};"
-                     "document.querySelector('#case-cur [data-act=\"close\"]').click()", awaitp=False)
+                     "document.querySelector('#case-box [data-act=\"close\"]').click()", awaitp=False)
             await asyncio.sleep(1.2)
             print("\n=== 結案後 ===")
             print(json.dumps(await js("""
@@ -226,9 +234,9 @@ async def run():
                   caseCount: idx.list.length,
                   closedCount: closed.length,
                   curIsNew: !idx.list.filter(function(c){return c.id===idx.cur;})[0].closed,
-                  histRows: document.querySelectorAll('#case-hist .case-row').length,
-                  histMetas: [].map.call(document.querySelectorAll('#case-hist .meta'),
-                                         function(e){return e.textContent;})
+                  otherRows: document.querySelectorAll('#case-box .case-row:not(.is-cur)').length,
+                  metas: [].map.call(document.querySelectorAll('#case-box .case-row .meta'),
+                                     function(e){return e.textContent;})
                 };
               })()
             """), ensure_ascii=False, indent=2))
@@ -239,7 +247,7 @@ async def run():
             await js("""
               window.confirm=function(){return true;};
               (function(){
-                var rows = document.querySelectorAll('#case-hist .case-row');
+                var rows = document.querySelectorAll('#case-box .case-row:not(.is-cur)');
                 for (var i=0;i<rows.length;i++){
                   if (rows[i].querySelector('.meta').textContent.indexOf('已結案') >= 0){
                     rows[i].querySelector('[data-del]').click(); return 'deleted closed one';
@@ -264,7 +272,7 @@ async def run():
                       res({ caseCount: idx.list.length,
                             orphanPacks: orphanKeys,
                             photosLeft: e.target.result.length,
-                            histRows: document.querySelectorAll('#case-hist .case-row').length });
+                            otherRows: document.querySelectorAll('#case-box .case-row:not(.is-cur)').length });
                     };
                   };
                 });

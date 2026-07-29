@@ -458,26 +458,37 @@ body.is-offline .chip-off{display:flex}
 .row-btn.warn .t,.row-btn.warn .ic{color:var(--red)}
 a.row-btn{color:inherit;text-decoration:none}
 
-/* ── 事故案件 ── */
-.case-now{padding:17px 18px}
-.case-tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.06em;
-  padding:4px 9px;border-radius:6px;background:var(--amber-bg);color:var(--amber);
-  border:1px solid var(--amber-line)}
-.case-tag.done{background:var(--line);color:var(--muted);border-color:var(--line)}
-.case-now .ttl{font-size:17px;font-weight:600;margin-top:10px;line-height:1.45}
-.case-now .meta{font-size:13px;color:var(--muted);margin-top:5px}
+/* ── 事故案件 ──
+   全部案件排成一張列表，目前這件就標在列表裡。
+   先前把「目前案件」單獨做成上方一張卡，結果切換時變化發生在
+   使用者視線之外 —— 點下去像是什麼都沒發生。 */
 .case-note{font-size:13px;color:var(--muted);line-height:1.6;margin:10px 4px 0}
 
-.case-row{display:flex;align-items:center;gap:12px;padding:14px 18px;width:100%;text-align:left;min-height:60px}
+.case-row{display:flex;align-items:center;width:100%;text-align:left;position:relative}
 .case-row + .case-row{border-top:1px solid var(--line-soft)}
-/* button 預設置中對齊，這裡要跟其他列一樣靠左；min-height 是為了湊足點擊面積 */
-.case-row .col{flex:1;min-width:0;text-align:left;min-height:44px;
-  display:flex;flex-direction:column;justify-content:center}
+.case-row.is-cur{background:var(--amber-bg)}
+/* 左側色條：一眼看得出目前在哪一件，不必去讀文字 */
+.case-row.is-cur::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
+  background:var(--amber)}
+
+.case-row .col{flex:1;min-width:0;display:flex;align-items:center;gap:12px;
+  text-align:left;padding:14px 16px;min-height:60px}
+.case-row .mark{flex:0 0 22px;height:22px;border-radius:50%;border:1.5px solid var(--chev);
+  display:flex;align-items:center;justify-content:center;color:#fff}
+.case-row .mark svg{width:14px;height:14px;stroke:currentColor;stroke-width:3;
+  fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.case-row.is-cur .mark{background:var(--amber);border-color:var(--amber)}
+.case-row.is-cur .mark svg{opacity:1}
+
+.case-row .txt{flex:1;min-width:0}
+.case-row .ttl,.case-row .meta{display:block}
 .case-row .ttl{font-size:15.5px;font-weight:500;line-height:1.4;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.case-row.is-cur .ttl{font-weight:600}
 .case-row .meta{font-size:12.5px;color:var(--muted);margin-top:4px}
+.case-row .meta .now{color:var(--amber);font-weight:600}
 /* 刪除是不可逆的，所以做成獨立按鈕，而不是整列長按之類的隱藏手勢 */
-.case-del{flex:0 0 auto;min-width:44px;min-height:44px;display:flex;align-items:center;
+.case-del{flex:0 0 auto;min-width:52px;min-height:52px;display:flex;align-items:center;
   justify-content:center;color:var(--red);font-size:13px;font-weight:500}
 
 .seg{display:flex;gap:7px;padding:14px 16px}
@@ -961,13 +972,8 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 
       <div class="blk">
         <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg>事故案件</p>
-        <div class="card" id="case-cur"></div>
-        <p class="case-note">理賠常拖好幾個月。結案之後紀錄仍然留著，隨時可以切回來看。</p>
-      </div>
-
-      <div class="blk" id="case-hist-blk" hidden>
-        <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg>其他案件</p>
-        <div class="card" id="case-hist"></div>
+        <div class="card" id="case-box"></div>
+        <p class="case-note" id="case-note"></p>
       </div>
 
       <div class="blk">
@@ -2565,67 +2571,84 @@ function switchCase(id){
   clearLocUI(); restoreSite();
   renderTL(); renderOther(); renderCL(); renderComp(); renderCases();
   loadPhotos().then(function(){ renderPH(); renderStorage(); });
+  /* 講清楚切到哪一件。只說「已切換」等於沒說 —— 使用者要確認的正是這個 */
+  toast('已切換到：' + caseTitle(id));
 }
 
 function renderCases(){
-  var c = caseById(cases.cur), box = $('case-cur');
-  var closed = !!(c && c.closed);
+  var box = $('case-box'), h = '', i, x, cur = caseById(cases.cur);
+  var multi = cases.list.length > 1;
 
-  box.innerHTML =
-    '<div class="case-now">' +
-      '<span class="case-tag' + (closed ? ' done' : '') + '">' +
-        (closed ? '已結案' : '處理中') + '</span>' +
-      '<div class="ttl">' + esc(caseTitle(cases.cur)) + '</div>' +
-      '<div class="meta">' + fmtDate(c.ts) + '　記錄於這支手機' +
-        (closed ? '　結案於 ' + fmtDate(c.closed) : '') + '</div>' +
-    '</div>' +
-    (closed
-      ? '<button class="row-btn" data-act="reopen">' +
-          '<span class="ic">' + ico('alert') + '</span>' +
-          '<span class="t">重新開啟這件</span><span class="ar">›</span></button>'
-      : '<button class="row-btn" data-act="close">' +
-          '<span class="ic">' + ico('check') + '</span>' +
-          '<span class="t">結案，並開始新的一件</span><span class="ar">›</span></button>') +
-    '<button class="row-btn" data-act="new">' +
-      '<span class="ic">' + ico('camera') + '</span>' +
-      '<span class="t">直接建立新案件</span><span class="ar">›</span></button>';
-
-  var hist = [], i;
   for (i = 0; i < cases.list.length; i++){
-    if (cases.list[i].id !== cases.cur) hist.push(cases.list[i]);
-  }
-  $('case-hist-blk').hidden = !hist.length;
-
-  var h = '';
-  for (i = 0; i < hist.length; i++){
-    var x = hist[i];
-    h += '<div class="case-row">' +
-           '<button class="col" data-go="' + x.id + '">' +
-             '<div class="ttl">' + esc(caseTitle(x.id)) + '</div>' +
-             '<div class="meta">' + fmtDate(x.ts) +
-               (x.closed ? '・已結案' : '・處理中') + '</div>' +
+    x = cases.list[i];
+    var isCur = x.id === cases.cur;
+    h += '<div class="case-row' + (isCur ? ' is-cur' : '') + '">' +
+           '<button class="col" data-go="' + x.id + '"' +
+             (isCur ? ' aria-current="true"' : '') + '>' +
+             '<span class="mark">' + CHECK + '</span>' +
+             '<span class="txt">' +
+               '<span class="ttl">' + esc(caseTitle(x.id)) + '</span>' +
+               '<span class="meta">' + fmtDate(x.ts) + '・' +
+                 (x.closed ? '已結案' : '處理中') +
+                 (isCur ? '<span class="now">・正在使用</span>' : '') +
+               '</span>' +
+             '</span>' +
            '</button>' +
-           '<button class="case-del" data-del="' + x.id + '">刪除</button>' +
+           /* 目前這件不給刪 —— 刪掉之後「現在是哪一件」會變成沒有答案 */
+           (isCur ? '' : '<button class="case-del" data-del="' + x.id + '">刪除</button>') +
          '</div>';
   }
-  $('case-hist').innerHTML = h;
+
+  h += (cur && cur.closed
+        ? '<button class="row-btn" data-act="reopen">' +
+            '<span class="ic">' + ico('alert') + '</span>' +
+            '<span class="t">重新開啟這件</span><span class="ar">›</span></button>'
+        : '<button class="row-btn" data-act="close">' +
+            '<span class="ic">' + ico('check') + '</span>' +
+            '<span class="t">結案，並開始新的一件</span><span class="ar">›</span></button>') +
+       '<button class="row-btn" data-act="new">' +
+         '<span class="ic">' + ico('camera') + '</span>' +
+         '<span class="t">直接建立新案件</span><span class="ar">›</span></button>';
+
+  box.innerHTML = h;
+  $('case-note').textContent = multi
+    ? '打勾的那一件，就是各分頁現在顯示的內容。點其他列即可切換。'
+    : '理賠常拖好幾個月。結案之後紀錄仍然留著，隨時可以切回來看。';
 }
 
-$('case-cur').addEventListener('click', function(e){
-  var b = e.target.closest('[data-act]');
-  if (!b) return;
-  var act = b.dataset.act, c = caseById(cases.cur);
+$('case-box').addEventListener('click', function(e){
+  var go = e.target.closest('[data-go]');
+  var del = e.target.closest('[data-del]');
+  var act = e.target.closest('[data-act]');
 
-  if (act === 'close'){
+  if (go){ switchCase(go.dataset.go); return; }
+
+  if (del){
+    var id = del.dataset.del;
+    if (!confirm('刪除這件事故的所有紀錄與照片？\n\n' + caseTitle(id) + '\n\n這個動作無法復原。')) return;
+    /* 先刪照片再刪索引 —— 反過來的話，中途失敗會留下沒有案件認領的照片 */
+    photosClearCase(id).catch(function(){}).then(function(){
+      for (var i = 0; i < cases.list.length; i++){
+        if (cases.list[i].id === id){ cases.list.splice(i, 1); break; }
+      }
+      try{ localStorage.removeItem(caseKey(id)); }catch(err){}
+      writeCases(); renderCases(); renderStorage();
+      toast('已刪除');
+    });
+    return;
+  }
+
+  if (!act) return;
+  var a = act.dataset.act, c = caseById(cases.cur);
+  if (a === 'close'){
     if (!confirm('把這件標記為結案，並開始新的一件？\n\n紀錄與照片都會留著，隨時可以切回來。')) return;
     c.closed = Date.now();
     newCase();
     toast('已結案，開始新的一件');
-    return;
-  }
-  if (act === 'reopen'){ c.closed = 0; writeCases(); renderCases(); toast('已重新開啟'); return; }
-  if (act === 'new'){
-    if (!confirm('建立一件新的事故紀錄？\n\n目前這件會留在「其他案件」裡。')) return;
+  } else if (a === 'reopen'){
+    c.closed = 0; writeCases(); renderCases(); toast('已重新開啟');
+  } else if (a === 'new'){
+    if (!confirm('建立一件新的事故紀錄？\n\n目前這件會留在列表裡，不會消失。')) return;
     newCase();
     toast('已建立新案件');
   }
@@ -2643,23 +2666,6 @@ function newCase(){
   renderTL(); renderOther(); renderCL(); renderComp(); renderCases();
   loadPhotos().then(function(){ renderPH(); renderStorage(); });
 }
-
-$('case-hist').addEventListener('click', function(e){
-  var go = e.target.closest('[data-go]'), del = e.target.closest('[data-del]');
-  if (go){ switchCase(go.dataset.go); toast('已切換案件'); return; }
-  if (!del) return;
-  var id = del.dataset.del;
-  if (!confirm('刪除這件事故的所有紀錄與照片？\n\n' + caseTitle(id) + '\n\n這個動作無法復原。')) return;
-  /* 先刪照片再刪索引 —— 反過來的話，中途失敗會留下沒有案件認領的照片 */
-  photosClearCase(id).catch(function(){}).then(function(){
-    for (var i = 0; i < cases.list.length; i++){
-      if (cases.list[i].id === id){ cases.list.splice(i, 1); break; }
-    }
-    try{ localStorage.removeItem(caseKey(id)); }catch(err){}
-    writeCases(); renderCases(); renderStorage();
-    toast('已刪除');
-  });
-});
 
 renderCases();
 
