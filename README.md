@@ -48,6 +48,16 @@ var CONFIG = {
 
 地址只查一次，存進位置裡。
 
+## 事故案件
+
+一次事故 = 一個案件。索引在 `aa.cases.v1`（`{ cur, list:[{id,ts,closed}] }`），案件內容各自存在 `aa.case.<id>`，照片以 IndexedDB 的 `case` 索引區分。
+
+`load()` 與 `save()` 讀寫的是**目前案件**那一包，所以三十幾處呼叫端不必知道案件的存在。只有 `aa.install.dismissed.v1` 與主題設定是跨案件的，列在 `GLOBAL_KEYS` 裡。
+
+在「我的 → 事故案件」切換、結案、刪除。結案不會刪任何東西，只是標記並自動開一件新的。
+
+> 舊版（v26 以前）的資料會在第一次開啟時自動收成第一個案件。**舊 key 刻意保留不刪**，留一條退版的路。
+
 ## 存證資料存在哪裡
 
 - **位置與時間**：localStorage
@@ -126,6 +136,7 @@ sw.js           service worker，cache-first 快取 app shell
 vercel.json     快取標頭設定
 icons/          192 / 512 / maskable 512
 screenshots/    商店列表與 manifest 用，1080×1920
+tests/          CDP 驗證腳本（手動重跑，見 tests/README.md）
 ```
 
 > 規劃中的帳號制會改變上面幾項：文字資料將同步到雲端，**照片仍然不上傳**。見 [ARCHITECTURE.md](ARCHITECTURE.md)。

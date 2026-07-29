@@ -458,6 +458,28 @@ body.is-offline .chip-off{display:flex}
 .row-btn.warn .t,.row-btn.warn .ic{color:var(--red)}
 a.row-btn{color:inherit;text-decoration:none}
 
+/* ── 事故案件 ── */
+.case-now{padding:17px 18px}
+.case-tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.06em;
+  padding:4px 9px;border-radius:6px;background:var(--amber-bg);color:var(--amber);
+  border:1px solid var(--amber-line)}
+.case-tag.done{background:var(--line);color:var(--muted);border-color:var(--line)}
+.case-now .ttl{font-size:17px;font-weight:600;margin-top:10px;line-height:1.45}
+.case-now .meta{font-size:13px;color:var(--muted);margin-top:5px}
+.case-note{font-size:13px;color:var(--muted);line-height:1.6;margin:10px 4px 0}
+
+.case-row{display:flex;align-items:center;gap:12px;padding:14px 18px;width:100%;text-align:left;min-height:60px}
+.case-row + .case-row{border-top:1px solid var(--line-soft)}
+/* button 預設置中對齊，這裡要跟其他列一樣靠左；min-height 是為了湊足點擊面積 */
+.case-row .col{flex:1;min-width:0;text-align:left;min-height:44px;
+  display:flex;flex-direction:column;justify-content:center}
+.case-row .ttl{font-size:15.5px;font-weight:500;line-height:1.4;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.case-row .meta{font-size:12.5px;color:var(--muted);margin-top:4px}
+/* 刪除是不可逆的，所以做成獨立按鈕，而不是整列長按之類的隱藏手勢 */
+.case-del{flex:0 0 auto;min-width:44px;min-height:44px;display:flex;align-items:center;
+  justify-content:center;color:var(--red);font-size:13px;font-weight:500}
+
 .seg{display:flex;gap:7px;padding:14px 16px}
 .seg button{
   flex:1;min-height:46px;border-radius:11px;
@@ -938,6 +960,17 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
       </div>
 
       <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg>事故案件</p>
+        <div class="card" id="case-cur"></div>
+        <p class="case-note">理賠常拖好幾個月。結案之後紀錄仍然留著，隨時可以切回來看。</p>
+      </div>
+
+      <div class="blk" id="case-hist-blk" hidden>
+        <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg>其他案件</p>
+        <div class="card" id="case-hist"></div>
+      </div>
+
+      <div class="blk">
         <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg>外觀</p>
         <div class="card">
           <div class="seg" id="seg-theme">
@@ -957,15 +990,15 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
           </button>
           <button class="row-btn" id="btn-share-all">
             <span class="ic"><svg class="i"><use href="#ic-share"/></svg></span>
-            <span class="t">分享所有照片</span><span class="ar">›</span>
+            <span class="t">分享本案件的照片</span><span class="ar">›</span>
           </button>
           <button class="row-btn warn" id="btn-del-photos">
             <span class="ic"><svg class="i"><use href="#ic-camera"/></svg></span>
-            <span class="t">刪除所有照片</span><span class="ar">›</span>
+            <span class="t">刪除本案件的照片</span><span class="ar">›</span>
           </button>
           <button class="row-btn warn" id="btn-reset-all">
             <span class="ic"><svg class="i"><use href="#ic-ban"/></svg></span>
-            <span class="t">清除所有進度</span><span class="ar">›</span>
+            <span class="t">清除本案件的進度</span><span class="ar">›</span>
           </button>
         </div>
       </div>
@@ -1081,10 +1114,86 @@ var LS = {
   install:'aa.install.dismissed.v1', claim:'aa.claim.v1', other:'aa.other.v1',
   site:'aa.site.v1', comp:'aa.comp.v1', compdoc:'aa.compdoc.v1'
 };
-function load(k){ try{ return JSON.parse(localStorage.getItem(k)) || {}; }catch(e){ return {}; } }
-function save(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+
+function rawLoad(k){ try{ return JSON.parse(localStorage.getItem(k)) || {}; }catch(e){ return {}; } }
+function rawSave(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+
+/* =========================================================
+   事故案件
+   ---------------------------------------------------------
+   一次事故 = 一個案件。理賠常拖好幾個月，中間可能再出一次事故，
+   所以資料不能是全域單一份。
+
+   儲存方式刻意選「一個案件存成一包 JSON」，而不是把每個 key 都加案件前綴：
+   這樣 load()／save() 的三十幾處呼叫端一行都不必改，只要把這兩個
+   函式改成讀寫「目前案件」那一包。改動面積小，出錯的機會也小。
+   ========================================================= */
+var LS_CASES = 'aa.cases.v1', CASE_PREFIX = 'aa.case.';
+
+/* 跨案件的設定，不屬於任何一次事故，仍然直接讀寫 localStorage */
+var GLOBAL_KEYS = {};
+GLOBAL_KEYS[LS.install] = 1;
+
+/* 舊版把資料散在這幾個 key，第一次開新版時要收攏成一個案件 */
+var LEGACY_KEYS = [LS.tl, LS.ph, LS.todo, LS.claim, LS.other, LS.site, LS.comp, LS.compdoc];
+
+var cases = null;      /* { cur:id, list:[{ id, ts, closed }] }，list 為新到舊 */
+var caseData = null;   /* 目前案件的資料包 */
+
+function newCaseId(){ return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function caseKey(id){ return CASE_PREFIX + id; }
+function writeCases(){ rawSave(LS_CASES, cases); }
+function writeCase(){ if (cases && cases.cur) rawSave(caseKey(cases.cur), caseData); }
+function curCaseId(){ return cases ? cases.cur : ''; }
+function caseById(id){
+  if (!cases) return null;
+  for (var i = 0; i < cases.list.length; i++) if (cases.list[i].id === id) return cases.list[i];
+  return null;
+}
+
+/* 必須在任何 load()／save() 之前跑完，所以放在最前面同步執行 */
+(function initCases(){
+  var c = rawLoad(LS_CASES);
+  if (c && c.list && c.list.length){
+    cases = c;
+    if (!caseById(cases.cur)) cases.cur = cases.list[0].id;
+    caseData = rawLoad(caseKey(cases.cur));
+    return;
+  }
+  /* 舊版使用者：把散落的資料收成第一個案件。
+     刻意「只搬不刪」—— 萬一新版有問題需要退版，舊資料原封不動還在。 */
+  var data = {}, ts = 0;
+  for (var i = 0; i < LEGACY_KEYS.length; i++){
+    var raw = null;
+    try{ raw = localStorage.getItem(LEGACY_KEYS[i]); }catch(e){}
+    if (raw == null) continue;
+    try{ data[LEGACY_KEYS[i]] = JSON.parse(raw); }catch(e){}
+  }
+  if (data[LS.site] && data[LS.site].at) ts = data[LS.site].at;
+  var id = newCaseId();
+  cases = { cur:id, list:[{ id:id, ts:ts || Date.now(), closed:0 }] };
+  caseData = data;
+  rawSave(caseKey(id), caseData);
+  writeCases();
+})();
+
+function load(k){
+  if (GLOBAL_KEYS[k]) return rawLoad(k);
+  return caseData[k] || {};
+}
+function save(k,v){
+  if (GLOBAL_KEYS[k]){ rawSave(k, v); return; }
+  caseData[k] = v; writeCase();
+}
 
 var $ = function(id){ return document.getElementById(id); };
+
+/* 地址可能是使用者手動輸入的，凡是要進 innerHTML 的都得先過這裡 */
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(m){
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m];
+  });
+}
 var CHECK = '<svg viewBox="0 0 24 24"><path d="M5 13l4 4 10-10"/></svg>';
 function ico(n){ return '<svg class="i"><use href="#ic-' + n + '"/></svg>'; }
 
@@ -1289,12 +1398,15 @@ $('loc-again').addEventListener('click', function(){
    只是隱藏的話，下次開 App 又會冒出來，那不叫關閉。 */
 $('loc-close').addEventListener('click', resetLoc);
 
-function resetLoc(){
+function resetLoc(){ clearLocUI(); save(LS.site, {}); }
+
+/* 只收畫面，不動存檔。切換案件時要用這個 ——
+   若直接呼叫 resetLoc()，會把剛切過去那個案件的位置寫成空的。 */
+function clearLocUI(){
   state.site = null;
   state.coords = null;
   geoFailed = false;
   if (geoAbort) { geoAbort.abort(); geoAbort = null; }
-  try{ localStorage.removeItem(LS.site); }catch(e){}
   $('loc-ready').hidden = true;
   $('loc-idle').hidden = false;
   $('loc-card').classList.remove('ready');
@@ -1303,6 +1415,9 @@ function resetLoc(){
   $('loc-manual').hidden = true;
   $('loc-manual-open').hidden = false;
   $('loc-manual-in').value = '';
+  /* 卡片雖然收起來了，文字還留在 DOM 裡。切換案件時若不清，
+     下一件萬一定位失敗，會閃出上一件的地址 —— 這種錯最誤導人。 */
+  $('loc-addr').textContent = '';
 }
 
 var geoAbort = null;
@@ -1384,7 +1499,7 @@ function shareText(){
 
 /* 開啟 App 時復原上次記錄的事故地點。刻意不主動呼叫定位 ——
    一進來就跳權限對話框既擾人，也不是每次開 App 都在現場。 */
-(function(){
+function restoreSite(){
   var s = load(LS.site);
   if (s && (hasCoords(s) || (s.manual && s.addr))){
     state.site = s;
@@ -1392,7 +1507,8 @@ function shareText(){
     showSite();
     if (navigator.onLine && !s.addr) reverseGeocode();
   }
-})();
+}
+restoreSite();
 
 /* execCommand 已經廢棄，但在沒有 clipboard API 或非安全內容的環境下
    仍是唯一能用的退路，所以保留。 */
@@ -1614,11 +1730,31 @@ var DB_NAME = 'aa-photos', DB_STORE = 'photos', dbp = null;
 
 function db(){
   if (dbp) return dbp;
+  /* 升版時要把既有照片歸給哪個案件，先在這裡定下來 ——
+     升級交易是非同步的，中途使用者可能已經切換案件了。 */
+  var legacyCase = curCaseId();
   dbp = new Promise(function(res, rej){
-    var r = indexedDB.open(DB_NAME, 1);
-    r.onupgradeneeded = function(){
-      var s = r.result.createObjectStore(DB_STORE, { keyPath:'id', autoIncrement:true });
-      s.createIndex('slot', 'slot');
+    var r = indexedDB.open(DB_NAME, 2);
+    r.onupgradeneeded = function(e){
+      var s;
+      if (e.oldVersion < 1){
+        s = r.result.createObjectStore(DB_STORE, { keyPath:'id', autoIncrement:true });
+        s.createIndex('slot', 'slot');
+      } else {
+        s = r.transaction.objectStore(DB_STORE);
+      }
+      if (e.oldVersion < 2){
+        s.createIndex('case', 'case');
+        /* 索引建好之後還得逐筆回填 —— 沒有 case 欄位的紀錄不會出現在索引裡，
+           少了這一步，舊使用者的照片會全部查不到。 */
+        s.openCursor().onsuccess = function(ev){
+          var cur = ev.target.result;
+          if (!cur) return;
+          var v = cur.value;
+          if (!v.case){ v.case = legacyCase; cur.update(v); }
+          cur.continue();
+        };
+      }
     };
     r.onsuccess = function(){ res(r.result); };
     r.onerror = function(){ rej(r.error); };
@@ -1640,10 +1776,27 @@ function withStore(mode, fn){
     });
   });
 }
-function photosAll(){ return withStore('readonly', function(s){ return s.getAll(); }); }
-function photoAdd(rec){ return withStore('readwrite', function(s){ return s.add(rec); }); }
+/* 一律以案件為範圍。全部載進記憶體的話，三個案件就是十幾 MB 的 ArrayBuffer，
+   舊手機撐不住 —— 所以查詢就先用索引篩掉別的案件。 */
+function photosOfCase(id){
+  return withStore('readonly', function(s){ return s.index('case').getAll(id); });
+}
+function photoAdd(rec){
+  rec.case = curCaseId();
+  return withStore('readwrite', function(s){ return s.add(rec); });
+}
 function photoDel(id){ return withStore('readwrite', function(s){ return s.delete(id); }); }
-function photosClear(){ return withStore('readwrite', function(s){ return s.clear(); }); }
+function photosClearCase(id){
+  return withStore('readwrite', function(s){
+    var req = s.index('case').openCursor(IDBKeyRange.only(id));
+    req.onsuccess = function(ev){
+      var cur = ev.target.result;
+      if (!cur) return;
+      cur.delete(); cur.continue();
+    };
+    return null;
+  });
+}
 
 /* 照片以 ArrayBuffer 儲存 —— 部分 Safari 版本存 Blob 進 IndexedDB 會出問題 */
 function recBlob(rec){ return new Blob([rec.buf], { type: rec.type || 'image/jpeg' }); }
@@ -1692,7 +1845,7 @@ function processImage(file){
 
 var PHOTO_CACHE = [];
 function loadPhotos(){
-  return photosAll().then(function(list){
+  return photosOfCase(curCaseId()).then(function(list){
     PHOTO_CACHE = list.sort(function(a, b){ return a.ts - b.ts; });
     return PHOTO_CACHE;
   }).catch(function(){ PHOTO_CACHE = []; return PHOTO_CACHE; });
@@ -1861,7 +2014,9 @@ $('ph-reset').addEventListener('click', function(){
 $('btn-share-all').addEventListener('click', function(){ sharePhotos(PHOTO_CACHE); });
 $('btn-del-photos').addEventListener('click', function(){
   if (!PHOTO_CACHE.length){ toast('目前沒有照片'); return; }
-  photosClear().then(loadPhotos).then(function(){ renderPH(); toast('所有照片已刪除'); });
+  photosClearCase(curCaseId()).then(loadPhotos).then(function(){
+    renderPH(); renderStorage(); toast('本案件的照片已刪除');
+  });
 });
 loadPhotos().then(renderPH);
 renderPH();
@@ -2385,14 +2540,139 @@ $('btn-comp-copy').addEventListener('click', function(){
 renderComp();
 
 /* =========================================================
+   事故案件：切換、結案、刪除
+   ========================================================= */
+function fmtDate(ts){
+  var d = new Date(ts);
+  return d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
+}
+
+/* 標題不另外存，每次從該案件的位置算出來 —— 存了就會跟事後補上的地址不同步 */
+function caseTitle(id){
+  var d = (id === cases.cur) ? caseData : rawLoad(caseKey(id));
+  var s = d[LS.site] || {};
+  if (s.addr) return s.addr;
+  if (hasCoords(s)) return '座標 ' + fmtLL(s);
+  return '未記錄地點';
+}
+
+function switchCase(id){
+  if (!caseById(id) || id === cases.cur) return;
+  writeCase();                       /* 先把目前這件寫回去，再換 */
+  cases.cur = id;
+  caseData = rawLoad(caseKey(id));
+  writeCases();
+  clearLocUI(); restoreSite();
+  renderTL(); renderOther(); renderCL(); renderComp(); renderCases();
+  loadPhotos().then(function(){ renderPH(); renderStorage(); });
+}
+
+function renderCases(){
+  var c = caseById(cases.cur), box = $('case-cur');
+  var closed = !!(c && c.closed);
+
+  box.innerHTML =
+    '<div class="case-now">' +
+      '<span class="case-tag' + (closed ? ' done' : '') + '">' +
+        (closed ? '已結案' : '處理中') + '</span>' +
+      '<div class="ttl">' + esc(caseTitle(cases.cur)) + '</div>' +
+      '<div class="meta">' + fmtDate(c.ts) + '　記錄於這支手機' +
+        (closed ? '　結案於 ' + fmtDate(c.closed) : '') + '</div>' +
+    '</div>' +
+    (closed
+      ? '<button class="row-btn" data-act="reopen">' +
+          '<span class="ic">' + ico('alert') + '</span>' +
+          '<span class="t">重新開啟這件</span><span class="ar">›</span></button>'
+      : '<button class="row-btn" data-act="close">' +
+          '<span class="ic">' + ico('check') + '</span>' +
+          '<span class="t">結案，並開始新的一件</span><span class="ar">›</span></button>') +
+    '<button class="row-btn" data-act="new">' +
+      '<span class="ic">' + ico('camera') + '</span>' +
+      '<span class="t">直接建立新案件</span><span class="ar">›</span></button>';
+
+  var hist = [], i;
+  for (i = 0; i < cases.list.length; i++){
+    if (cases.list[i].id !== cases.cur) hist.push(cases.list[i]);
+  }
+  $('case-hist-blk').hidden = !hist.length;
+
+  var h = '';
+  for (i = 0; i < hist.length; i++){
+    var x = hist[i];
+    h += '<div class="case-row">' +
+           '<button class="col" data-go="' + x.id + '">' +
+             '<div class="ttl">' + esc(caseTitle(x.id)) + '</div>' +
+             '<div class="meta">' + fmtDate(x.ts) +
+               (x.closed ? '・已結案' : '・處理中') + '</div>' +
+           '</button>' +
+           '<button class="case-del" data-del="' + x.id + '">刪除</button>' +
+         '</div>';
+  }
+  $('case-hist').innerHTML = h;
+}
+
+$('case-cur').addEventListener('click', function(e){
+  var b = e.target.closest('[data-act]');
+  if (!b) return;
+  var act = b.dataset.act, c = caseById(cases.cur);
+
+  if (act === 'close'){
+    if (!confirm('把這件標記為結案，並開始新的一件？\n\n紀錄與照片都會留著，隨時可以切回來。')) return;
+    c.closed = Date.now();
+    newCase();
+    toast('已結案，開始新的一件');
+    return;
+  }
+  if (act === 'reopen'){ c.closed = 0; writeCases(); renderCases(); toast('已重新開啟'); return; }
+  if (act === 'new'){
+    if (!confirm('建立一件新的事故紀錄？\n\n目前這件會留在「其他案件」裡。')) return;
+    newCase();
+    toast('已建立新案件');
+  }
+});
+
+function newCase(){
+  writeCase();
+  var id = newCaseId();
+  cases.list.unshift({ id:id, ts:Date.now(), closed:0 });
+  cases.cur = id;
+  caseData = {};
+  rawSave(caseKey(id), caseData);
+  writeCases();
+  clearLocUI();
+  renderTL(); renderOther(); renderCL(); renderComp(); renderCases();
+  loadPhotos().then(function(){ renderPH(); renderStorage(); });
+}
+
+$('case-hist').addEventListener('click', function(e){
+  var go = e.target.closest('[data-go]'), del = e.target.closest('[data-del]');
+  if (go){ switchCase(go.dataset.go); toast('已切換案件'); return; }
+  if (!del) return;
+  var id = del.dataset.del;
+  if (!confirm('刪除這件事故的所有紀錄與照片？\n\n' + caseTitle(id) + '\n\n這個動作無法復原。')) return;
+  /* 先刪照片再刪索引 —— 反過來的話，中途失敗會留下沒有案件認領的照片 */
+  photosClearCase(id).catch(function(){}).then(function(){
+    for (var i = 0; i < cases.list.length; i++){
+      if (cases.list[i].id === id){ cases.list.splice(i, 1); break; }
+    }
+    try{ localStorage.removeItem(caseKey(id)); }catch(err){}
+    writeCases(); renderCases(); renderStorage();
+    toast('已刪除');
+  });
+});
+
+renderCases();
+
+/* =========================================================
    設定
    ========================================================= */
 $('btn-reset-all').addEventListener('click', function(){
+  if (!confirm('清除這件事故的所有進度？\n\n照片會保留。若要留著紀錄，請改用「結案」。')) return;
   save(LS.tl, {}); save(LS.ph, {}); save(LS.todo, {}); save(LS.claim, {});
   save(LS.other, {}); save(LS.comp, {}); save(LS.compdoc, {});
   resetLoc();
-  renderTL(); renderPH(); renderCL(); renderOther(); renderComp();
-  toast('所有進度已清除');
+  renderTL(); renderPH(); renderCL(); renderOther(); renderComp(); renderCases();
+  toast('本案件的進度已清除');
 });
 
 /* =========================================================
