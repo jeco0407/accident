@@ -27,6 +27,7 @@
   --amber:#B0700C;    --amber-bg:#FDF6E9; --amber-line:#F1E2C4;
   --green-ink:#20654A; --green-bg:#EFF7F2; --green-line:#D5EADF;
   --brand:#B0562E;
+  --head-bg:#F4E4D9;  --head-line:#EBD9CB;   /* 頁首色塊 */
 
   --r-lg:22px;
   --r-md:16px;
@@ -62,6 +63,7 @@
   --amber:#E9AE55;     --amber-bg:#2A2113; --amber-line:#463619;
   --green-ink:#63CFA0; --green-bg:#13241D; --green-line:#264034;
   --brand:#E08A5C;
+  --head-bg:#2A1D15;  --head-line:#3A2A1E;
 
   --shadow:0 1px 2px rgba(0,0,0,.32), 0 8px 24px -12px rgba(0,0,0,.55);
   --shadow-up:0 -8px 30px -18px rgba(0,0,0,.7);
@@ -120,7 +122,12 @@ body.is-offline .chip-off{display:flex}
 
 /* 頁首：頂欄移除後用來補回視覺重量與「我在哪一頁」。
    刻意不固定，捲動時讓位給內容 —— 事故現場的每一像素都該留給資訊。 */
-.page-head{margin:0 0 26px}
+/* 滿版做法：負 margin 抵銷 .view-in 的 padding，讓色塊延伸到螢幕邊緣 */
+.page-head{
+  margin:-26px -20px 26px; padding:30px 20px 26px;
+  background:linear-gradient(170deg, var(--head-bg) 0%, var(--bg) 100%);
+  border-bottom:1px solid var(--head-line);
+}
 .page-head .brand{
   display:flex;align-items:center;gap:8px;margin-bottom:16px;
 }
