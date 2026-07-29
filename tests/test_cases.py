@@ -78,6 +78,20 @@ CHECK_MIGRATION = r"""
 """
 
 
+def confirming(click_js):
+    """點下目標，接著按 App 內建對話框的確認鈕。
+
+    v30 之後不再用瀏覽器的 confirm()，所以覆寫 window.confirm 已經沒有作用了。"""
+    return """
+      (function(){
+        var r = (function(){ %s })();
+        var ask = document.getElementById('ask');
+        if (ask && ask.classList.contains('open')) document.getElementById('ask-yes').click();
+        return r;
+      })()
+    """ % click_js
+
+
 async def run():
     proc = subprocess.Popen(
         [CHROME, "--headless=new", "--disable-gpu", f"--remote-debugging-port={PORT}",
@@ -158,13 +172,8 @@ async def run():
             """))
 
             # ---- 3. 建立新案件，確認資料隔離 ----
-            await js("""
-              (function(){
-                var b = document.querySelector('#case-box [data-act="new"]');
-                window.confirm = function(){ return true; };
-                b.click();
-              })()
-            """, awaitp=False)
+            await js(confirming("document.querySelector('#case-box [data-act=new]').click();"),
+                     awaitp=False)
             await asyncio.sleep(1.2)
             print("\n=== 建立新案件後 ===")
             print(json.dumps(await js("""
@@ -222,8 +231,8 @@ async def run():
             """), ensure_ascii=False, indent=2))
 
             # ---- 6. 結案 ----
-            await js("window.confirm=function(){return true;};"
-                     "document.querySelector('#case-box [data-act=\"close\"]').click()", awaitp=False)
+            await js(confirming("document.querySelector('#case-box [data-act=close]').click();"),
+                     awaitp=False)
             await asyncio.sleep(1.2)
             print("\n=== 結案後 ===")
             print(json.dumps(await js("""
@@ -244,9 +253,7 @@ async def run():
             # ---- 7. 刪除「有照片的那一件」，照片必須一起走 ----
             # 刻意挑已結案那件（就是遷移進來、帶著照片的第一件），
             # 隨手刪第一列會刪到空案件，等於什麼都沒驗到。
-            await js("""
-              window.confirm=function(){return true;};
-              (function(){
+            await js(confirming("""
                 var rows = document.querySelectorAll('#case-box .case-row:not(.is-cur)');
                 for (var i=0;i<rows.length;i++){
                   if (rows[i].querySelector('.meta').textContent.indexOf('已結案') >= 0){
@@ -254,8 +261,7 @@ async def run():
                   }
                 }
                 return 'NOT FOUND';
-              })()
-            """, awaitp=False)
+            """), awaitp=False)
             await asyncio.sleep(1.5)
             print("\n=== 刪除一件後 ===")
             print(json.dumps(await js("""
@@ -279,8 +285,7 @@ async def run():
               })()
             """), ensure_ascii=False, indent=2))
             # ---- 8. 刪除「目前這件」，且還有別的案件在 ----
-            await js("window.confirm=function(){return true;};"
-                     "document.querySelector('#case-box .case-row.is-cur [data-del]').click()",
+            await js(confirming("document.querySelector('#case-box .case-row.is-cur [data-del]').click();"),
                      awaitp=False)
             await asyncio.sleep(1.5)
             print("\n=== 刪除目前這件（尚有其他案件）===")
@@ -306,8 +311,7 @@ async def run():
                                 awaitp=False)
                 if left <= 1:
                     break
-                await js("window.confirm=function(){return true;};"
-                         "document.querySelector('#case-box .case-row [data-del]').click()",
+                await js(confirming("document.querySelector('#case-box .case-row [data-del]').click();"),
                          awaitp=False)
                 await asyncio.sleep(1.2)
 
@@ -334,8 +338,7 @@ async def run():
             print("\n=== 剩最後一件（刪除鈕必須存在）===")
             print(json.dumps(before, ensure_ascii=False, indent=2))
 
-            await js("window.confirm=function(){return true;};"
-                     "document.querySelector('#case-box [data-del]').click()", awaitp=False)
+            await js(confirming("document.querySelector('#case-box [data-del]').click();"), awaitp=False)
             await asyncio.sleep(1.6)
             print("\n=== 刪掉最後一件之後 ===")
             print(json.dumps(await js("""

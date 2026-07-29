@@ -597,6 +597,23 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 .brandfoot p{font-size:12.5px;color:var(--muted);line-height:1.7;margin:10px 0 0}
 
 /* ═══════════ 引導 sheet ═══════════ */
+/* ── 確認對話框 ──
+   不用瀏覽器的 confirm()：在 PWA 殼（TWA／standalone）裡它有可能被直接
+   吃掉，回傳 false 而且什麼都不顯示 —— 使用者按了刪除卻毫無反應，
+   而且完全查不出原因。自己畫一個，行為才是確定的。 */
+.ask{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;
+  padding:24px;background:rgba(0,0,0,.45)}
+.ask.open{display:flex}
+.ask-box{width:100%;max-width:360px;background:var(--card);border-radius:var(--r-lg);
+  padding:24px 22px 16px;box-shadow:0 18px 50px rgba(0,0,0,.28);
+  animation:up .22s cubic-bezier(.32,.72,0,1)}
+.ask-t{font-size:17.5px;font-weight:600;line-height:1.45}
+.ask-m{font-size:14.5px;color:var(--muted);line-height:1.65;margin-top:10px;white-space:pre-line}
+.ask-btns{display:flex;gap:10px;margin-top:22px}
+.ask-btns button{flex:1;min-height:50px;border-radius:var(--r-md);font-size:16px;font-weight:600}
+.ask-no{background:var(--line);color:var(--ink)}
+.ask-yes{background:var(--red);color:#fff}
+
 .sheet{
   position:fixed;inset:0;z-index:100;background:var(--bg);
   display:none;flex-direction:column;
@@ -1109,6 +1126,17 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   </div>
 </div>
 
+<div class="ask" id="ask" role="dialog" aria-modal="true" aria-labelledby="ask-t">
+  <div class="ask-box">
+    <div class="ask-t" id="ask-t"></div>
+    <div class="ask-m" id="ask-m"></div>
+    <div class="ask-btns">
+      <button class="ask-no" id="ask-no">取消</button>
+      <button class="ask-yes" id="ask-yes">刪除</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -1202,6 +1230,27 @@ function esc(s){
 }
 var CHECK = '<svg viewBox="0 0 24 24"><path d="M5 13l4 4 10-10"/></svg>';
 function ico(n){ return '<svg class="i"><use href="#ic-' + n + '"/></svg>'; }
+
+/* 自己的確認對話框。用 callback 而不是 Promise —— 這份程式刻意維持
+   ES5 風格，而且回呼在這裡讀起來也夠清楚。 */
+var askCb = null;
+function ask(title, msg, yesLabel, cb){
+  askCb = cb;
+  $('ask-t').textContent = title;
+  $('ask-m').textContent = msg || '';
+  $('ask-m').hidden = !msg;
+  $('ask-yes').textContent = yesLabel || '確定';
+  $('ask').classList.add('open');
+}
+function askClose(ok){
+  $('ask').classList.remove('open');
+  var cb = askCb; askCb = null;
+  if (ok && cb) cb();
+}
+$('ask-no').addEventListener('click', function(){ askClose(false); });
+$('ask-yes').addEventListener('click', function(){ askClose(true); });
+/* 點背景關閉，等同取消 */
+$('ask').addEventListener('click', function(e){ if (e.target === this) askClose(false); });
 
 var toastT;
 function toast(msg){
@@ -2024,7 +2073,7 @@ $('btn-del-photos').addEventListener('click', function(){
     renderPH(); renderStorage(); toast('本案件的照片已刪除');
   });
 });
-loadPhotos().then(renderPH);
+loadPhotos().then(function(){ renderPH(); sweepOrphanPhotos(); });
 renderPH();
 
 /* =========================================================
@@ -2187,6 +2236,8 @@ $('guide-open').addEventListener('click', function(){ ans = {}; idx = 0; openShe
 $('sheet-close').addEventListener('click', closeSheet);
 document.addEventListener('keydown', function(e){
   if (e.key !== 'Escape') return;
+  /* 確認對話框疊在最上層，Esc 應該只關掉它，不要一路關掉底下的東西 */
+  if ($('ask').classList.contains('open')){ askClose(false); return; }
   if ($('sheet').classList.contains('open')) closeSheet();
   if ($('ins-sheet').classList.contains('open')) $('ins-sheet').classList.remove('open');
   if ($('other-sheet').classList.contains('open')){ $('other-sheet').classList.remove('open'); renderOther(); }
@@ -2628,16 +2679,18 @@ $('case-box').addEventListener('click', function(e){
   if (!act) return;
   var a = act.dataset.act, c = caseById(cases.cur);
   if (a === 'close'){
-    if (!confirm('把這件標記為結案，並開始新的一件？\n\n紀錄與照片都會留著，隨時可以切回來。')) return;
-    c.closed = Date.now();
-    newCase();
-    toast('已結案，開始新的一件');
+    ask('結案，並開始新的一件？', '紀錄與照片都會留著，隨時可以切回來。', '結案', function(){
+      c.closed = Date.now();
+      newCase();
+      toast('已結案，開始新的一件');
+    });
   } else if (a === 'reopen'){
     c.closed = 0; writeCases(); renderCases(); toast('已重新開啟');
   } else if (a === 'new'){
-    if (!confirm('建立一件新的事故紀錄？\n\n目前這件會留在列表裡，不會消失。')) return;
-    newCase();
-    toast('已建立新案件');
+    ask('建立一件新的事故紀錄？', '目前這件會留在列表裡，不會消失。', '建立', function(){
+      newCase();
+      toast('已建立新案件');
+    });
   }
 });
 
@@ -2661,33 +2714,59 @@ function newCase(keepCurrent){
 
 function deleteCase(id){
   var last = cases.list.length === 1;
-  if (!confirm('刪除這件事故的所有紀錄與照片？\n\n' + caseTitle(id) + '\n\n' +
-               (last ? '這是唯一一件，刪除後會留下一件空白的新紀錄。\n' : '') +
-               '這個動作無法復原。')) return;
+  ask('刪除這件事故的所有紀錄與照片？',
+      caseTitle(id) + '\n\n' +
+      (last ? '這是唯一一件，刪除後會留下一件空白的新紀錄。\n' : '') +
+      '這個動作無法復原。',
+      '刪除',
+      function(){ doDeleteCase(id); });
+}
 
-  /* 先刪照片再刪索引 —— 反過來的話，中途失敗會留下沒有案件認領的照片 */
-  photosClearCase(id).catch(function(){}).then(function(){
-    var wasCur = (id === cases.cur);
-    for (var i = 0; i < cases.list.length; i++){
-      if (cases.list[i].id === id){ cases.list.splice(i, 1); break; }
-    }
-    try{ localStorage.removeItem(caseKey(id)); }catch(err){}
+function doDeleteCase(id){
+  /* 先動索引並重畫，照片清理丟到背景。
+     原本是反過來的（先清照片，成功了才移除案件），但那讓「畫面上消失」
+     取決於一個 IndexedDB 操作有沒有回來 —— 只要它卡住，使用者按了刪除
+     就完全沒反應，而且不會有任何錯誤訊息。留下的孤兒照片是可以掃的，
+     按了沒反應是不能接受的。 */
+  var wasCur = (id === cases.cur);
+  for (var i = 0; i < cases.list.length; i++){
+    if (cases.list[i].id === id){ cases.list.splice(i, 1); break; }
+  }
+  try{ localStorage.removeItem(caseKey(id)); }catch(err){}
 
-    if (!wasCur){
-      writeCases(); renderCases(); renderStorage();
-    } else if (cases.list.length){
-      cases.cur = cases.list[0].id;
-      caseData = rawLoad(caseKey(cases.cur));
-      writeCases();
-      renderAllForCase();
-    } else {
-      /* 刪掉最後一件：留一件空白的，不能讓 App 處在「沒有任何案件」的狀態 */
-      cases.cur = '';
-      caseData = {};
-      newCase(false);
-    }
-    toast('已刪除');
-  });
+  if (!wasCur){
+    writeCases(); renderCases();
+  } else if (cases.list.length){
+    cases.cur = cases.list[0].id;
+    caseData = rawLoad(caseKey(cases.cur));
+    writeCases();
+    renderAllForCase();
+  } else {
+    /* 刪掉最後一件：留一件空白的，不能讓 App 處在「沒有任何案件」的狀態 */
+    cases.cur = '';
+    caseData = {};
+    newCase(false);
+  }
+  toast('已刪除');
+  photosClearCase(id).then(function(){ renderStorage(); }, function(){});
+}
+
+/* 開啟時掃掉沒有案件認領的照片。照片刪除是背景進行的，可能因為當掉、
+   關閉分頁或 IndexedDB 出錯而沒做完 —— 這裡是那條後路。 */
+function sweepOrphanPhotos(){
+  var live = {};
+  for (var i = 0; i < cases.list.length; i++) live[cases.list[i].id] = 1;
+  withStore('readwrite', function(s){
+    s.openCursor().onsuccess = function(ev){
+      var cur = ev.target.result;
+      if (!cur) return;
+      /* 只刪「明確指向一個已不存在的案件」的。沒有 case 欄位的一律留著 ——
+         那可能是回填還沒跑完，寧可留下垃圾也不能誤刪使用者的照片。 */
+      if (cur.value.case && !live[cur.value.case]) cur.delete();
+      cur.continue();
+    };
+    return null;
+  }).catch(function(){});
 }
 
 renderCases();
@@ -2696,12 +2775,13 @@ renderCases();
    設定
    ========================================================= */
 $('btn-reset-all').addEventListener('click', function(){
-  if (!confirm('清除這件事故的所有進度？\n\n照片會保留。若要留著紀錄，請改用「結案」。')) return;
-  save(LS.tl, {}); save(LS.ph, {}); save(LS.todo, {}); save(LS.claim, {});
-  save(LS.other, {}); save(LS.comp, {}); save(LS.compdoc, {});
-  resetLoc();
-  renderTL(); renderPH(); renderCL(); renderOther(); renderComp(); renderCases();
-  toast('本案件的進度已清除');
+  ask('清除這件事故的所有進度？', '照片會保留。若要留著紀錄，請改用「結案」。', '清除', function(){
+    save(LS.tl, {}); save(LS.ph, {}); save(LS.todo, {}); save(LS.claim, {});
+    save(LS.other, {}); save(LS.comp, {}); save(LS.compdoc, {});
+    resetLoc();
+    renderTL(); renderPH(); renderCL(); renderOther(); renderComp(); renderCases();
+    toast('本案件的進度已清除');
+  });
 });
 
 /* =========================================================

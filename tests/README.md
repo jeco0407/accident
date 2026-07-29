@@ -28,3 +28,11 @@ python3 -m http.server 8899
 **service worker 會送舊快取。** 改了 CSS 卻沒生效多半是這個，不是你改錯了。網址加 `?bust=1` 之類的 query 就會繞過。
 
 **在 `index.html` 上呼叫 `deleteDatabase` 會卡死。** 頁面本身開著 IndexedDB 連線，觸發的是 `onblocked` 而不是 `onsuccess`。要清 DB 就到同源但不載入 App 的頁面上做（例如 `manifest.json`）。
+
+**不要用 `| tail` 看還在跑的腳本。** `tail` 會把輸出全部憋到程式結束才吐 —— 卡住的程式看起來就像完全沒有輸出，會把你引到錯誤的方向。導到檔案再讀。
+
+## 確認對話框
+
+App 從 v30 起不用瀏覽器的 `confirm()`（在 PWA 殼裡可能被無聲吃掉），改用自己畫的 `#ask`。所以**覆寫 `window.confirm` 已經沒有作用**，測試要改按 `#ask-yes`：`test_cases.py` 裡的 `confirming()` 就是做這件事。
+
+如果哪天又要測真的 `confirm()`：它會**凍住 renderer**，`Runtime.evaluate` 的回應要等對話框被處理才回來。`await` 它就是死鎖，必須 fire-and-forget 之後再去處理對話框。
