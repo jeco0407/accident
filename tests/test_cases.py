@@ -278,6 +278,95 @@ async def run():
                 });
               })()
             """), ensure_ascii=False, indent=2))
+            # ---- 8. 刪除「目前這件」，且還有別的案件在 ----
+            await js("window.confirm=function(){return true;};"
+                     "document.querySelector('#case-box .case-row.is-cur [data-del]').click()",
+                     awaitp=False)
+            await asyncio.sleep(1.5)
+            print("\n=== 刪除目前這件（尚有其他案件）===")
+            print(json.dumps(await js("""
+              (function(){
+                var idx = JSON.parse(localStorage.getItem('aa.cases.v1'));
+                return {
+                  caseCount: idx.list.length,
+                  curExists: idx.list.some(function(c){ return c.id === idx.cur; }),
+                  curRows: document.querySelectorAll('#case-box .case-row.is-cur').length,
+                  caseTitle: (document.querySelector('#case-box .case-row.is-cur .ttl')||{}).textContent,
+                  orphanPacks: Object.keys(localStorage).filter(function(k){
+                    return k.indexOf('aa.case.') === 0 &&
+                           !idx.list.some(function(c){ return 'aa.case.'+c.id === k; });
+                  })
+                };
+              })()
+            """), ensure_ascii=False, indent=2))
+
+            # ---- 9. 一路刪到剩最後一件，再刪它 ----
+            for _ in range(6):
+                left = await js("JSON.parse(localStorage.getItem('aa.cases.v1')).list.length",
+                                awaitp=False)
+                if left <= 1:
+                    break
+                await js("window.confirm=function(){return true;};"
+                         "document.querySelector('#case-box .case-row [data-del]').click()",
+                         awaitp=False)
+                await asyncio.sleep(1.2)
+
+            # 先在最後一件裡放點東西，確認刪掉之後真的是空白的
+            await js("""
+              (function(){
+                var idx = JSON.parse(localStorage.getItem('aa.cases.v1'));
+                var pack = JSON.parse(localStorage.getItem('aa.case.'+idx.cur)) || {};
+                pack['aa.other.v1'] = { plate:'XYZ-9999' };
+                localStorage.setItem('aa.case.'+idx.cur, JSON.stringify(pack));
+                location.reload();
+              })()
+            """, awaitp=False)
+            await asyncio.sleep(2.5)
+
+            before = await js("""
+              (function(){
+                var idx = JSON.parse(localStorage.getItem('aa.cases.v1'));
+                return { count: idx.list.length,
+                         delBtns: document.querySelectorAll('#case-box [data-del]').length,
+                         plate: (JSON.parse(localStorage.getItem('aa.case.'+idx.cur))||{})['aa.other.v1'] };
+              })()
+            """, awaitp=False)
+            print("\n=== 剩最後一件（刪除鈕必須存在）===")
+            print(json.dumps(before, ensure_ascii=False, indent=2))
+
+            await js("window.confirm=function(){return true;};"
+                     "document.querySelector('#case-box [data-del]').click()", awaitp=False)
+            await asyncio.sleep(1.6)
+            print("\n=== 刪掉最後一件之後 ===")
+            print(json.dumps(await js("""
+              (function(){
+                var idx = JSON.parse(localStorage.getItem('aa.cases.v1'));
+                var pack = JSON.parse(localStorage.getItem('aa.case.'+idx.cur));
+                return {
+                  caseCount: idx.list.length,
+                  curExists: idx.list.some(function(c){ return c.id === idx.cur; }),
+                  packIsEmpty: Object.keys(pack||{}).length === 0,
+                  packKeys: Object.keys(pack||{}),
+                  caseTitle: (document.querySelector('#case-box .case-row.is-cur .ttl')||{}).textContent,
+                  orphanPacks: Object.keys(localStorage).filter(function(k){
+                    return k.indexOf('aa.case.') === 0 &&
+                           !idx.list.some(function(c){ return 'aa.case.'+c.id === k; });
+                  })
+                };
+              })()
+            """), ensure_ascii=False, indent=2))
+
+            # 重新載入，確認狀態沒有壞掉
+            await goto(URL, 2.5)
+            print("\n=== 再重新載入 ===")
+            print(json.dumps(await js("""
+              (function(){
+                var idx = JSON.parse(localStorage.getItem('aa.cases.v1'));
+                return { caseCount: idx.list.length,
+                         curExists: idx.list.some(function(c){ return c.id === idx.cur; }),
+                         caseTitle: (document.querySelector('#case-box .case-row.is-cur .ttl')||{}).textContent };
+              })()
+            """), ensure_ascii=False, indent=2))
     finally:
         proc.terminate()
 

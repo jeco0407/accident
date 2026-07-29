@@ -2568,9 +2568,7 @@ function switchCase(id){
   cases.cur = id;
   caseData = rawLoad(caseKey(id));
   writeCases();
-  clearLocUI(); restoreSite();
-  renderTL(); renderOther(); renderCL(); renderComp(); renderCases();
-  loadPhotos().then(function(){ renderPH(); renderStorage(); });
+  renderAllForCase();
   /* 講清楚切到哪一件。只說「已切換」等於沒說 —— 使用者要確認的正是這個 */
   toast('已切換到：' + caseTitle(id));
 }
@@ -2594,8 +2592,7 @@ function renderCases(){
                '</span>' +
              '</span>' +
            '</button>' +
-           /* 目前這件不給刪 —— 刪掉之後「現在是哪一件」會變成沒有答案 */
-           (isCur ? '' : '<button class="case-del" data-del="' + x.id + '">刪除</button>') +
+           '<button class="case-del" data-del="' + x.id + '">刪除</button>' +
          '</div>';
   }
 
@@ -2624,17 +2621,7 @@ $('case-box').addEventListener('click', function(e){
   if (go){ switchCase(go.dataset.go); return; }
 
   if (del){
-    var id = del.dataset.del;
-    if (!confirm('刪除這件事故的所有紀錄與照片？\n\n' + caseTitle(id) + '\n\n這個動作無法復原。')) return;
-    /* 先刪照片再刪索引 —— 反過來的話，中途失敗會留下沒有案件認領的照片 */
-    photosClearCase(id).catch(function(){}).then(function(){
-      for (var i = 0; i < cases.list.length; i++){
-        if (cases.list[i].id === id){ cases.list.splice(i, 1); break; }
-      }
-      try{ localStorage.removeItem(caseKey(id)); }catch(err){}
-      writeCases(); renderCases(); renderStorage();
-      toast('已刪除');
-    });
+    deleteCase(del.dataset.del);
     return;
   }
 
@@ -2654,17 +2641,53 @@ $('case-box').addEventListener('click', function(e){
   }
 });
 
-function newCase(){
-  writeCase();
+/* 目前案件換了人（新建、切換、把目前這件刪掉）之後，畫面要整個重來一次 */
+function renderAllForCase(){
+  clearLocUI(); restoreSite();
+  renderTL(); renderOther(); renderCL(); renderComp(); renderCases();
+  loadPhotos().then(function(){ renderPH(); renderStorage(); });
+}
+
+function newCase(keepCurrent){
+  if (keepCurrent !== false) writeCase();   /* 目前這件已被刪掉時不能回寫，否則又長回來 */
   var id = newCaseId();
   cases.list.unshift({ id:id, ts:Date.now(), closed:0 });
   cases.cur = id;
   caseData = {};
   rawSave(caseKey(id), caseData);
   writeCases();
-  clearLocUI();
-  renderTL(); renderOther(); renderCL(); renderComp(); renderCases();
-  loadPhotos().then(function(){ renderPH(); renderStorage(); });
+  renderAllForCase();
+}
+
+function deleteCase(id){
+  var last = cases.list.length === 1;
+  if (!confirm('刪除這件事故的所有紀錄與照片？\n\n' + caseTitle(id) + '\n\n' +
+               (last ? '這是唯一一件，刪除後會留下一件空白的新紀錄。\n' : '') +
+               '這個動作無法復原。')) return;
+
+  /* 先刪照片再刪索引 —— 反過來的話，中途失敗會留下沒有案件認領的照片 */
+  photosClearCase(id).catch(function(){}).then(function(){
+    var wasCur = (id === cases.cur);
+    for (var i = 0; i < cases.list.length; i++){
+      if (cases.list[i].id === id){ cases.list.splice(i, 1); break; }
+    }
+    try{ localStorage.removeItem(caseKey(id)); }catch(err){}
+
+    if (!wasCur){
+      writeCases(); renderCases(); renderStorage();
+    } else if (cases.list.length){
+      cases.cur = cases.list[0].id;
+      caseData = rawLoad(caseKey(cases.cur));
+      writeCases();
+      renderAllForCase();
+    } else {
+      /* 刪掉最後一件：留一件空白的，不能讓 App 處在「沒有任何案件」的狀態 */
+      cases.cur = '';
+      caseData = {};
+      newCase(false);
+    }
+    toast('已刪除');
+  });
 }
 
 renderCases();
