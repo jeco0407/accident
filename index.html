@@ -142,6 +142,39 @@ body.is-offline .chip-off{display:flex}
   margin:0;
 }
 .page-head .greet{margin:9px 0 0}
+
+/* 現場頁的頁首多一層插圖。position:relative 是為了讓插圖定位，
+   文字全部 z-index 疊在上面 —— 插圖只是背景，絕不能影響可讀性。 */
+.scene-head{position:relative;overflow:hidden;padding-bottom:30px}
+.scene-head .brand,.scene-head h1,.scene-head .greet{position:relative;z-index:1}
+.hero-art{
+  position:absolute;right:-10px;bottom:6px;width:210px;height:auto;
+  pointer-events:none;opacity:.5;
+}
+.hero-art .sky{fill:var(--brand);opacity:.16}
+.hero-art .road{stroke:var(--brand);stroke-width:1.4;opacity:.3}
+.hero-art .car{fill:var(--brand);opacity:.5}
+.hero-art .warn{fill:none;stroke:var(--brand);stroke-width:2;stroke-linejoin:round;opacity:.65}
+.hero-art .warn-b{stroke:var(--brand);stroke-width:2;stroke-linecap:round;opacity:.65}
+/* 螢幕窄的時候插圖會壓到標題，直接收掉 —— 資訊優先 */
+@media (max-width:360px){ .hero-art{display:none} }
+
+/* 品牌列右側的設定鍵 */
+.head-btn{
+  margin-left:auto;width:44px;height:44px;margin-right:-10px;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--ink-2);border-radius:50%;
+}
+.head-btn .i{width:22px;height:22px}
+.head-btn:active{background:var(--inset)}
+
+/* 卡片內的圓形圖示徽章 */
+.badge-ic{
+  flex:0 0 42px;height:42px;border-radius:50%;
+  background:var(--head-bg);color:var(--brand);
+  display:flex;align-items:center;justify-content:center;
+}
+.badge-ic .i{width:22px;height:22px}
 .greet{font-size:16.5px;color:var(--ink-2);margin:0 0 22px;letter-spacing:-.01em;line-height:1.6}
 .blk{margin-bottom:34px}
 .blk:last-child{margin-bottom:0}
@@ -186,6 +219,11 @@ body.is-offline .chip-off{display:flex}
 
 /* ═══════════ 位置 ═══════════ */
 #loc-card{padding:20px;transition:background .45s ease, border-color .45s ease}
+.loc-head{display:flex;align-items:center;gap:13px;margin-bottom:16px}
+.loc-head .t{font-size:19px;font-weight:700;letter-spacing:-.01em}
+.loc-state{font-size:17px;font-weight:600;color:var(--ink-2);margin:0}
+.loc-sub{font-size:14px;color:var(--muted);line-height:1.6;margin:6px 0 16px}
+.btn-primary .i{width:22px;height:22px}
 #loc-card.ready{background:var(--green-bg);border-color:var(--green-line)}
 .btn-primary{
   display:flex;align-items:center;justify-content:center;gap:10px;
@@ -277,7 +315,26 @@ body.is-offline .chip-off{display:flex}
 .emg-card .lb{font-size:16px;font-weight:600;margin-top:7px}
 .emg-110{background:var(--red-bg);border-color:var(--red-line);color:var(--red)}
 .emg-119{background:var(--amber-bg);border-color:var(--amber-line);color:var(--amber)}
-.emg-hint{font-size:13.5px;color:var(--muted);text-align:center;margin:12px 0 0}
+/* 提示改放進卡片裡。原本掛在兩張卡下面，讀的人得自己把它跟上面連起來 */
+.emg-card .tip{
+  display:block;width:100%;margin-top:14px;padding:7px 6px;
+  border-radius:var(--r-sm);background:rgba(255,255,255,.6);
+  font-size:12px;font-weight:500;line-height:1.4;letter-spacing:0;
+  text-align:center;
+}
+:root[data-theme="dark"] .emg-card .tip{background:rgba(255,255,255,.07)}
+
+/* 道路救援：跟其他列表列同一個語彙 */
+.tow-row{
+  display:flex;align-items:center;gap:13px;margin-top:12px;
+  padding:14px 18px;min-height:60px;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--shadow);color:inherit;text-decoration:none;
+}
+.tow-row .ic{color:var(--ink-2);display:flex}
+.tow-row .ic .i{width:24px;height:24px}
+.tow-row .t{flex:1;font-size:16.5px;font-weight:600}
+.tow-row .ar{color:var(--chev);font-size:19px}
 .btn-line{
   display:flex;align-items:center;justify-content:center;gap:9px;
   width:100%;min-height:56px;margin-top:12px;
@@ -287,6 +344,32 @@ body.is-offline .chip-off{display:flex}
 .btn-line:active{transform:scale(.985)}
 
 /* ═══════════ 引導入口 ═══════════ */
+/* ── 引導模式 ── */
+.guide-card{padding:20px}
+.guide-top{display:flex;align-items:center;gap:13px}
+.guide-top .t{font-size:19px;font-weight:700;letter-spacing:-.01em}
+.guide-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.guide-chips span{
+  font-size:13px;font-weight:500;color:var(--ink-2);
+  padding:8px 13px;border-radius:999px;
+  background:var(--inset);border:1px solid var(--line);
+}
+.guide-foot{display:flex;align-items:flex-end;gap:14px;margin-top:18px}
+.guide-foot .d{flex:1;font-size:14px;color:var(--muted);line-height:1.6;margin:0}
+.guide-go{
+  flex:0 0 auto;display:flex;align-items:center;gap:6px;
+  min-height:48px;padding:0 18px;border-radius:var(--r-md);
+  background:var(--solid-bg);color:var(--solid-fg);
+  font-size:16px;font-weight:600;letter-spacing:-.01em;
+}
+.guide-go:active{transform:scale(.98)}
+.guide-go .i{width:1em;height:1em}
+/* 窄螢幕時說明與按鈕擠在一起會兩邊都難讀，改成上下 */
+@media (max-width:390px){
+  .guide-foot{flex-direction:column;align-items:stretch}
+  .guide-go{justify-content:center}
+}
+
 .guide-entry{padding:22px 20px;display:block;width:100%;text-align:left}
 .guide-entry .t{font-size:20px;font-weight:700;letter-spacing:-.01em;margin:0 0 6px}
 .guide-entry .d{font-size:15.5px;color:var(--ink-2);margin:0 0 18px;line-height:1.55}
@@ -781,6 +864,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 <symbol id="ic-question" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M9.6 9.6a2.5 2.5 0 0 1 3.3-2.4c1 .4 1.7 1.3 1.7 2.4 0 1.4-1.1 1.9-1.8 2.4-.5.4-.8.9-.8 1.6"/><circle cx="12" cy="16.6" r=".95" fill="currentColor" stroke="none"/></symbol>
 <symbol id="ic-list" viewBox="0 0 24 24"><path d="M9.4 6.6h10M9.4 12h10M9.4 17.4h10"/><circle cx="5.2" cy="6.6" r=".95" fill="currentColor" stroke="none"/><circle cx="5.2" cy="12" r=".95" fill="currentColor" stroke="none"/><circle cx="5.2" cy="17.4" r=".95" fill="currentColor" stroke="none"/></symbol>
 <symbol id="ic-siren" viewBox="0 0 24 24"><path d="M8 13.2a4 4 0 0 1 8 0"/><path d="M6.4 13.2h11.2c.6 0 1 .5 1 1v2c0 .6-.4 1-1 1H6.4c-.6 0-1-.4-1-1v-2c0-.5.4-1 1-1Z"/><path d="M12 5.6V3.8M6.6 7.6 5.3 6.3M17.4 7.6l1.3-1.3"/></symbol>
+<symbol id="ic-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.1"/><path d="M19.1 14.2a1.5 1.5 0 0 0 .3 1.7l.1.1a1.8 1.8 0 1 1-2.6 2.6l-.1-.1a1.5 1.5 0 0 0-1.7-.3 1.5 1.5 0 0 0-.9 1.4v.2a1.8 1.8 0 1 1-3.6 0v-.1a1.5 1.5 0 0 0-1-1.4 1.5 1.5 0 0 0-1.7.3l-.1.1a1.8 1.8 0 1 1-2.6-2.6l.1-.1a1.5 1.5 0 0 0 .3-1.7 1.5 1.5 0 0 0-1.4-.9h-.2a1.8 1.8 0 1 1 0-3.6h.1a1.5 1.5 0 0 0 1.4-1 1.5 1.5 0 0 0-.3-1.7l-.1-.1a1.8 1.8 0 1 1 2.6-2.6l.1.1a1.5 1.5 0 0 0 1.7.3h.1a1.5 1.5 0 0 0 .9-1.4v-.2a1.8 1.8 0 1 1 3.6 0v.1a1.5 1.5 0 0 0 .9 1.4 1.5 1.5 0 0 0 1.7-.3l.1-.1a1.8 1.8 0 1 1 2.6 2.6l-.1.1a1.5 1.5 0 0 0-.3 1.7v.1a1.5 1.5 0 0 0 1.4.9h.2a1.8 1.8 0 1 1 0 3.6h-.1a1.5 1.5 0 0 0-1.4.9Z"/></symbol>
 <symbol id="ic-arrow" viewBox="0 0 24 24"><path d="M4.5 12h15M14 6.5l5.5 5.5L14 17.5"/></symbol>
 <symbol id="ic-scale" viewBox="0 0 24 24"><path d="M12 5.4v14.2M8.4 19.6h7.2"/><path d="M4.6 8.2h14.8"/><path d="M4.6 8.2 2.2 13.4h4.8Z"/><path d="M19.4 8.2 17 13.4h4.8Z"/><circle cx="12" cy="4.5" r="1.1"/></symbol>
 <symbol id="ic-doc" viewBox="0 0 24 24"><path d="M13.4 3.6H7.2c-.9 0-1.6.7-1.6 1.6v13.6c0 .9.7 1.6 1.6 1.6h9.6c.9 0 1.6-.7 1.6-1.6V8.4Z"/><path d="M13.4 3.6v4.8h5"/><path d="M8.8 13.2h6.4M8.8 16.4h4.2"/></symbol>
@@ -796,21 +880,54 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <!-- ───── 現場 ───── -->
   <section class="view on" id="v-scene" role="tabpanel" aria-label="現場">
     <div class="view-in">
-      <div class="page-head">
+      <div class="page-head scene-head">
+        <!-- 純裝飾。放在文字後面、pointer-events:none，永遠不會擋到操作 -->
+        <svg class="hero-art" viewBox="0 0 220 120" aria-hidden="true" focusable="false">
+          <g class="sky">
+            <rect x="6" y="46" width="16" height="42" rx="2"/>
+            <rect x="26" y="32" width="13" height="56" rx="2"/>
+            <rect x="43" y="52" width="18" height="36" rx="2"/>
+            <rect x="65" y="24" width="14" height="64" rx="2"/>
+            <rect x="83" y="44" width="20" height="44" rx="2"/>
+            <rect x="107" y="36" width="12" height="52" rx="2"/>
+            <rect x="123" y="56" width="18" height="32" rx="2"/>
+            <rect x="145" y="40" width="14" height="48" rx="2"/>
+            <rect x="163" y="50" width="19" height="38" rx="2"/>
+            <rect x="186" y="30" width="13" height="58" rx="2"/>
+          </g>
+          <path class="road" d="M0 96h220"/>
+          <g class="car">
+            <path d="M118 92v-7c0-1.7 1.4-3 3-3h6l4-5h11c1.4 0 2.7.7 3.4 1.9l1.8 3.1h4c1.7 0 3 1.4 3 3v7Z"/>
+            <circle cx="128" cy="92" r="4.2"/>
+            <circle cx="147" cy="92" r="4.2"/>
+          </g>
+          <path class="warn" d="M186 74.5 176 92h20Z"/>
+          <path class="warn-b" d="M186 81v4.4M186 88.6v.1"/>
+        </svg>
+
         <div class="brand">
           <img src="icons/mark.png" alt="" width="24" height="24">
           <span>GUARDY</span>
+          <button class="head-btn" id="go-settings" aria-label="設定">
+            <svg class="i"><use href="#ic-gear"/></svg>
+          </button>
         </div>
         <h1>事故現場</h1>
         <p class="greet">別慌，我陪你一步一步處理。</p>
       </div>
 
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-pin"/></svg>我的位置</p>
         <div class="card" id="loc-card">
+          <div class="loc-head">
+            <span class="badge-ic"><svg class="i"><use href="#ic-pin"/></svg></span>
+            <span class="t">我的位置</span>
+          </div>
           <div id="loc-idle">
-            <button class="btn-primary" id="loc-btn">取得我的位置</button>
-            <p class="loc-note" style="background:var(--line-soft)">先確認自己在哪裡。報案時第一句話就是位置。這個地點與時間會被記下來，之後移動也不會被蓋掉。</p>
+            <p class="loc-state">尚未取得位置</p>
+            <p class="loc-sub">取得位置後，方便通報與救援。這個地點與時間會被記下來，之後移動也不會被蓋掉。</p>
+            <button class="btn-primary" id="loc-btn">
+              <svg class="i"><use href="#ic-compass"/></svg>取得我的位置
+            </button>
             <div class="loc-manual" id="loc-manual" hidden>
               <label for="loc-manual-in">手動輸入事故地點</label>
               <input type="text" id="loc-manual-in" inputmode="text" autocomplete="off"
@@ -841,24 +958,35 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
           <a class="emg-card emg-110" href="tel:110">
             <span class="ic"><svg class="i"><use href="#ic-siren"/></svg></span>
             <span class="num">110</span><span class="lb">報警</span>
+            <span class="tip">點擊後手機會再確認撥打</span>
           </a>
           <a class="emg-card emg-119" href="tel:119">
             <span class="ic"><svg class="i"><use href="#ic-cross"/></svg></span>
             <span class="num">119</span><span class="lb">有人受傷</span>
+            <span class="tip">點擊後手機會再確認撥打</span>
           </a>
         </div>
-        <p class="emg-hint">點擊後手機會再確認撥打</p>
-        <a class="btn-line" id="tow" hidden><svg class="i"><use href="#ic-truck"/></svg>道路救援</a>
+        <!-- 沒有查證過的號碼就不顯示這一列（CONFIG.towTel 留空即隱藏） -->
+        <a class="tow-row" id="tow" hidden>
+          <span class="ic"><svg class="i"><use href="#ic-truck"/></svg></span>
+          <span class="t">道路救援</span><span class="ar">›</span>
+        </a>
       </div>
 
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-compass"/></svg>引導模式</p>
-        <div class="card">
-          <button class="guide-entry" id="guide-open">
-            <p class="t">不知道現在該做什麼？</p>
-            <p class="d">回答三個問題，我幫你判斷現場狀況，並產生專屬於你的後續待辦清單。</p>
-            <span class="go">開始引導<svg class="i"><use href="#ic-arrow"/></svg></span>
-          </button>
+        <div class="card guide-card">
+          <div class="guide-top">
+            <span class="badge-ic"><svg class="i"><use href="#ic-compass"/></svg></span>
+            <span class="t">引導模式</span>
+          </div>
+          <!-- 這三個氣泡就是它實際會問的三題，不是舉例 -->
+          <div class="guide-chips">
+            <span>有人受傷嗎？</span><span>車輛可以移動嗎？</span><span>報警了嗎？</span>
+          </div>
+          <div class="guide-foot">
+            <p class="d">不知道該怎麼做？<br>回答三個問題，產生專屬於你的待辦清單。</p>
+            <button class="guide-go" id="guide-open">開始引導<svg class="i"><use href="#ic-arrow"/></svg></button>
+          </div>
         </div>
       </div>
 
@@ -1287,6 +1415,9 @@ function go(name, push){
      不必在每個寫入點都記得通知這裡。renderCases 定義在後面，靠 hoisting。 */
   if (name === 'me' && typeof renderCases === 'function') renderCases();
 }
+
+/* 頁首的齒輪：設定全部在「我的」，不另外做一頁 */
+$('go-settings').addEventListener('click', function(){ go('me'); });
 
 document.querySelectorAll('.tab').forEach(function(t){
   t.addEventListener('click', function(){
