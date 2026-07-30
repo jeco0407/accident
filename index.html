@@ -945,7 +945,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
         <div class="brand">
           <img src="icons/mark.png" alt="" width="24" height="24">
           <span>GUARDY</span>
-          <button class="head-btn" id="go-settings" aria-label="設定">
+          <button class="head-btn btn-settings" aria-label="設定">
             <svg class="i"><use href="#ic-gear"/></svg>
           </button>
         </div>
@@ -1042,7 +1042,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <section class="view" id="v-photo" role="tabpanel" aria-label="拍照">
     <div class="view-in">
       <div class="page-head">
-        <h1>拍照存證</h1>
+        <div class="head-row"><h1>拍照存證</h1><button class="head-btn btn-settings" aria-label="設定"><svg class="i"><use href="#ic-gear"/></svg></button></div>
         <p class="greet">對方可能會先離開，資料先問到手；車輛移動前先拍照。</p>
       </div>
 
@@ -1066,7 +1066,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <section class="view" id="v-claim" role="tabpanel" aria-label="出險">
     <div class="view-in">
       <div class="page-head">
-        <h1>通知保險公司</h1>
+        <div class="head-row"><h1>通知保險公司</h1><button class="head-btn btn-settings" aria-label="設定"><svg class="i"><use href="#ic-gear"/></svg></button></div>
         <p class="greet">五日內通知，越早越順。</p>
       </div>
 
@@ -1091,7 +1091,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <section class="view" id="v-comp" role="tabpanel" aria-label="求償">
     <div class="view-in">
       <div class="page-head">
-        <h1>調解與求償</h1>
+        <div class="head-row"><h1>調解與求償</h1><button class="head-btn btn-settings" aria-label="設定"><svg class="i"><use href="#ic-gear"/></svg></button></div>
         <p class="greet">不用今天填完，填多少就存多少。</p>
       </div>
 
@@ -1157,7 +1157,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
       <div class="page-head">
         <div class="head-row">
           <h1>我的</h1>
-          <button class="head-btn" id="go-settings-2" aria-label="設定">
+          <button class="head-btn btn-settings" aria-label="設定">
             <svg class="i"><use href="#ic-gear"/></svg>
           </button>
         </div>
@@ -1481,8 +1481,10 @@ function openSettings(){
   renderStorage();                       /* 容量是即時的，每次開都重算 */
   $('set-sheet').classList.add('open');
 }
-$('go-settings').addEventListener('click', openSettings);
-$('go-settings-2').addEventListener('click', openSettings);
+/* 五個分頁的頁首各有一顆，用 class 綁 —— 再多一頁也不必回來改這裡 */
+document.querySelectorAll('.btn-settings').forEach(function(b){
+  b.addEventListener('click', openSettings);
+});
 $('set-close').addEventListener('click', function(){ $('set-sheet').classList.remove('open'); });
 
 document.querySelectorAll('.tab').forEach(function(t){
