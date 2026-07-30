@@ -1,4 +1,4 @@
-import asyncio, json, subprocess, urllib.request, websockets
+import asyncio, json, subprocess, time, urllib.request, websockets
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 PORT=9481; ORIGIN="http://127.0.0.1:8899"
 
@@ -39,8 +39,28 @@ AUDIT = r"""
     // 可點擊元素的觸控面積
     var tag=el.tagName;
     if(tag==='BUTTON'||tag==='A'||tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'){
-      if(r.height<44||r.width<44) small.push({t:(el.textContent||el.getAttribute('aria-label')||el.id||tag).trim().slice(0,22),w:Math.round(r.width),h:Math.round(r.height)});
-      var name=(el.textContent||'').trim()||el.getAttribute('aria-label')||el.getAttribute('title')||el.getAttribute('placeholder');
+      // 偽元素可以把可點區域撐大而不改變外觀（例如勾選框用 ::after{inset:-10px}）。
+      // 只量元素本身會誤報 —— 量到的是視覺尺寸，不是實際可點範圍。
+      var ew=r.width, eh=r.height;
+      ['::after','::before'].forEach(function(pe){
+        var ps=getComputedStyle(el,pe);
+        if(!ps || ps.content==='none') return;
+        function px(v){ var n=parseFloat(v); return isNaN(n)?0:n; }
+        var grow = -(px(ps.top)+px(ps.bottom));
+        var growX = -(px(ps.left)+px(ps.right));
+        if(ps.position==='absolute'){
+          if(grow>0) eh=Math.max(eh, r.height+grow);
+          if(growX>0) ew=Math.max(ew, r.width+growX);
+        }
+      });
+      if(eh<44||ew<44) small.push({t:(el.textContent||el.getAttribute('aria-label')||el.id||tag).trim().slice(0,22),w:Math.round(ew),h:Math.round(eh)});
+
+      // label[for] 也是合法的可讀名稱，別漏了它
+      var lab = el.id ? document.querySelector('label[for="'+el.id+'"]') : null;
+      var name=(el.textContent||'').trim()||el.getAttribute('aria-label')||
+               el.getAttribute('title')||el.getAttribute('placeholder')||
+               (el.getAttribute('aria-labelledby') ? 'labelledby' : '')||
+               (lab ? lab.textContent.trim() : '');
       if(!name) noName.push({tag:tag,id:el.id,cls:el.className});
     }
   });
@@ -77,7 +97,7 @@ async def main():
             await send("Browser.grantPermissions",{"origin":ORIGIN,"permissions":["geolocation"]})
             await send("Emulation.setGeolocationOverride",{"latitude":25.0479,"longitude":121.5171,"accuracy":10})
             await send("Emulation.setDeviceMetricsOverride",{"width":390,"height":844,"deviceScaleFactor":2,"mobile":True})
-            await send("Page.navigate",{"url":ORIGIN+"/index.html"})
+            await send("Page.navigate",{"url":ORIGIN+"/index.html?a11y=%d" % int(time.time()*1000)})
             await asyncio.sleep(2.5)
             await ev("document.getElementById('install').style.display='none';document.getElementById('loc-btn').click()")
             await asyncio.sleep(3)

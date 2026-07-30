@@ -30,7 +30,7 @@ SNAP = r"""
 (function(){
   var idx = JSON.parse(localStorage.getItem('aa.cases.v1'));
   return {
-    domTitles: [].map.call(document.querySelectorAll('#case-box .case-row .ttl'),
+    domTitles: [].map.call(document.querySelectorAll('#case-box .case-card .cc-meta'),
                            function(e){ return e.textContent; }),
     idxIds:    idx.list.map(function(c){ return c.id; }),
     cur:       idx.cur,
@@ -101,9 +101,9 @@ async def run():
                 """真的走一次使用者的路徑：點該列的刪除，再按對話框的『刪除』"""
                 r = await js("""
                   (function(){
-                    var rows = document.querySelectorAll('#case-box .case-row');
+                    var rows = document.querySelectorAll('#case-box .case-card');
                     for (var i=0;i<rows.length;i++){
-                      if (rows[i].querySelector('.ttl').textContent.indexOf('%s') >= 0){
+                      if (rows[i].querySelector('.cc-meta').textContent.indexOf('%s') >= 0){
                         rows[i].querySelector('[data-del]').click();
                         var ask = document.getElementById('ask');
                         if (!ask.classList.contains('open')) return 'DIALOG DID NOT OPEN';

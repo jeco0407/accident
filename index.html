@@ -24,7 +24,9 @@
   --line:#EDE6DC;
   --line-soft:#F4EFE8;
 
-  --red:#C8362A;      --red-bg:#FDF1EF;  --red-line:#F3D9D4;
+  /* #C8362A 在案件卡的暖色底上只有 4.22:1。壓深一階讓它在白底與
+     暖色底都過 4.5:1，色相飽和度不動，看起來仍是同一個紅。 */
+  --red:#C03428;      --red-bg:#FDF1EF;  --red-line:#F3D9D4;
   --amber:#9F650B;    --amber-bg:#FDF6E9; --amber-line:#F1E2C4;
   --green-ink:#20654A; --green-bg:#EFF7F2; --green-line:#D5EADF;
   --brand:#B0562E;
@@ -542,43 +544,64 @@ body.is-offline .chip-off{display:flex}
 a.row-btn{color:inherit;text-decoration:none}
 
 /* ── 事故案件 ──
-   全部案件排成一張列表，目前這件就標在列表裡。
-   先前把「目前案件」單獨做成上方一張卡，結果切換時變化發生在
-   使用者視線之外 —— 點下去像是什麼都沒發生。 */
-.case-note{font-size:13px;color:var(--muted);line-height:1.6;margin:10px 4px 0}
+   一件一張卡。目前這件用底色與動作按鈕標示，其他件只有「切換到這件」——
+   切換時按鈕整組換位置，變化就發生在手指按下去的地方。 */
+.case-card{padding:18px;margin-bottom:12px}
+.case-card.is-cur{background:var(--head-bg);border-color:var(--head-line)}
+
+.cc-top{display:flex;align-items:center;gap:14px}
+.cc-ic{
+  flex:0 0 56px;height:56px;border-radius:var(--r-md);
+  background:var(--inset);color:var(--brand);
+  display:flex;align-items:center;justify-content:center;
+}
+.case-card.is-cur .cc-ic{background:var(--card)}
+.cc-ic .i{width:26px;height:26px}
+.cc-txt{flex:1;min-width:0}
+.cc-title{
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+  font-size:19px;font-weight:700;letter-spacing:-.01em;line-height:1.3;
+}
+.cc-tag{
+  font-size:12.5px;font-weight:700;letter-spacing:.02em;
+  padding:3px 9px;border-radius:999px;
+  background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-line);
+}
+.cc-tag.done{background:var(--inset);color:var(--muted);border-color:var(--line)}
+.cc-meta{display:block;font-size:14px;color:var(--muted);line-height:1.5;margin-top:7px}
+
+.cc-acts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.cc-acts button{
+  min-height:52px;border-radius:var(--r-md);
+  background:var(--card);border:1.5px solid var(--line);
+  font-size:16px;font-weight:600;letter-spacing:-.01em;color:var(--ink);
+}
+.case-card.is-cur .cc-acts button{border-color:var(--head-line)}
+.cc-acts button:active{transform:scale(.98)}
+.cc-acts button.wide{grid-column:1 / -1}
+
+.cc-note{font-size:13.5px;color:var(--muted);line-height:1.65;margin:14px 2px 0}
+/* 刪除獨立一列、靠右、字小 —— 不可逆的動作不該跟常用動作長得一樣大 */
+.cc-foot{display:flex;justify-content:flex-end;margin-top:6px}
+.cc-del{color:var(--red);font-size:13.5px;font-weight:500;
+  min-height:44px;padding:0 6px;display:flex;align-items:center}
+
+.case-new{
+  display:flex;align-items:center;gap:14px;width:100%;
+  padding:18px;min-height:60px;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--shadow);text-align:left;
+}
+.case-new .plus{font-size:20px;font-weight:600;color:var(--ink-2);width:24px;text-align:center}
+.case-new .t{flex:1;font-size:17px;font-weight:600}
+.case-new .ar{color:var(--chev);font-size:19px}
+.case-new:active{transform:scale(.995)}
 
 /* 空白狀態：App 內部仍然握著一個案件，但那是實作需求，不該讓使用者
    在列表裡看到一列「未記錄地點」—— 那看起來就像剛才根本沒刪掉。 */
 .case-empty{padding:26px 20px;text-align:center}
 .case-empty .t{font-size:16px;font-weight:500;color:var(--ink-2)}
 .case-empty .s{font-size:13.5px;color:var(--muted);line-height:1.65;margin-top:8px}
-
-.case-row{display:flex;align-items:center;width:100%;text-align:left;position:relative}
-.case-row + .case-row{border-top:1px solid var(--line-soft)}
-.case-row.is-cur{background:var(--amber-bg)}
-/* 左側色條：一眼看得出目前在哪一件，不必去讀文字 */
-.case-row.is-cur::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
-  background:var(--amber)}
-
-.case-row .col{flex:1;min-width:0;display:flex;align-items:center;gap:12px;
-  text-align:left;padding:14px 16px;min-height:60px}
-.case-row .mark{flex:0 0 22px;height:22px;border-radius:50%;border:1.5px solid var(--chev);
-  display:flex;align-items:center;justify-content:center;color:#fff}
-.case-row .mark svg{width:14px;height:14px;stroke:currentColor;stroke-width:3;
-  fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0}
-.case-row.is-cur .mark{background:var(--amber);border-color:var(--amber)}
-.case-row.is-cur .mark svg{opacity:1}
-
-.case-row .txt{flex:1;min-width:0}
-.case-row .ttl,.case-row .meta{display:block}
-.case-row .ttl{font-size:15.5px;font-weight:500;line-height:1.4;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.case-row.is-cur .ttl{font-weight:600}
-.case-row .meta{font-size:12.5px;color:var(--muted);margin-top:4px}
-.case-row .meta .now{color:var(--amber);font-weight:600}
-/* 刪除是不可逆的，所以做成獨立按鈕，而不是整列長按之類的隱藏手勢 */
-.case-del{flex:0 0 auto;min-width:52px;min-height:52px;display:flex;align-items:center;
-  justify-content:center;color:var(--red);font-size:13px;font-weight:500}
 
 .seg{display:flex;gap:7px;padding:14px 16px}
 .seg button{
@@ -864,6 +887,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 <symbol id="ic-question" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M9.6 9.6a2.5 2.5 0 0 1 3.3-2.4c1 .4 1.7 1.3 1.7 2.4 0 1.4-1.1 1.9-1.8 2.4-.5.4-.8.9-.8 1.6"/><circle cx="12" cy="16.6" r=".95" fill="currentColor" stroke="none"/></symbol>
 <symbol id="ic-list" viewBox="0 0 24 24"><path d="M9.4 6.6h10M9.4 12h10M9.4 17.4h10"/><circle cx="5.2" cy="6.6" r=".95" fill="currentColor" stroke="none"/><circle cx="5.2" cy="12" r=".95" fill="currentColor" stroke="none"/><circle cx="5.2" cy="17.4" r=".95" fill="currentColor" stroke="none"/></symbol>
 <symbol id="ic-siren" viewBox="0 0 24 24"><path d="M8 13.2a4 4 0 0 1 8 0"/><path d="M6.4 13.2h11.2c.6 0 1 .5 1 1v2c0 .6-.4 1-1 1H6.4c-.6 0-1-.4-1-1v-2c0-.5.4-1 1-1Z"/><path d="M12 5.6V3.8M6.6 7.6 5.3 6.3M17.4 7.6l1.3-1.3"/></symbol>
+<symbol id="ic-folder" viewBox="0 0 24 24"><path d="M3.4 18.2V6.6c0-.9.7-1.6 1.6-1.6h4l2 2.4h7.6c.9 0 1.6.7 1.6 1.6v9.2c0 .9-.7 1.6-1.6 1.6H5c-.9 0-1.6-.7-1.6-1.6Z"/></symbol>
 <symbol id="ic-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.1"/><path d="M19.1 14.2a1.5 1.5 0 0 0 .3 1.7l.1.1a1.8 1.8 0 1 1-2.6 2.6l-.1-.1a1.5 1.5 0 0 0-1.7-.3 1.5 1.5 0 0 0-.9 1.4v.2a1.8 1.8 0 1 1-3.6 0v-.1a1.5 1.5 0 0 0-1-1.4 1.5 1.5 0 0 0-1.7.3l-.1.1a1.8 1.8 0 1 1-2.6-2.6l.1-.1a1.5 1.5 0 0 0 .3-1.7 1.5 1.5 0 0 0-1.4-.9h-.2a1.8 1.8 0 1 1 0-3.6h.1a1.5 1.5 0 0 0 1.4-1 1.5 1.5 0 0 0-.3-1.7l-.1-.1a1.8 1.8 0 1 1 2.6-2.6l.1.1a1.5 1.5 0 0 0 1.7.3h.1a1.5 1.5 0 0 0 .9-1.4v-.2a1.8 1.8 0 1 1 3.6 0v.1a1.5 1.5 0 0 0 .9 1.4 1.5 1.5 0 0 0 1.7-.3l.1-.1a1.8 1.8 0 1 1 2.6 2.6l-.1.1a1.5 1.5 0 0 0-.3 1.7v.1a1.5 1.5 0 0 0 1.4.9h.2a1.8 1.8 0 1 1 0 3.6h-.1a1.5 1.5 0 0 0-1.4.9Z"/></symbol>
 <symbol id="ic-arrow" viewBox="0 0 24 24"><path d="M4.5 12h15M14 6.5l5.5 5.5L14 17.5"/></symbol>
 <symbol id="ic-scale" viewBox="0 0 24 24"><path d="M12 5.4v14.2M8.4 19.6h7.2"/><path d="M4.6 8.2h14.8"/><path d="M4.6 8.2 2.2 13.4h4.8Z"/><path d="M19.4 8.2 17 13.4h4.8Z"/><circle cx="12" cy="4.5" r="1.1"/></symbol>
@@ -1123,8 +1147,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 
       <div class="blk">
         <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg>事故案件</p>
-        <div class="card" id="case-box"></div>
-        <p class="case-note" id="case-note"></p>
+        <div id="case-box"></div>
       </div>
 
       <div class="blk">
@@ -1413,7 +1436,10 @@ function go(name, push){
   if (push !== false && location.hash !== '#' + name) location.hash = name;
   /* 案件標題與「是不是空的」都是從其他分頁填出來的，進「我的」時重畫一次，
      不必在每個寫入點都記得通知這裡。renderCases 定義在後面，靠 hoisting。 */
-  if (name === 'me' && typeof renderCases === 'function') renderCases();
+  if (name === 'me' && typeof renderCases === 'function'){
+    renderCases();
+    refreshPhotoCounts(renderCases);   /* 張數是非同步的，回來再補畫一次 */
+  }
 }
 
 /* 頁首的齒輪：設定全部在「我的」，不另外做一頁 */
@@ -1976,6 +2002,11 @@ function withStore(mode, fn){
 function photosOfCase(id){
   return withStore('readonly', function(s){ return s.index('case').getAll(id); });
 }
+/* 只要數量的時候用 count()，不要 getAll().length ——
+   後者會把每個案件的 ArrayBuffer 全部讀進來，只為了數幾張。 */
+function photoCountOf(id){
+  return withStore('readonly', function(s){ return s.index('case').count(id); });
+}
 function photoAdd(rec){
   rec.case = curCaseId();
   return withStore('readwrite', function(s){ return s.add(rec); });
@@ -2210,10 +2241,10 @@ $('btn-share-all').addEventListener('click', function(){ sharePhotos(PHOTO_CACHE
 $('btn-del-photos').addEventListener('click', function(){
   if (!PHOTO_CACHE.length){ toast('目前沒有照片'); return; }
   photosClearCase(curCaseId()).then(loadPhotos).then(function(){
-    renderPH(); renderStorage(); toast('本案件的照片已刪除');
+    renderPH(); renderStorage(); refreshPhotoCounts(renderCases); toast('本案件的照片已刪除');
   });
 });
-loadPhotos().then(function(){ renderPH(); sweepOrphanPhotos(); });
+loadPhotos().then(function(){ renderPH(); sweepOrphanPhotos(); refreshPhotoCounts(renderCases); });
 renderPH();
 
 /* =========================================================
@@ -2744,13 +2775,47 @@ function fmtDate(ts){
   return d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
 }
 
-/* 標題不另外存，每次從該案件的位置算出來 —— 存了就會跟事後補上的地址不同步 */
+function casePack(id){ return id === cases.cur ? caseData : rawLoad(caseKey(id)); }
+
+/* 標題用日期，不用地址：地址可能是空的、可能很長，而且事後才查得到。
+   日期在案件建立的那一刻就確定，永遠有值。 */
 function caseTitle(id){
-  var d = (id === cases.cur) ? caseData : rawLoad(caseKey(id));
-  var s = d[LS.site] || {};
-  if (s.addr) return s.addr;
+  var c = caseById(id), d = new Date(c ? c.ts : Date.now());
+  var y = d.getFullYear() === new Date().getFullYear()
+        ? '' : d.getFullYear() + '/';
+  return y + (d.getMonth() + 1) + '/' + d.getDate() + ' 事故';
+}
+
+/* 「高雄市三民區市中一路2號」→「高雄市三民區」。
+   路名與門牌在這裡是雜訊，一眼要認出的是哪一次事故。 */
+function caseArea(id){
+  var s = casePack(id)[LS.site] || {};
+  if (s.addr){
+    var m = s.addr.match(/^(.+?[縣市])(.+?[區鄉鎮市])/);
+    if (m) return m[1] + m[2];
+    return s.addr.length > 10 ? s.addr.slice(0, 10) + '…' : s.addr;
+  }
   if (hasCoords(s)) return '座標 ' + fmtLL(s);
-  return '未記錄地點';
+  return '';
+}
+
+/* 現場處理走到第幾步。分母就是 STEPS 的長度，不寫死 */
+function caseProgress(id){
+  var st = casePack(id)[LS.tl] || {}, n = 0;
+  for (var i = 0; i < STEPS.length; i++) if (st[i]) n++;
+  return n + '/' + STEPS.length;
+}
+
+/* 照片張數是非同步查來的，先畫出畫面再補上，不要為了一個數字擋住整頁 */
+var photoCounts = {};
+function refreshPhotoCounts(cb){
+  var ids = cases.list.map(function(c){ return c.id; });
+  var left = ids.length, out = {};
+  if (!left){ photoCounts = {}; if (cb) cb(); return; }
+  ids.forEach(function(id){
+    photoCountOf(id).then(function(n){ out[id] = n; }, function(){ out[id] = 0; })
+      .then(function(){ if (--left === 0){ photoCounts = out; if (cb) cb(); } });
+  });
 }
 
 function switchCase(id){
@@ -2778,59 +2843,70 @@ function caseIsEmpty(id){
   return true;
 }
 
+var NEW_CARD =
+  '<button class="case-new" data-act="new">' +
+    '<span class="plus">＋</span><span class="t">開始新案件</span><span class="ar">›</span>' +
+  '</button>';
+
+function caseMeta(id){
+  var bits = [], area = caseArea(id), n = photoCounts[id];
+  if (area) bits.push(esc(area));
+  if (n != null) bits.push('照片 ' + n + ' 張');
+  bits.push('進度 ' + caseProgress(id));
+  return bits.join(' ・ ');
+}
+
 function renderCases(){
-  var box = $('case-box'), h = '', i, x, cur = caseById(cases.cur);
+  var box = $('case-box'), h = '', i, x;
   var multi = cases.list.length > 1;
 
   /* 只剩一件而且是空的 = 使用者眼中的「什麼都沒有」。
-     照常畫成一列會變成「刪了卻還在」，那正是這個空白狀態要解掉的誤會。 */
+     照常畫成一張卡會變成「刪了卻還在」，那正是這個空白狀態要解掉的誤會。 */
   if (!multi && caseIsEmpty(cases.list[0].id)){
     box.innerHTML =
-      '<div class="case-empty">' +
+      '<div class="card case-empty">' +
         '<div class="t">目前沒有事故紀錄</div>' +
         '<div class="s">在「現場」取得位置，或到「存證」拍第一張照片，<br>' +
           '這裡就會自動出現一件。</div>' +
       '</div>';
-    $('case-note').textContent = '';
-    $('case-note').hidden = true;
     return;
   }
-  $('case-note').hidden = false;
 
   for (i = 0; i < cases.list.length; i++){
     x = cases.list[i];
     var isCur = x.id === cases.cur;
-    h += '<div class="case-row' + (isCur ? ' is-cur' : '') + '">' +
-           '<button class="col" data-go="' + x.id + '"' +
-             (isCur ? ' aria-current="true"' : '') + '>' +
-             '<span class="mark">' + CHECK + '</span>' +
-             '<span class="txt">' +
-               '<span class="ttl">' + esc(caseTitle(x.id)) + '</span>' +
-               '<span class="meta">' + fmtDate(x.ts) + '・' +
-                 (x.closed ? '已結案' : '處理中') +
-                 (isCur ? '<span class="now">・正在使用</span>' : '') +
+
+    h += '<div class="card case-card' + (isCur ? ' is-cur' : '') + '">' +
+           '<div class="cc-top">' +
+             '<span class="cc-ic">' + ico('folder') + '</span>' +
+             '<span class="cc-txt">' +
+               '<span class="cc-title">' + esc(caseTitle(x.id)) +
+                 '<span class="cc-tag' + (x.closed ? ' done' : '') + '">' +
+                   (x.closed ? '已結案' : '處理中') + '</span>' +
                '</span>' +
+               '<span class="cc-meta">' + caseMeta(x.id) + '</span>' +
              '</span>' +
-           '</button>' +
-           '<button class="case-del" data-del="' + x.id + '">刪除</button>' +
+           '</div>';
+
+    if (isCur){
+      h += '<div class="cc-acts">' +
+             '<button data-act="share">分享照片</button>' +
+             (x.closed
+               ? '<button data-act="reopen">重新開啟</button>'
+               : '<button data-act="close">結案</button>') +
+           '</div>' +
+           '<p class="cc-note">理賠常拖好幾個月。結案後紀錄仍會留著，隨時可以回來看。</p>';
+    } else {
+      h += '<div class="cc-acts">' +
+             '<button class="wide" data-go="' + x.id + '">切換到這件</button>' +
+           '</div>';
+    }
+
+    h += '<div class="cc-foot"><button class="cc-del" data-del="' + x.id + '">刪除這件</button></div>' +
          '</div>';
   }
 
-  h += (cur && cur.closed
-        ? '<button class="row-btn" data-act="reopen">' +
-            '<span class="ic">' + ico('alert') + '</span>' +
-            '<span class="t">重新開啟這件</span><span class="ar">›</span></button>'
-        : '<button class="row-btn" data-act="close">' +
-            '<span class="ic">' + ico('check') + '</span>' +
-            '<span class="t">結案，並開始新的一件</span><span class="ar">›</span></button>') +
-       '<button class="row-btn" data-act="new">' +
-         '<span class="ic">' + ico('camera') + '</span>' +
-         '<span class="t">直接建立新案件</span><span class="ar">›</span></button>';
-
-  box.innerHTML = h;
-  $('case-note').textContent = multi
-    ? '打勾的那一件，就是各分頁現在顯示的內容。點其他列即可切換。'
-    : '理賠常拖好幾個月。結案之後紀錄仍然留著，隨時可以切回來看。';
+  box.innerHTML = h + NEW_CARD;
 }
 
 $('case-box').addEventListener('click', function(e){
@@ -2847,6 +2923,11 @@ $('case-box').addEventListener('click', function(e){
 
   if (!act) return;
   var a = act.dataset.act, c = caseById(cases.cur);
+  if (a === 'share'){
+    /* 只分享目前這件的照片 —— PHOTO_CACHE 本來就只裝目前案件 */
+    sharePhotos(PHOTO_CACHE);
+    return;
+  }
   if (a === 'close'){
     ask('結案，並開始新的一件？', '紀錄與照片都會留著，隨時可以切回來。', '結案', function(){
       c.closed = Date.now();
@@ -2917,7 +2998,7 @@ function doDeleteCase(id, wasLast){
     newCase(false);
   }
   toast(wasLast ? '已刪除，目前沒有任何紀錄' : '已刪除');
-  photosClearCase(id).then(function(){ renderStorage(); }, function(){});
+  photosClearCase(id).then(function(){ renderStorage(); refreshPhotoCounts(renderCases); }, function(){});
 }
 
 /* 開啟時掃掉沒有案件認領的照片。照片刪除是背景進行的，可能因為當掉、

@@ -70,9 +70,9 @@ CHECK_MIGRATION = r"""
     oldKeyStillThere: localStorage.getItem('aa.site.v1') !== null,
     locOnScreen: (document.getElementById('loc-addr')||{}).textContent,
     photosLoaded: (window.__t ? 0 : document.querySelectorAll('#ph-body .ph.done').length),
-    caseTitle: (document.querySelector('#case-box .case-row.is-cur .ttl')||{}).textContent,
-    curRows: document.querySelectorAll('#case-box .case-row.is-cur').length,
-    otherRows: document.querySelectorAll('#case-box .case-row:not(.is-cur)').length
+    caseMeta: (document.querySelector('#case-box .case-card.is-cur .cc-meta')||{}).textContent,
+    curRows: document.querySelectorAll('#case-box .case-card.is-cur').length,
+    otherRows: document.querySelectorAll('#case-box .case-card:not(.is-cur)').length
   };
 })()
 """
@@ -186,18 +186,18 @@ async def run():
                   locCardReady: document.getElementById('loc-card').classList.contains('ready'),
                   tlDone: document.querySelectorAll('#tl .done').length,
                   otherPlate: (document.querySelector('[name=plate],#f-plate')||{}).value,
-                  caseTitle: (document.querySelector('#case-box .case-row.is-cur .ttl')||{}).textContent,
-                  curRows: document.querySelectorAll('#case-box .case-row.is-cur').length,
-                  otherRows: document.querySelectorAll('#case-box .case-row:not(.is-cur)').length,
-                  otherTitle: (document.querySelector('#case-box .case-row:not(.is-cur) .ttl')||{}).textContent,
-                  curHasDelete: !!document.querySelector('#case-box .case-row.is-cur [data-del]'),
+                  caseMeta: (document.querySelector('#case-box .case-card.is-cur .cc-meta')||{}).textContent,
+                  curRows: document.querySelectorAll('#case-box .case-card.is-cur').length,
+                  otherRows: document.querySelectorAll('#case-box .case-card:not(.is-cur)').length,
+                  otherTitle: (document.querySelector('#case-box .case-card:not(.is-cur) .cc-meta')||{}).textContent,
+                  curHasDelete: !!document.querySelector('#case-box .case-card.is-cur [data-del]'),
                   photosShown: document.querySelectorAll('#ph-body .ph.done').length
                 };
               })()
             """), ensure_ascii=False, indent=2))
 
             # ---- 4. 切回舊案件，資料要回來 ----
-            await js("document.querySelector('#case-box .case-row:not(.is-cur) [data-go]').click()",
+            await js("document.querySelector('#case-box .case-card:not(.is-cur) [data-go]').click()",
                      awaitp=False)
             await asyncio.sleep(1.2)
             print("\n=== 切回第一件 ===")
@@ -211,7 +211,7 @@ async def run():
                   locCardReady: document.getElementById('loc-card').classList.contains('ready'),
                   tlDone: document.querySelectorAll('#tl .done').length,
                   photosShown: document.querySelectorAll('#ph-body .ph.done').length,
-                  caseTitle: (document.querySelector('#case-box .case-row.is-cur .ttl')||{}).textContent,
+                  caseMeta: (document.querySelector('#case-box .case-card.is-cur .cc-meta')||{}).textContent,
                   toast: (document.getElementById('toast')||{}).textContent
                 };
               })()
@@ -224,8 +224,8 @@ async def run():
               (function(){
                 return {
                   locOnScreen: (document.getElementById('loc-addr')||{}).textContent,
-                  caseTitle: (document.querySelector('#case-box .case-row.is-cur .ttl')||{}).textContent,
-                  otherRows: document.querySelectorAll('#case-box .case-row:not(.is-cur)').length
+                  caseMeta: (document.querySelector('#case-box .case-card.is-cur .cc-meta')||{}).textContent,
+                  otherRows: document.querySelectorAll('#case-box .case-card:not(.is-cur)').length
                 };
               })()
             """), ensure_ascii=False, indent=2))
@@ -243,8 +243,8 @@ async def run():
                   caseCount: idx.list.length,
                   closedCount: closed.length,
                   curIsNew: !idx.list.filter(function(c){return c.id===idx.cur;})[0].closed,
-                  otherRows: document.querySelectorAll('#case-box .case-row:not(.is-cur)').length,
-                  metas: [].map.call(document.querySelectorAll('#case-box .case-row .meta'),
+                  otherRows: document.querySelectorAll('#case-box .case-card:not(.is-cur)').length,
+                  metas: [].map.call(document.querySelectorAll('#case-box .case-card .cc-meta'),
                                      function(e){return e.textContent;})
                 };
               })()
@@ -254,9 +254,10 @@ async def run():
             # 刻意挑已結案那件（就是遷移進來、帶著照片的第一件），
             # 隨手刪第一列會刪到空案件，等於什麼都沒驗到。
             await js(confirming("""
-                var rows = document.querySelectorAll('#case-box .case-row:not(.is-cur)');
+                var rows = document.querySelectorAll('#case-box .case-card:not(.is-cur)');
                 for (var i=0;i<rows.length;i++){
-                  if (rows[i].querySelector('.meta').textContent.indexOf('已結案') >= 0){
+                  var tag = rows[i].querySelector('.cc-tag');
+                  if (tag && tag.textContent.indexOf('已結案') >= 0){
                     rows[i].querySelector('[data-del]').click(); return 'deleted closed one';
                   }
                 }
@@ -278,14 +279,14 @@ async def run():
                       res({ caseCount: idx.list.length,
                             orphanPacks: orphanKeys,
                             photosLeft: e.target.result.length,
-                            otherRows: document.querySelectorAll('#case-box .case-row:not(.is-cur)').length });
+                            otherRows: document.querySelectorAll('#case-box .case-card:not(.is-cur)').length });
                     };
                   };
                 });
               })()
             """), ensure_ascii=False, indent=2))
             # ---- 8. 刪除「目前這件」，且還有別的案件在 ----
-            await js(confirming("document.querySelector('#case-box .case-row.is-cur [data-del]').click();"),
+            await js(confirming("document.querySelector('#case-box .case-card.is-cur [data-del]').click();"),
                      awaitp=False)
             await asyncio.sleep(1.5)
             print("\n=== 刪除目前這件（尚有其他案件）===")
@@ -295,8 +296,8 @@ async def run():
                 return {
                   caseCount: idx.list.length,
                   curExists: idx.list.some(function(c){ return c.id === idx.cur; }),
-                  curRows: document.querySelectorAll('#case-box .case-row.is-cur').length,
-                  caseTitle: (document.querySelector('#case-box .case-row.is-cur .ttl')||{}).textContent,
+                  curRows: document.querySelectorAll('#case-box .case-card.is-cur').length,
+                  caseMeta: (document.querySelector('#case-box .case-card.is-cur .cc-meta')||{}).textContent,
                   orphanPacks: Object.keys(localStorage).filter(function(k){
                     return k.indexOf('aa.case.') === 0 &&
                            !idx.list.some(function(c){ return 'aa.case.'+c.id === k; });
@@ -311,7 +312,7 @@ async def run():
                                 awaitp=False)
                 if left <= 1:
                     break
-                await js(confirming("document.querySelector('#case-box .case-row [data-del]').click();"),
+                await js(confirming("document.querySelector('#case-box .case-card [data-del]').click();"),
                          awaitp=False)
                 await asyncio.sleep(1.2)
 
@@ -350,7 +351,7 @@ async def run():
                   curExists: idx.list.some(function(c){ return c.id === idx.cur; }),
                   packIsEmpty: Object.keys(pack||{}).length === 0,
                   packKeys: Object.keys(pack||{}),
-                  caseTitle: (document.querySelector('#case-box .case-row.is-cur .ttl')||{}).textContent,
+                  caseMeta: (document.querySelector('#case-box .case-card.is-cur .cc-meta')||{}).textContent,
                   orphanPacks: Object.keys(localStorage).filter(function(k){
                     return k.indexOf('aa.case.') === 0 &&
                            !idx.list.some(function(c){ return 'aa.case.'+c.id === k; });
@@ -367,7 +368,7 @@ async def run():
                 var idx = JSON.parse(localStorage.getItem('aa.cases.v1'));
                 return { caseCount: idx.list.length,
                          curExists: idx.list.some(function(c){ return c.id === idx.cur; }),
-                         caseTitle: (document.querySelector('#case-box .case-row.is-cur .ttl')||{}).textContent };
+                         caseMeta: (document.querySelector('#case-box .case-card.is-cur .cc-meta')||{}).textContent };
               })()
             """), ensure_ascii=False, indent=2))
     finally:
