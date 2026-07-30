@@ -162,6 +162,11 @@ body.is-offline .chip-off{display:flex}
 @media (max-width:360px){ .hero-art{display:none} }
 
 /* 品牌列右側的設定鍵 */
+.head-row{display:flex;align-items:center;gap:12px}
+.head-row h1{flex:1;min-width:0}
+/* 設定視窗的內容從標題列下方開始，需要一點呼吸空間 */
+#set-sheet .sheet-inner{padding-top:18px}
+
 .head-btn{
   margin-left:auto;width:44px;height:44px;margin-right:-10px;
   display:flex;align-items:center;justify-content:center;
@@ -597,6 +602,8 @@ a.row-btn{color:inherit;text-decoration:none}
 .case-new .ar{color:var(--chev);font-size:19px}
 .case-new:active{transform:scale(.995)}
 
+.set-foot{font-size:13px;color:var(--muted);line-height:1.7;margin:14px 4px 0}
+
 /* 空白狀態：App 內部仍然握著一個案件，但那是實作需求，不該讓使用者
    在列表裡看到一列「未記錄地點」—— 那看起來就像剛才根本沒刪掉。 */
 .case-empty{padding:26px 20px;text-align:center}
@@ -755,7 +762,13 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 }
 .prep .t{flex:1;font-size:16px;line-height:1.5}
 .prep .s{display:block;font-size:13.5px;color:var(--muted);margin-top:3px;line-height:1.5}
-.sheet-close{font-size:16px;color:var(--muted);padding:6px 4px;flex:0 0 auto}
+/* 所有 sheet 共用的關閉鍵。原本 40×38，低於 44 的觸控門檻 ——
+   右上角本來就難按，這裡差幾像素是實際會按不到的 */
+.sheet-close{
+  font-size:16px;color:var(--muted);flex:0 0 auto;
+  min-width:44px;min-height:44px;padding:6px 4px;
+  display:flex;align-items:center;justify-content:center;
+}
 .sheet-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 20px 40px}
 .sheet-inner{max-width:520px;margin:0 auto;width:100%}
 .qhead{padding:30px 0 26px}
@@ -1142,7 +1155,12 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <section class="view" id="v-me" role="tabpanel" aria-label="我的">
     <div class="view-in">
       <div class="page-head">
-        <h1>我的</h1>
+        <div class="head-row">
+          <h1>我的</h1>
+          <button class="head-btn" id="go-settings-2" aria-label="設定">
+            <svg class="i"><use href="#ic-gear"/></svg>
+          </button>
+        </div>
       </div>
 
       <div class="blk">
@@ -1158,44 +1176,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
             <button data-v="light">淺色</button>
             <button data-v="dark">深色</button>
           </div>
-        </div>
-      </div>
-
-      <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg>設定</p>
-        <div class="card">
-          <button class="row-btn" id="btn-install">
-            <span class="ic"><svg class="i"><use href="#ic-share"/></svg></span>
-            <span class="t">加入主畫面</span><span class="ar">›</span>
-          </button>
-          <button class="row-btn" id="btn-share-all">
-            <span class="ic"><svg class="i"><use href="#ic-share"/></svg></span>
-            <span class="t">分享本案件的照片</span><span class="ar">›</span>
-          </button>
-          <button class="row-btn warn" id="btn-del-photos">
-            <span class="ic"><svg class="i"><use href="#ic-camera"/></svg></span>
-            <span class="t">刪除本案件的照片</span><span class="ar">›</span>
-          </button>
-          <button class="row-btn warn" id="btn-reset-all">
-            <span class="ic"><svg class="i"><use href="#ic-ban"/></svg></span>
-            <span class="t">清除本案件的進度</span><span class="ar">›</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-shield"/></svg>關於</p>
-        <div class="card">
-          <a class="row-btn" href="privacy.html">
-            <span class="ic"><svg class="i"><use href="#ic-id"/></svg></span>
-            <span class="t">隱私權政策</span><span class="ar">›</span>
-          </a>
-        </div>
-      </div>
-
-      <div class="blk">
-        <div class="card">
-          <p class="storage" id="storage-info"></p>
         </div>
       </div>
 
@@ -1279,6 +1259,59 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
     <div class="row">
       <button class="go" id="install-go">加入主畫面</button>
       <button class="no" id="install-no">以後再說</button>
+    </div>
+  </div>
+</div>
+
+<!-- 設定：獨立視窗。從「現場」頁首的齒輪進來，不佔分頁列的位置 -->
+<div class="sheet" id="set-sheet" role="dialog" aria-modal="true" aria-label="設定">
+  <div class="sheet-top">
+    <span class="sheet-title">設定</span>
+    <button class="sheet-close" id="set-close">完成</button>
+  </div>
+  <div class="sheet-scroll">
+    <div class="sheet-inner">
+      <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-camera"/></svg>這件事故</p>
+        <div class="card">
+          <button class="row-btn" id="btn-share-all">
+            <span class="ic"><svg class="i"><use href="#ic-share"/></svg></span>
+            <span class="t">分享本案件的照片</span><span class="ar">›</span>
+          </button>
+          <button class="row-btn warn" id="btn-del-photos">
+            <span class="ic"><svg class="i"><use href="#ic-camera"/></svg></span>
+            <span class="t">刪除本案件的照片</span><span class="ar">›</span>
+          </button>
+          <button class="row-btn warn" id="btn-reset-all">
+            <span class="ic"><svg class="i"><use href="#ic-ban"/></svg></span>
+            <span class="t">清除本案件的進度</span><span class="ar">›</span>
+          </button>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <p class="storage" id="storage-info"></p>
+        </div>
+      </div>
+
+      <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg>應用程式</p>
+        <div class="card">
+          <button class="row-btn" id="btn-install">
+            <span class="ic"><svg class="i"><use href="#ic-share"/></svg></span>
+            <span class="t">加入主畫面</span><span class="ar">›</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-shield"/></svg>關於</p>
+        <div class="card">
+          <a class="row-btn" href="privacy.html">
+            <span class="ic"><svg class="i"><use href="#ic-id"/></svg></span>
+            <span class="t">隱私權政策</span><span class="ar">›</span>
+          </a>
+        </div>
+        <p class="set-foot">事故資料與照片只存在這支手機裡，不會上傳任何地方。</p>
+      </div>
     </div>
   </div>
 </div>
@@ -1442,8 +1475,15 @@ function go(name, push){
   }
 }
 
-/* 頁首的齒輪：設定全部在「我的」，不另外做一頁 */
-$('go-settings').addEventListener('click', function(){ go('me'); });
+/* 頁首的齒輪：開設定視窗。做成 sheet 而不是第六個分頁 ——
+   分頁列的位置要留給事故現場用得到的東西。 */
+function openSettings(){
+  renderStorage();                       /* 容量是即時的，每次開都重算 */
+  $('set-sheet').classList.add('open');
+}
+$('go-settings').addEventListener('click', openSettings);
+$('go-settings-2').addEventListener('click', openSettings);
+$('set-close').addEventListener('click', function(){ $('set-sheet').classList.remove('open'); });
 
 document.querySelectorAll('.tab').forEach(function(t){
   t.addEventListener('click', function(){
@@ -2409,6 +2449,7 @@ document.addEventListener('keydown', function(e){
   if (e.key !== 'Escape') return;
   /* 確認對話框疊在最上層，Esc 應該只關掉它，不要一路關掉底下的東西 */
   if ($('ask').classList.contains('open')){ askClose(false); return; }
+  if ($('set-sheet').classList.contains('open')){ $('set-sheet').classList.remove('open'); return; }
   if ($('sheet').classList.contains('open')) closeSheet();
   if ($('ins-sheet').classList.contains('open')) $('ins-sheet').classList.remove('open');
   if ($('other-sheet').classList.contains('open')){ $('other-sheet').classList.remove('open'); renderOther(); }
