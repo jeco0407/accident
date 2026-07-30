@@ -643,6 +643,8 @@ a.row-btn{color:inherit;text-decoration:none}
   border-radius:var(--r-sm);
 }
 .auth-foot{font-size:13px;color:var(--muted);line-height:1.7;margin:22px 0 0}
+.auth-link{display:block;width:100%;min-height:44px;margin-top:6px;
+  font-size:14.5px;font-weight:500;color:var(--muted)}
 
 /* 空白狀態：App 內部仍然握著一個案件，但那是實作需求，不該讓使用者
    在列表裡看到一列「未記錄地點」—— 那看起來就像剛才根本沒刪掉。 */
@@ -1360,6 +1362,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 
       <p class="auth-err" id="auth-err" hidden></p>
       <button type="submit" class="btn-primary" id="auth-go">建立帳號</button>
+      <button type="button" class="auth-link" id="auth-forgot" hidden>忘記密碼？</button>
     </form>
 
     <p class="auth-foot" id="auth-foot"></p>
@@ -1561,7 +1564,95 @@ $('ask').addEventListener('click', function(e){ if (e.target === this) askClose(
    - 開啟時只讀本機旗標，不呼叫 getSession()
    - 旗標只在使用者主動登出時清除；token 過期、續期失敗、離線都不清
    ========================================================= */
-var LS_REG = 'aa.registered.v1', LS_ACC = 'aa.account.v1';
+/* Supabase。anon key 是**設計上就要公開**的，靠 RLS 擋，不是祕密。
+   service_role key 永遠不會出現在這個檔案裡 —— 它繞過所有 RLS。 */
+var SUPA = {
+  url: 'https://hujiiaqlbuwzfdfxqqfq.supabase.co',
+  key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9' +
+       '.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1amlpYXFsYnV3emZkZnhxcWZxIiwicm9sZSI6ImFub24i' +
+       'LCJpYXQiOjE3ODU0MTQwNzEsImV4cCI6MjEwMDk5MDA3MX0' +
+       '.WGqbTNevErZQfHUAvw8EbzEAie7vANstAbgVhEmGtdY'
+};
+
+var LS_REG = 'aa.registered.v1', LS_ACC = 'aa.account.v1', LS_SESS = 'aa.session.v1';
+
+/* 刻意不用 supabase-js。這裡只需要四個 POST，而引入 SDK 要付的代價是：
+   多一個要塞進 service worker 快取的檔案、多一份要跟著更新的依賴，
+   而這個 App 的第一原則是「離線可用、沒有 build step」。 */
+function supaFetch(path, body, token){
+  var ctrl = (typeof AbortController === 'function') ? new AbortController() : null;
+  /* 沒有逾時的話，訊號差的時候按鈕會一直轉，使用者不知道發生什麼事 */
+  var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, 15000) : null;
+  var headers = { 'apikey': SUPA.key, 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+
+  return fetch(SUPA.url + path, {
+    method: 'POST', headers: headers,
+    body: JSON.stringify(body || {}),
+    signal: ctrl ? ctrl.signal : undefined
+  }).then(function(res){
+    if (timer) clearTimeout(timer);
+    return res.text().then(function(t){
+      var j = null;
+      try{ j = t ? JSON.parse(t) : null; }catch(e){}
+      return { ok: res.ok, status: res.status, body: j };
+    });
+  }, function(err){
+    if (timer) clearTimeout(timer);
+    throw err;
+  });
+}
+
+/* Supabase 的錯誤訊息是英文，而且對一般人沒有意義。
+   只翻譯我們真的會遇到的那幾種，其餘給一句誠實的通則。 */
+function authMsg(r){
+  var b = r.body || {};
+  var code = b.error_code || b.code || '';
+  var msg = (b.msg || b.error_description || b.message || b.error || '') + '';
+  if (r.status === 0) return '連不上伺服器，請確認網路後再試一次。';
+  if (code === 'invalid_credentials' || /invalid login/i.test(msg))
+    return '電子郵件或密碼不對。';
+  if (code === 'email_not_confirmed' || /email not confirmed/i.test(msg))
+    return '這個信箱還沒完成確認，請先收信點開確認連結。';
+  if (code === 'user_already_exists' || /already registered|already been registered/i.test(msg))
+    return '這個信箱已經註冊過了，請改用「我已經有帳號」登入。';
+  if (code === 'weak_password' || /password should be/i.test(msg))
+    return '密碼強度不足，請換一組長一點的。';
+  if (code === 'over_email_send_rate_limit' || r.status === 429)
+    return '嘗試次數太多，請等幾分鐘再試。';
+  if (code === 'signup_disabled') return '目前暫停開放註冊。';
+  return msg ? ('無法完成：' + msg) : '無法完成，請稍後再試一次。';
+}
+
+function saveSession(s){
+  if (!s || !s.access_token) return null;
+  var sess = {
+    access_token: s.access_token,
+    refresh_token: s.refresh_token,
+    /* expires_in 是秒數。存成絕對時間，重開 App 才算得出還剩多久 */
+    expires_at: Date.now() + (s.expires_in || 3600) * 1000,
+    user: { id: (s.user || {}).id || '', email: (s.user || {}).email || '' }
+  };
+  rawSave(LS_SESS, sess);
+  return sess;
+}
+function session(){ return rawLoad(LS_SESS); }
+
+/* 靜默續期（離線鐵則第 1、4 條）。
+   失敗**一律不做任何事** —— 不清旗標、不跳登入頁、不顯示錯誤。
+   token 過期不等於登出；下次有網路再試就好。 */
+function refreshSession(){
+  var s = session();
+  if (!s.refresh_token || !navigator.onLine) return Promise.resolve(false);
+  if (s.expires_at && s.expires_at - Date.now() > 5 * 60 * 1000) return Promise.resolve(true);
+  return supaFetch('/auth/v1/token?grant_type=refresh_token',
+                   { refresh_token: s.refresh_token })
+    .then(function(r){
+      if (r.ok && r.body && r.body.access_token){ saveSession(r.body); return true; }
+      return false;
+    })
+    .catch(function(){ return false; });
+}
 
 function isRegistered(){
   try{ return localStorage.getItem(LS_REG) === '1'; }catch(e){ return false; }
@@ -1584,6 +1675,7 @@ function account(){ return rawLoad(LS_ACC); }
     $('auth-tel-wrap').hidden = mode !== 'up';
     $('auth-pw').setAttribute('autocomplete',
       mode === 'up' ? 'new-password' : 'current-password');
+    $('auth-forgot').hidden = mode !== 'in';
     err.hidden = true;
   }
   seg.querySelectorAll('button').forEach(function(b){
@@ -1602,23 +1694,89 @@ function account(){ return rawLoad(LS_ACC); }
        而且無法翻成中文。 */
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ fail('請輸入正確的電子郵件。'); return; }
     if (pw.length < 8){ fail('密碼至少要 8 個字元。'); return; }
-    if (tel && !/^09\d{8}$/.test(tel.replace(/[\s-]/g, ''))){
+    /* 只在建立帳號時檢查手機。登入模式下這個欄位是隱藏的 ——
+       拿一個使用者看不見的欄位擋他，是最讓人困惑的一種錯誤。 */
+    if (mode === 'up' && tel && !/^09\d{8}$/.test(tel.replace(/[\s-]/g, ''))){
       fail('手機號碼格式看起來不對，或直接留空。'); return;
     }
 
-    /* ── M2 要換掉的就是這幾行 ──
-       改成 supabase.auth.signUp / signInWithPassword，
-       成功之後同樣寫入旗標。旗標的意義不變。 */
-    var acc = { email: email, tel: tel || '', at: Date.now() };
-    try{
-      localStorage.setItem(LS_REG, '1');
-      rawSave(LS_ACC, acc);
-    }catch(e2){
-      fail('這支手機的儲存空間無法寫入，請確認沒有在無痕模式。'); return;
+    var btn = $('auth-go');
+    btn.disabled = true;
+    btn.textContent = mode === 'up' ? '建立中…' : '登入中…';
+    err.hidden = true;
+
+    var req = mode === 'up'
+      ? supaFetch('/auth/v1/signup',
+                  { email: email, password: pw, data: { phone: tel || '' } })
+      : supaFetch('/auth/v1/token?grant_type=password',
+                  { email: email, password: pw });
+
+    req.then(function(r){
+      if (!r.ok){ fail(authMsg(r)); return; }
+      var b = r.body || {};
+
+      /* 專案若開著「確認信」，註冊回來的是使用者資料但**沒有 session**。
+         這時候還不能算註冊完成 —— 旗標一旦寫下去，下次開啟就直接進 App，
+         但實際上他還登不進來。誠實一點，停在「去收信」。 */
+      if (mode === 'up' && !b.access_token){
+        showConfirmSent(email);
+        return;
+      }
+
+      var sess = saveSession(b);
+      if (!sess){ fail('登入回應不完整，請再試一次。'); return; }
+
+      try{
+        localStorage.setItem(LS_REG, '1');
+        rawSave(LS_ACC, { email: sess.user.email || email, tel: tel || '', at: Date.now() });
+      }catch(e2){
+        fail('這支手機的儲存空間無法寫入，請確認沒有在無痕模式。'); return;
+      }
+      document.documentElement.removeAttribute('data-auth');
+      toast(mode === 'up' ? '帳號已建立' : '已登入');
+      renderAccount();
+    }).catch(function(e2){
+      /* AbortError = 我們自己的 15 秒逾時 */
+      fail(e2 && e2.name === 'AbortError'
+        ? '等太久了，可能是訊號不穩。請再試一次。'
+        : '連不上伺服器，請確認網路後再試一次。');
+    }).then(function(){
+      /* 只還原按鈕，不要呼叫 paint() —— paint() 會清掉錯誤訊息，
+         那正是剛剛才設好、使用者需要看到的東西。 */
+      btn.disabled = !navigator.onLine;
+      btn.textContent = mode === 'up' ? '建立帳號' : '登入';
+    });
+  });
+
+  /* 等待確認信。刻意換掉整個表單 —— 留著表單會讓人一直重按 */
+  function showConfirmSent(email){
+    $('auth-h').textContent = '確認信已寄出';
+    $('auth-form').hidden = true;
+    seg.hidden = true;
+    $('auth-sub').innerHTML =
+      '我們寄了一封確認信到 <strong>' + esc(email) + '</strong>。<br>' +
+      '點開信裡的連結完成確認，再回來登入。';
+    $('auth-foot').textContent = '沒收到？看一下垃圾郵件匣。信箱打錯的話，重新整理再填一次。';
+  }
+
+  /* 忘記密碼 */
+  $('auth-forgot').addEventListener('click', function(){
+    var email = $('auth-email').value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){
+      fail('請先在上面填入你註冊時的電子郵件。'); return;
     }
-    document.documentElement.removeAttribute('data-auth');
-    toast(mode === 'up' ? '帳號已建立' : '已登入');
-    renderAccount();
+    var b = this;
+    b.disabled = true; b.textContent = '寄送中…';
+    supaFetch('/auth/v1/recover', { email: email }).then(function(){
+      /* 不論成功失敗都給同一句話。回報「查無此信箱」等於讓任何人
+         拿這個表單去測試某個信箱有沒有註冊過。 */
+      err.hidden = true;
+      $('auth-foot').textContent = '如果 ' + email + ' 有註冊過，重設密碼的信已經寄出了。';
+    }).catch(function(){
+      fail('連不上伺服器，請確認網路後再試一次。');
+    }).then(function(){
+      b.disabled = false; b.textContent = '忘記密碼？';
+    });
   });
 
   /* 連線狀態要跟著變，不能只在載入時算一次 —— 使用者很可能是在這一頁
@@ -1645,7 +1803,8 @@ function renderAccount(){
   var on = (window.__auth || {}).on;
   $('acc-blk').hidden = !on;
   if (!on) return;
-  var a = account();
+  var a = account(), sess = session();
+  if (sess.user && sess.user.email) a.email = sess.user.email;
   box.innerHTML =
     '<div class="acc-row">' +
       '<span class="k">登入身分</span>' +
@@ -1662,9 +1821,29 @@ function renderAccount(){
        事故資料留著不動 —— 登出不是刪除。 */
     ask('登出這個帳號？', '事故紀錄與照片會留在這支手機上，不會被刪除。\n' +
         '下次開啟需要重新登入。', '登出', function(){
-      try{ localStorage.removeItem(LS_REG); localStorage.removeItem(LS_ACC); }catch(e){}
+      var s = session();
+      /* 通知伺服器讓 refresh token 失效。**不等它** ——
+         離線或伺服器沒回應時，本機還是要能登出。 */
+      if (s.access_token && navigator.onLine){
+        supaFetch('/auth/v1/logout', {}, s.access_token).catch(function(){});
+      }
+      try{
+        localStorage.removeItem(LS_REG);
+        localStorage.removeItem(LS_ACC);
+        localStorage.removeItem(LS_SESS);
+      }catch(e){}
       location.reload();
     });
+  });
+}
+
+/* 開機時試著續期。fire-and-forget —— 這一行的成敗絕不影響 App 能不能用。
+   離線鐵則第 1 條：token 過期不等於登出，續期失敗就沉默重試。 */
+if ((window.__auth || {}).on && isRegistered()) {
+  refreshSession();
+  /* 回到前景時再試一次。App 常常被切走幾小時，回來時 token 已經過期 */
+  document.addEventListener('visibilitychange', function(){
+    if (!document.hidden) refreshSession();
   });
 }
 

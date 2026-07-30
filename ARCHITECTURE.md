@@ -380,11 +380,16 @@ App 內必須提供**刪除帳號**的功能，且要真的刪掉資料（`on de
 M2 只需要換掉 `submitAuth` 那幾行（寫旗標之前改成呼叫 Supabase），
 畫面與開啟流程都不必動。測試在 `tests/test_auth.py`。
 
-### M2 — 接上 Supabase Auth
+### M2 — 接上 Supabase Auth ✅ 大致完成（v37）
 
-- Email + 密碼註冊、登入、忘記密碼
-- session 持久化與靜默續期
-- 刪除帳號
+- ✅ Email + 密碼註冊、登入、忘記密碼
+- ✅ session 持久化與靜默續期（續期失敗一律沉默，不清旗標）
+- ⬜ 刪除帳號（需要 Edge Function 或後台操作，留到有真實使用者前補）
+
+**不使用 supabase-js**，直接 `fetch` 打 `/auth/v1/*`。理由：離線優先、沒有 build step，
+只為四個 POST 引入 SDK 不划算。專案 URL 與 anon key 寫在 `index.html` 的 `SUPA`。
+
+`supabase/001_profiles.sql` 需在後台 SQL Editor 執行。
 
 ### M3 — 事故資料上雲
 

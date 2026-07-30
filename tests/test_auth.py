@@ -66,9 +66,23 @@ async def run():
                     return {"__error": json.dumps(ex, ensure_ascii=False)[:300]}
                 return r.get("result", {}).get("result", {}).get("value")
 
+            async def pump(sec):
+                """等待時持續把事件抽出來。
+
+                只用 asyncio.sleep 的話，這段期間到達的 Network.requestWillBeSent
+                會留在 socket 緩衝區沒人讀 —— 「沒有對外請求」的結論就會是假的。"""
+                end = asyncio.get_event_loop().time() + sec
+                while asyncio.get_event_loop().time() < end:
+                    try:
+                        msg = json.loads(await asyncio.wait_for(ws.recv(), timeout=0.25))
+                    except asyncio.TimeoutError:
+                        continue
+                    if msg.get("method") == "Network.requestWillBeSent":
+                        reqs.append(msg["params"]["request"]["url"])
+
             async def goto(u, wait=2.4):
                 await send("Page.navigate", {"url": u})
-                await asyncio.sleep(wait)
+                await pump(wait)
 
             await send("Page.enable")
             await send("Runtime.enable")
@@ -122,22 +136,45 @@ async def run():
                 """ % (json.dumps(email), json.dumps(pw), json.dumps(tel)))
                 print("  %-12s → %s" % (label, json.dumps(r, ensure_ascii=False)))
 
-            # ---- 3. 正確填寫 ----
+            # ---- 3. 真的打到 Supabase（只測錯誤路徑）----
+            # 刻意**不建立帳號**：專案開著 email 確認信，成功註冊會寄信給
+            # 一個不存在的地址，既沒必要也可能傷到寄件信譽。
+            # 用一組必定失敗的登入，驗證三件事：
+            #   anon key 有被接受（不是 401 No API key）、
+            #   錯誤有被翻成中文、旗標沒有被寫下去。
             r = await js("""
-              (function(){
-                document.getElementById('auth-email').value = 'user@example.com';
-                document.getElementById('auth-pw').value = 'hunter2hunter2';
-                document.getElementById('auth-tel').value = '0912345678';
+              new Promise(function(res){
+                document.querySelector('#auth-seg [data-m=in]').click();
+                document.getElementById('auth-email').value = 'nobody-' + Date.now() + '@guardy.invalid';
+                document.getElementById('auth-pw').value = 'definitely-not-the-password';
                 document.getElementById('auth-go').click();
-                return {
-                  authShown: getComputedStyle(document.getElementById('auth')).display !== 'none',
-                  registered: localStorage.getItem('aa.registered.v1'),
-                  account: localStorage.getItem('aa.account.v1')
-                };
+                setTimeout(function(){
+                  var e = document.getElementById('auth-err');
+                  res({ err: e.hidden ? null : e.textContent,
+                        stillShown: getComputedStyle(document.getElementById('auth')).display !== 'none',
+                        registered: localStorage.getItem('aa.registered.v1'),
+                        session: localStorage.getItem('aa.session.v1'),
+                        btnRestored: document.getElementById('auth-go').textContent });
+                }, 6000);
+              })
+            """, awaitp=True)
+            print("\n=== 對真實 Supabase 登入（必定失敗的帳密）===")
+            print(json.dumps(r, ensure_ascii=False, indent=2))
+
+            # ---- 3b. 直接種下已註冊狀態，供離線測試用 ----
+            # 不透過 UI，因為透過 UI 就會真的建立帳號。
+            await js("""
+              (function(){
+                localStorage.setItem('aa.registered.v1','1');
+                localStorage.setItem('aa.account.v1', JSON.stringify({email:'seed@example.com'}));
+                localStorage.setItem('aa.session.v1', JSON.stringify({
+                  access_token:'seed', refresh_token:'seed',
+                  expires_at: Date.now() + 3600000,
+                  user:{ id:'00000000-0000-0000-0000-000000000000', email:'seed@example.com' }
+                }));
+                return 'seeded';
               })()
             """)
-            print("\n=== 建立帳號 ===")
-            print(json.dumps(r, ensure_ascii=False, indent=2))
 
             # ---- 4. 離線鐵則：真正的飛航模式重開十次 ----
             # 兩個一開始做錯的地方，都會讓這個測試變成假的：
@@ -202,6 +239,40 @@ async def run():
                        {"offline": False, "latency": 0,
                         "downloadThroughput": -1, "uploadThroughput": -1})
 
+            # ---- 5b. token 過期 + 續期失敗，絕不能把人踢出去 ----
+            # 離線鐵則第 1 條。種一個已過期的 session 與一個必定無效的
+            # refresh token，然後**在有網路的狀態下**重開。
+            await goto(url(), 2.2)
+            await js("""
+              (function(){
+                localStorage.setItem('aa.registered.v1','1');
+                localStorage.setItem('aa.session.v1', JSON.stringify({
+                  access_token:'expired', refresh_token:'definitely-invalid',
+                  expires_at: Date.now() - 60000,
+                  user:{ id:'x', email:'x@y.com' }
+                }));
+              })()
+            """)
+            reqs.clear()
+            await goto(url(), 3.5)
+            tried = [u for u in reqs if 'grant_type=refresh_token' in u]
+            print("\n=== token 過期、續期必定失敗 ===")
+            print(json.dumps({
+                "有嘗試續期": bool(tried),
+                **(await js("""
+                  (function(){
+                    return {
+                      仍然登入著: localStorage.getItem('aa.registered.v1'),
+                      畫面正常: !!document.querySelector('.tab') &&
+                                getComputedStyle(document.getElementById('auth')).display === 'none',
+                      沒有跳錯誤: document.getElementById('ask').classList.contains('open') === false,
+                      現場頁在: document.getElementById('v-scene').classList.contains('on'),
+                      session還在: !!localStorage.getItem('aa.session.v1')
+                    };
+                  })()
+                """))
+            }, ensure_ascii=False, indent=2))
+
             # ---- 6. 註冊畫面上的連線狀態 ----
             # 分兩種：載入當下就離線，以及停在這一頁時才斷線。
             # 後者是實際情境 —— 使用者常常就是在這頁等訊號。
@@ -214,7 +285,7 @@ async def run():
             await send("Network.emulateNetworkConditions",
                        {"offline": True, "latency": 0,
                         "downloadThroughput": 0, "uploadThroughput": 0})
-            await asyncio.sleep(0.6)
+            await pump(0.6)
             NET = ("(function(){ return { onLine: navigator.onLine,"
                    " foot: document.getElementById('auth-foot').textContent,"
                    " goDisabled: document.getElementById('auth-go').disabled }; })()")
@@ -224,14 +295,14 @@ async def run():
             await send("Network.emulateNetworkConditions",
                        {"offline": False, "latency": 0,
                         "downloadThroughput": -1, "uploadThroughput": -1})
-            await asyncio.sleep(0.8)
+            await pump(0.8)
             print("\n=== 停在這一頁，網路恢復 ===")
             print(json.dumps(await js(NET), ensure_ascii=False, indent=2))
 
             await send("Network.emulateNetworkConditions",
                        {"offline": True, "latency": 0,
                         "downloadThroughput": 0, "uploadThroughput": 0})
-            await asyncio.sleep(0.8)
+            await pump(0.8)
             print("\n=== 停在這一頁，網路斷掉 ===")
             print(json.dumps(await js(NET), ensure_ascii=False, indent=2))
 
@@ -244,12 +315,15 @@ async def run():
             await goto(url(), 2.2)
             await js("""
               (function(){
-                document.getElementById('auth-email').value='x@y.com';
-                document.getElementById('auth-pw').value='12345678';
-                document.getElementById('auth-go').click();
+                localStorage.setItem('aa.registered.v1','1');
+                localStorage.setItem('aa.session.v1', JSON.stringify({
+                  access_token:'seed', refresh_token:'seed',
+                  expires_at: Date.now() + 3600000,
+                  user:{ id:'x', email:'x@y.com' }
+                }));
               })()
             """)
-            await asyncio.sleep(0.6)
+            await goto(url(), 2.2)
             r = await js("""
               (function(){
                 document.querySelector('.btn-settings').click();

@@ -48,6 +48,16 @@ var CONFIG = {
 
 地址只查一次，存進位置裡。
 
+## 帳號（M2，預設關閉）
+
+註冊／登入接 Supabase Auth，**直接 `fetch` 打 `/auth/v1/*`，不使用 supabase-js** —— 離線優先、沒有 build step，只為四個 POST 引入 SDK 不划算。專案 URL 與 anon key 在 `index.html` 的 `SUPA`。
+
+> anon key 寫在前端是**設計如此**，安全性完全靠 RLS。不能外流的是 `service_role`，這個專案不使用它。
+
+目前預設關閉：head 腳本裡 `var ON = false`。網址加 `?auth=1` 開啟預覽（會記在本機，`?auth=0` 關掉）。開啟前必須先在 Supabase 後台執行 `supabase/001_profiles.sql`。
+
+開啟流程**只讀本機旗標 `aa.registered.v1`**，不呼叫任何線上檢查 —— 寫成「先查 session 再決定要不要顯示登入頁」，離線時會卡住。token 過期、續期失敗、離線都不清旗標；只有主動登出才清。
+
 ## 事故案件
 
 一次事故 = 一個案件。索引在 `aa.cases.v1`（`{ cur, list:[{id,ts,closed}] }`），案件內容各自存在 `aa.case.<id>`，照片以 IndexedDB 的 `case` 索引區分。
