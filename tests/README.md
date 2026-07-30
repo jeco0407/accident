@@ -20,6 +20,7 @@ python3 -m http.server 8899
 | `cdp.py` | 通用驅動：`cdp.py <url> <等待秒數> <JS 運算式>`。`SHOT:路徑\|\|\|前置JS` 可截圖 |
 | `test_cases.py` | 事故案件：舊資料遷移、案件隔離、切換、結案、刪除時照片一起走 |
 | `test_delete_trace.py` | 刪除案件的三條路徑，每一步同時比對畫面／記憶體索引／localStorage，並各自重新載入再驗一次 |
+| `test_auth.py` | M1 帳號骨架：旗標、驗證、**真實離線重開十次**、開啟時零對外請求 |
 | `a11y.py` | 無障礙稽核：五個分頁的對比度與觸控面積，實際量測而非目測 |
 
 需要 `websockets`：`pip3 install websockets`。
@@ -31,6 +32,12 @@ python3 -m http.server 8899
 **在 `index.html` 上呼叫 `deleteDatabase` 會卡死。** 頁面本身開著 IndexedDB 連線，觸發的是 `onblocked` 而不是 `onsuccess`。要清 DB 就到同源但不載入 App 的頁面上做（例如 `manifest.json`）。
 
 **不要用 `| tail` 看還在跑的腳本。** `tail` 會把輸出全部憋到程式結束才吐 —— 卡住的程式看起來就像完全沒有輸出，會把你引到錯誤的方向。導到檔案再讀。
+
+## 離線測試的兩個陷阱
+
+**CDP 的 `Network.emulateNetworkConditions` 會在每次導覽後被重置。** 只在開頭設一次，之後整段都是在連線狀態下跑的 —— 測試會全過，而且看不出破綻。每次 `Page.navigate` 之後要重新套用，並逐次確認 `navigator.onLine === false`。
+
+**離線測試不能用帶 query 的網址。** service worker 是 cache-first、按**完整網址**比對，`index.html?t=123` 讀不到 `index.html` 的快取，真的離線時連頁面都載不進來。要測離線就用乾淨網址（`?auth=1` 這類開關已改成寫進 localStorage，就是為了這件事）。
 
 ## 稽核的盲點
 

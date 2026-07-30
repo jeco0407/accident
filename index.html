@@ -604,6 +604,46 @@ a.row-btn{color:inherit;text-decoration:none}
 
 .set-foot{font-size:13px;color:var(--muted);line-height:1.7;margin:14px 4px 0}
 
+.acc-row{display:flex;align-items:center;gap:14px;padding:15px 18px;min-height:56px}
+.acc-row + .acc-row{border-top:1px solid var(--line-soft)}
+.acc-row .k{flex:0 0 auto;font-size:15px;color:var(--muted)}
+.acc-row .v{flex:1;font-size:15.5px;font-weight:500;text-align:right;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#acc-box .row-btn{border-top:1px solid var(--line-soft)}
+
+/* ── 註冊／登入 ──
+   預設 display:none。由首次繪製前的腳本在 <html> 上掛 data-auth="need"
+   才顯示 —— 用 CSS 決定，才不會先閃一下 App 的內容。 */
+.auth{position:fixed;inset:0;z-index:300;background:var(--bg);
+  display:none;overflow-y:auto;-webkit-overflow-scrolling:touch}
+:root[data-auth="need"] .auth{display:block}
+.auth-in{max-width:440px;margin:0 auto;width:100%;
+  padding:calc(env(safe-area-inset-top) + 44px) 22px calc(env(safe-area-inset-bottom) + 40px)}
+.auth-brand{display:flex;align-items:center;gap:10px;margin-bottom:26px}
+.auth-brand img{width:40px;height:40px;display:block}
+.auth-brand span{font-size:19px;font-weight:700;color:var(--ink-2);letter-spacing:.06em}
+.auth h1{font-size:29px;font-weight:700;letter-spacing:-.03em;margin:0}
+.auth-sub{font-size:15.5px;color:var(--ink-2);line-height:1.65;margin:12px 0 24px}
+.auth-seg{padding:0;margin-bottom:22px}
+
+.auth-form label{display:block;font-size:14px;font-weight:600;color:var(--ink-2);
+  margin:0 0 7px}
+.auth-form label .opt-note{font-weight:500;color:var(--muted)}
+.auth-form input{
+  width:100%;min-height:52px;padding:12px 14px;margin-bottom:18px;
+  font-size:16.5px;                     /* 低於 16px 時 iOS 會自動放大整頁 */
+  background:var(--inset);border:1px solid var(--line);border-radius:var(--r-md);
+  color:var(--ink);
+}
+.auth-form input:focus{outline:none;border-color:var(--brand);background:var(--card)}
+.auth-hint{font-size:13px;color:var(--muted);line-height:1.6;margin:-10px 0 18px}
+.auth-err{
+  font-size:14px;color:var(--red);line-height:1.6;margin:0 0 16px;
+  padding:12px 14px;background:var(--red-bg);border:1px solid var(--red-line);
+  border-radius:var(--r-sm);
+}
+.auth-foot{font-size:13px;color:var(--muted);line-height:1.7;margin:22px 0 0}
+
 /* 空白狀態：App 內部仍然握著一個案件，但那是實作需求，不該讓使用者
    在列表裡看到一列「未記錄地點」—— 那看起來就像剛才根本沒刪掉。 */
 .case-empty{padding:26px 20px;text-align:center}
@@ -867,6 +907,31 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   window.__theme = { get:pref, set:function(v){ try{ localStorage.setItem(KEY, v); }catch(e){} apply(); }, apply:apply };
   mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply);
   apply();
+})();
+
+/* ── 帳號：是否顯示註冊／登入畫面 ──
+   跟主題一樣必須在首次繪製前決定，否則未註冊的使用者會先閃一下 App 內容。
+
+   離線鐵則第 2 條：「曾經註冊過」是一個本機旗標，一旦為真就永遠正常開啟。
+   這裡**只讀 localStorage**，不做任何網路判斷 —— 絕對不要寫成
+   「先 getSession() 再決定要不要顯示登入頁」，那在離線時會卡住。
+
+   M1 還沒有後端，預設關閉；網址加 ?auth=1 可以先試。
+   接上 Supabase（M2）之前不要打開，否則使用者會以為自己註冊了帳號。 */
+(function(){
+  var ON = false;                              /* ← M2 接好後改成 true */
+  /* ?auth=1 會記在本機。加到主畫面之後沒辦法再補 query，
+     而且離線測試必須用乾淨網址（cache-first 是按完整網址比對，
+     帶了 ?t=... 就讀不到快取）。 */
+  try{
+    if (/[?&]auth=1\b/.test(location.search)) localStorage.setItem('aa.authpreview.v1', '1');
+    if (/[?&]auth=0\b/.test(location.search)) localStorage.removeItem('aa.authpreview.v1');
+    if (localStorage.getItem('aa.authpreview.v1') === '1') ON = true;
+  }catch(e){}
+  var registered = false;
+  try{ registered = localStorage.getItem('aa.registered.v1') === '1'; }catch(e){}
+  window.__auth = { on:ON, registered:registered };
+  if (ON && !registered) document.documentElement.setAttribute('data-auth', 'need');
 })();
 </script>
 </head>
@@ -1263,6 +1328,44 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   </div>
 </div>
 
+<!-- 註冊／登入。只在「本機旗標為否」時顯示，顯示與否在首次繪製前就決定好了 -->
+<div class="auth" id="auth" role="dialog" aria-modal="true" aria-labelledby="auth-h">
+  <div class="auth-in">
+    <div class="auth-brand">
+      <img src="icons/mark.png" alt="" width="40" height="40">
+      <span>GUARDY</span>
+    </div>
+    <h1 id="auth-h">先建立帳號</h1>
+    <p class="auth-sub">事故紀錄會綁在你的帳號上，換手機也找得回來。<br>
+      建立之後，<strong>出事當下不需要網路也能直接使用</strong>。</p>
+
+    <div class="seg auth-seg" id="auth-seg">
+      <button data-m="up" aria-pressed="true">建立帳號</button>
+      <button data-m="in" aria-pressed="false">我已經有帳號</button>
+    </div>
+
+    <form class="auth-form" id="auth-form" novalidate>
+      <label for="auth-email">電子郵件</label>
+      <input type="email" id="auth-email" inputmode="email" autocomplete="email"
+             autocapitalize="off" spellcheck="false" placeholder="you@example.com">
+
+      <label for="auth-pw">密碼</label>
+      <input type="password" id="auth-pw" autocomplete="new-password" placeholder="至少 8 個字元">
+
+      <div id="auth-tel-wrap">
+        <label for="auth-tel">手機號碼<span class="opt-note">（選填）</span></label>
+        <input type="tel" id="auth-tel" inputmode="tel" autocomplete="tel" placeholder="0912345678">
+        <p class="auth-hint">留了之後，業務員需要時才聯絡得到你。不填也能用。</p>
+      </div>
+
+      <p class="auth-err" id="auth-err" hidden></p>
+      <button type="submit" class="btn-primary" id="auth-go">建立帳號</button>
+    </form>
+
+    <p class="auth-foot" id="auth-foot"></p>
+  </div>
+</div>
+
 <!-- 設定：獨立視窗。從「現場」頁首的齒輪進來，不佔分頁列的位置 -->
 <div class="sheet" id="set-sheet" role="dialog" aria-modal="true" aria-label="設定">
   <div class="sheet-top">
@@ -1271,6 +1374,11 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   </div>
   <div class="sheet-scroll">
     <div class="sheet-inner">
+      <div class="blk" id="acc-blk" hidden>
+        <p class="sec-label"><svg class="i"><use href="#ic-person"/></svg>帳號</p>
+        <div class="card" id="acc-box"></div>
+      </div>
+
       <div class="blk">
         <p class="sec-label"><svg class="i"><use href="#ic-camera"/></svg>這件事故</p>
         <div class="card">
@@ -1442,6 +1550,124 @@ $('ask-yes').addEventListener('click', function(){ askClose(true); });
 /* 點背景關閉，等同取消 */
 $('ask').addEventListener('click', function(e){ if (e.target === this) askClose(false); });
 
+/* =========================================================
+   帳號（M1：只有骨架，沒有後端）
+   ---------------------------------------------------------
+   這一段刻意只碰 localStorage。整個註冊流程**沒有任何網路請求** ——
+   不是因為做不到，是因為 M1 要先把離線行為驗證到滿意。
+   接了真後端之後只有 submitAuth() 需要改，畫面與開啟流程都不必動。
+
+   離線鐵則（ARCHITECTURE 第二節）在這裡的體現：
+   - 開啟時只讀本機旗標，不呼叫 getSession()
+   - 旗標只在使用者主動登出時清除；token 過期、續期失敗、離線都不清
+   ========================================================= */
+var LS_REG = 'aa.registered.v1', LS_ACC = 'aa.account.v1';
+
+function isRegistered(){
+  try{ return localStorage.getItem(LS_REG) === '1'; }catch(e){ return false; }
+}
+function account(){ return rawLoad(LS_ACC); }
+
+(function initAuth(){
+  var cfg = window.__auth || { on:false, registered:false };
+  if (!cfg.on || cfg.registered) return;      /* 已註冊或功能關閉 → 什麼都不做 */
+
+  var mode = 'up';                            /* up = 建立帳號、in = 登入 */
+  var seg = $('auth-seg'), err = $('auth-err');
+
+  function paint(){
+    seg.querySelectorAll('button').forEach(function(b){
+      b.setAttribute('aria-pressed', b.dataset.m === mode ? 'true' : 'false');
+    });
+    $('auth-h').textContent = mode === 'up' ? '先建立帳號' : '登入你的帳號';
+    $('auth-go').textContent = mode === 'up' ? '建立帳號' : '登入';
+    $('auth-tel-wrap').hidden = mode !== 'up';
+    $('auth-pw').setAttribute('autocomplete',
+      mode === 'up' ? 'new-password' : 'current-password');
+    err.hidden = true;
+  }
+  seg.querySelectorAll('button').forEach(function(b){
+    b.addEventListener('click', function(){ mode = b.dataset.m; paint(); });
+  });
+
+  function fail(msg){ err.textContent = msg; err.hidden = false; }
+
+  $('auth-form').addEventListener('submit', function(e){
+    e.preventDefault();
+    var email = $('auth-email').value.trim();
+    var pw = $('auth-pw').value;
+    var tel = $('auth-tel').value.trim();
+
+    /* 自己驗，不靠瀏覽器的原生提示 —— 那些氣泡在各家瀏覽器長得都不一樣，
+       而且無法翻成中文。 */
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ fail('請輸入正確的電子郵件。'); return; }
+    if (pw.length < 8){ fail('密碼至少要 8 個字元。'); return; }
+    if (tel && !/^09\d{8}$/.test(tel.replace(/[\s-]/g, ''))){
+      fail('手機號碼格式看起來不對，或直接留空。'); return;
+    }
+
+    /* ── M2 要換掉的就是這幾行 ──
+       改成 supabase.auth.signUp / signInWithPassword，
+       成功之後同樣寫入旗標。旗標的意義不變。 */
+    var acc = { email: email, tel: tel || '', at: Date.now() };
+    try{
+      localStorage.setItem(LS_REG, '1');
+      rawSave(LS_ACC, acc);
+    }catch(e2){
+      fail('這支手機的儲存空間無法寫入，請確認沒有在無痕模式。'); return;
+    }
+    document.documentElement.removeAttribute('data-auth');
+    toast(mode === 'up' ? '帳號已建立' : '已登入');
+    renderAccount();
+  });
+
+  /* 連線狀態要跟著變，不能只在載入時算一次 —— 使用者很可能是在這一頁
+     等訊號。順便把送出鍵停用：M2 接了後端之後，離線註冊本來就會失敗，
+     現在就讓行為一致，免得使用者以為註冊成功了。 */
+  function updateNet(){
+    var off = !navigator.onLine;
+    $('auth-foot').textContent = off
+      ? '目前沒有網路，無法建立帳號。有訊號時再回來，之後就不再需要連線。'
+      : '建立帳號需要網路。建立完成後，事故當下不需要網路也能使用。';
+    $('auth-go').disabled = off;
+  }
+  window.addEventListener('online', updateNet);
+  window.addEventListener('offline', updateNet);
+  updateNet();
+
+  paint();
+})();
+
+/* 設定視窗裡的帳號區塊 */
+function renderAccount(){
+  var box = $('acc-box');
+  if (!box) return;
+  var on = (window.__auth || {}).on;
+  $('acc-blk').hidden = !on;
+  if (!on) return;
+  var a = account();
+  box.innerHTML =
+    '<div class="acc-row">' +
+      '<span class="k">登入身分</span>' +
+      '<span class="v">' + esc(a.email || '（未登入）') + '</span>' +
+    '</div>' +
+    (a.tel ? '<div class="acc-row"><span class="k">手機</span>' +
+             '<span class="v">' + esc(a.tel) + '</span></div>' : '') +
+    '<button class="row-btn warn" id="btn-signout">' +
+      '<span class="ic">' + ico('ban') + '</span>' +
+      '<span class="t">登出</span><span class="ar">›</span></button>';
+
+  $('btn-signout').addEventListener('click', function(){
+    /* 登出是唯一會清掉旗標的路徑。清掉之後下次開啟就會回到註冊畫面。
+       事故資料留著不動 —— 登出不是刪除。 */
+    ask('登出這個帳號？', '事故紀錄與照片會留在這支手機上，不會被刪除。\n' +
+        '下次開啟需要重新登入。', '登出', function(){
+      try{ localStorage.removeItem(LS_REG); localStorage.removeItem(LS_ACC); }catch(e){}
+      location.reload();
+    });
+  });
+}
+
 var toastT;
 function toast(msg){
   var el = $('toast');
@@ -1479,6 +1705,7 @@ function go(name, push){
    分頁列的位置要留給事故現場用得到的東西。 */
 function openSettings(){
   renderStorage();                       /* 容量是即時的，每次開都重算 */
+  renderAccount();
   $('set-sheet').classList.add('open');
 }
 /* 五個分頁的頁首各有一顆，用 class 綁 —— 再多一頁也不必回來改這裡 */
