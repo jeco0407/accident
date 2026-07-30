@@ -391,11 +391,12 @@ M2 只需要換掉 `submitAuth` 那幾行（寫旗標之前改成呼叫 Supabase
 
 `supabase/001_profiles.sql` 需在後台 SQL Editor 執行。
 
-### M3 — 事故資料上雲
+### M3 — 事故資料上雲 ✅ 已完成（v39）
 
-- `incidents` 表與 RLS
-- 離線佇列與 LWW 同步
-- 既有 localStorage 資料遷移
+- ✅ `incidents` 表與 RLS（`supabase/002_incidents.sql`）
+- ✅ 離線佇列與 LWW 同步（比 `updated_at`；資料庫**不**覆蓋前端帶的值）
+- ✅ 軟刪除與墓碑（硬刪除會讓刪掉的案件在其他裝置復活）
+- ✅ id 由前端產生，離線也能先建立
 - ~~順勢完成 ROADMAP 2.1~~ —— **事故案件已於 v27 先行完成**（多筆事故、可結案、歷史紀錄、案件層級的照片隔離）。M3 只剩把 `aa.case.<id>` 那一包同步上雲，本機這一側不必再動
 
 ### M4 — 業務員綁定

@@ -1458,6 +1458,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
         <div class="card" style="margin-top:12px">
           <p class="storage" id="storage-info"></p>
         </div>
+        <p class="set-foot" id="sync-line" hidden></p>
       </div>
 
       <div class="blk">
@@ -1478,7 +1479,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
             <span class="t">隱私權政策</span><span class="ar">›</span>
           </a>
         </div>
-        <p class="set-foot">事故資料與照片只存在這支手機裡，不會上傳任何地方。</p>
+        <p class="set-foot" id="privacy-line"></p>
       </div>
     </div>
   </div>
@@ -1535,7 +1536,20 @@ var caseData = null;   /* 目前案件的資料包 */
 function newCaseId(){ return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 function caseKey(id){ return CASE_PREFIX + id; }
 function writeCases(){ rawSave(LS_CASES, cases); }
-function writeCase(){ if (cases && cases.cur) rawSave(caseKey(cases.cur), caseData); }
+function writeCase(){
+  if (!cases || !cases.cur) return;
+  rawSave(caseKey(cases.cur), caseData);
+  touchCase(cases.cur);
+}
+/* 任何一次寫入都要記下「本機最後編輯時間」。同步用它跟伺服器比新舊，
+   沒有它就只能比「誰比較晚送達」—— 離線幾天後補送的舊資料會蓋掉新的。 */
+function touchCase(id){
+  var e = caseById(id);
+  if (!e) return;
+  e.up = Date.now();
+  rawSave(LS_CASES, cases);
+  if (typeof syncSoon === 'function') syncSoon();
+}
 function curCaseId(){ return cases ? cases.cur : ''; }
 function caseById(id){
   if (!cases) return null;
@@ -1636,6 +1650,29 @@ var LS_REG = 'aa.registered.v1', LS_ACC = 'aa.account.v1', LS_SESS = 'aa.session
 /* 刻意不用 supabase-js。這裡只需要四個 POST，而引入 SDK 要付的代價是：
    多一個要塞進 service worker 快取的檔案、多一份要跟著更新的依賴，
    而這個 App 的第一原則是「離線可用、沒有 build step」。 */
+function supaReq(method, path, body, token, extraHeaders){
+  var ctrl = (typeof AbortController === 'function') ? new AbortController() : null;
+  var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, 15000) : null;
+  var headers = { 'apikey': SUPA.key, 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  if (extraHeaders) for (var k in extraHeaders) headers[k] = extraHeaders[k];
+
+  var init = { method: method, headers: headers, signal: ctrl ? ctrl.signal : undefined };
+  if (body != null) init.body = JSON.stringify(body);
+
+  return fetch(SUPA.url + path, init).then(function(res){
+    if (timer) clearTimeout(timer);
+    return res.text().then(function(t){
+      var j = null;
+      try{ j = t ? JSON.parse(t) : null; }catch(e){}
+      return { ok: res.ok, status: res.status, body: j };
+    });
+  }, function(err){
+    if (timer) clearTimeout(timer);
+    throw err;
+  });
+}
+
 function supaFetch(path, body, token){
   var ctrl = (typeof AbortController === 'function') ? new AbortController() : null;
   /* 沒有逾時的話，訊號差的時候按鈕會一直轉，使用者不知道發生什麼事 */
@@ -1906,6 +1943,232 @@ if ((window.__auth || {}).on && isRegistered()) {
   });
 }
 
+/* =========================================================
+   同步（M3）
+   ---------------------------------------------------------
+   只同步文字。**照片永遠不上傳**，只送一個張數。
+
+   離線鐵則第 3、4 條在這裡的體現：
+   - 這一整段都不在任何核心路徑上。沒同步、同步失敗、伺服器掛掉，
+     現場／存證／出險／110 全都照常運作
+   - 失敗一律靜默。最多在設定視窗顯示「上次同步：⋯」，
+     絕不用錯誤對話框打斷使用者
+   ========================================================= */
+var LS_SYNC = 'aa.sync.v1';
+var syncing = false, syncTimer = null;
+
+function syncMeta(){ return rawLoad(LS_SYNC); }
+
+function uuid(){
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  /* 舊瀏覽器的退路。id 由前端產生是刻意的 —— 離線時也要能先建好本機紀錄，
+     不必等伺服器回一個 id 才能開始用。 */
+  var b = new Uint8Array(16);
+  (window.crypto && crypto.getRandomValues)
+    ? crypto.getRandomValues(b)
+    : (function(){ for (var i = 0; i < 16; i++) b[i] = Math.floor(Math.random() * 256); })();
+  b[6] = (b[6] & 0x0f) | 0x40; b[8] = (b[8] & 0x3f) | 0x80;
+  var h = [];
+  for (var i = 0; i < 16; i++) h.push((b[i] + 0x100).toString(16).slice(1));
+  return h.slice(0,4).join('') + '-' + h.slice(4,6).join('') + '-' +
+         h.slice(6,8).join('') + '-' + h.slice(8,10).join('') + '-' + h.slice(10).join('');
+}
+
+function canSync(){
+  if (!(window.__auth || {}).on) return false;
+  if (!isRegistered() || !navigator.onLine) return false;
+  var s = session();
+  return !!(s.access_token && s.user && s.user.id);
+}
+
+/* 寫入之後不要立刻送 —— 使用者正在打字，每個字都送一次很浪費。
+   等他停下來三秒再說。 */
+function syncSoon(){
+  if (!canSync()) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(function(){ syncNow(); }, 3000);
+}
+
+function caseToRow(e){
+  var pack = casePack(e.id), uid = session().user.id;
+  return {
+    id: e.rid,
+    user_id: uid,
+    occurred_at: new Date(e.ts).toISOString(),
+    location:    pack[LS.site]  || null,
+    other_party: pack[LS.other] || null,
+    claim:       pack[LS.comp]  || null,
+    progress: {
+      tl:      pack[LS.tl]      || {},
+      ph:      pack[LS.ph]      || {},
+      todo:    pack[LS.todo]    || {},
+      claim:   pack[LS.claim]   || {},
+      compdoc: pack[LS.compdoc] || {}
+    },
+    photo_count: photoCounts[e.id] || 0,
+    closed_at: e.closed ? new Date(e.closed).toISOString() : null,
+    deleted_at: null,
+    updated_at: new Date(e.up || e.ts).toISOString()
+  };
+}
+
+function pushDirty(){
+  var rows = [], i, e;
+  for (i = 0; i < cases.list.length; i++){
+    e = cases.list[i];
+    if (!e.rid) e.rid = uuid();
+    /* sy = 上次成功送出時的 up。相等就代表這筆沒動過 */
+    if (e.sy === e.up && e.sy != null) continue;
+    rows.push(caseToRow(e));
+  }
+  /* 已刪除的案件也要送，否則其他裝置永遠不知道它被刪了 */
+  var tombs = cases.tombs || [];
+  for (i = 0; i < tombs.length; i++){
+    rows.push({
+      id: tombs[i].rid, user_id: session().user.id,
+      occurred_at: new Date(tombs[i].at).toISOString(),
+      deleted_at: new Date(tombs[i].at).toISOString(),
+      updated_at: new Date(tombs[i].at).toISOString()
+    });
+  }
+  if (!rows.length) return Promise.resolve();
+
+  return supaReq('POST', '/rest/v1/incidents', rows, session().access_token,
+                 { 'Prefer': 'resolution=merge-duplicates,return=minimal' })
+    .then(function(r){
+      if (!r.ok) throw new Error('push ' + r.status);
+      for (var j = 0; j < cases.list.length; j++) cases.list[j].sy = cases.list[j].up;
+      cases.tombs = [];
+      rawSave(LS_CASES, cases);
+    });
+}
+
+function pullRemote(){
+  var since = syncMeta().lastPull || '1970-01-01T00:00:00Z';
+  var path = '/rest/v1/incidents?select=*&updated_at=gt.' +
+             encodeURIComponent(since) + '&order=updated_at.asc';
+  return supaReq('GET', path, null, session().access_token).then(function(r){
+    if (!r.ok) throw new Error('pull ' + r.status);
+    var rows = r.body || [], changed = false, newest = since;
+    for (var i = 0; i < rows.length; i++){
+      if (applyRow(rows[i])) changed = true;
+      if (rows[i].updated_at > newest) newest = rows[i].updated_at;
+    }
+    var m = syncMeta(); m.lastPull = newest; rawSave(LS_SYNC, m);
+    if (changed){
+      rawSave(LS_CASES, cases);
+      renderAllForCase();
+    }
+  });
+}
+
+/* Last-Write-Wins，比的是 updated_at。回傳有沒有真的改到東西。 */
+function applyRow(row){
+  var e = null, i;
+  for (i = 0; i < cases.list.length; i++){
+    if (cases.list[i].rid === row.id){ e = cases.list[i]; break; }
+  }
+  var remoteUp = Date.parse(row.updated_at) || 0;
+
+  if (row.deleted_at){
+    if (!e) return false;
+    if ((e.up || 0) > remoteUp) return false;     /* 本機之後又改過，不刪 */
+    cases.list.splice(i, 1);
+    try{ localStorage.removeItem(caseKey(e.id)); }catch(err){}
+    photosClearCase(e.id).catch(function(){});
+    if (cases.cur === e.id){
+      if (!cases.list.length){ cases.cur = ''; caseData = {}; newCase(false); }
+      else { cases.cur = cases.list[0].id; caseData = rawLoad(caseKey(cases.cur)); }
+    }
+    return true;
+  }
+
+  if (e && (e.up || 0) >= remoteUp) return false;  /* 本機比較新或一樣新，不覆蓋 */
+
+  if (!e){
+    e = { id: 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+          ts: Date.parse(row.occurred_at) || Date.now(), closed: 0, rid: row.id };
+    cases.list.unshift(e);
+  }
+  e.ts = Date.parse(row.occurred_at) || e.ts;
+  e.closed = row.closed_at ? Date.parse(row.closed_at) : 0;
+  e.up = remoteUp; e.sy = remoteUp;
+
+  var pr = row.progress || {};
+  var pack = {};
+  if (row.location)    pack[LS.site]  = row.location;
+  if (row.other_party) pack[LS.other] = row.other_party;
+  if (row.claim)       pack[LS.comp]  = row.claim;
+  if (pr.tl)      pack[LS.tl]      = pr.tl;
+  if (pr.ph)      pack[LS.ph]      = pr.ph;
+  if (pr.todo)    pack[LS.todo]    = pr.todo;
+  if (pr.claim)   pack[LS.claim]   = pr.claim;
+  if (pr.compdoc) pack[LS.compdoc] = pr.compdoc;
+  rawSave(caseKey(e.id), pack);
+  if (cases.cur === e.id) caseData = pack;
+  return true;
+}
+
+/* 同步狀態只出現在這一行。ARCHITECTURE 第七節：絕不用錯誤對話框打斷使用者。 */
+/* 這一行會隨帳號功能開關而改變意思。
+   同步上線之後還寫「什麼都不上傳」就是不實陳述 —— 照片仍然不上傳，
+   但文字會，兩者必須分開講。 */
+function renderPrivacyLine(){
+  var el = $('privacy-line');
+  if (!el) return;
+  el.textContent = ((window.__auth || {}).on && isRegistered())
+    ? '照片只存在這支手機，永遠不會上傳。文字紀錄會同步到你的帳號，換手機才找得回來。'
+    : '事故資料與照片只存在這支手機裡，不會上傳任何地方。';
+}
+
+function renderSyncLine(){
+  var el = $('sync-line');
+  if (!el) return;
+  if (!(window.__auth || {}).on || !isRegistered()){ el.hidden = true; return; }
+  el.hidden = false;
+  var m = syncMeta();
+  if (!navigator.onLine){
+    el.textContent = '目前離線。紀錄都在這支手機裡，有網路時會自動同步。';
+  } else if (m.lastOkAt){
+    var mins = Math.round((Date.now() - m.lastOkAt) / 60000);
+    el.textContent = '上次同步：' +
+      (mins < 1 ? '剛剛' : mins < 60 ? mins + ' 分鐘前'
+       : new Date(m.lastOkAt).toLocaleString('zh-TW', { hour12:false }));
+  } else {
+    el.textContent = '尚未同步過。';
+  }
+}
+
+function recordSync(ok){
+  var m = syncMeta();
+  if (ok) m.lastOkAt = Date.now(); else m.lastErrAt = Date.now();
+  rawSave(LS_SYNC, m);
+  if (typeof renderSyncLine === 'function') renderSyncLine();
+}
+
+function syncNow(){
+  if (!canSync() || syncing) return Promise.resolve(false);
+  syncing = true;
+  return refreshSession()
+    .then(function(){ return refreshPhotoCounts ? new Promise(function(res){
+      refreshPhotoCounts(res);
+    }) : null; })
+    .then(pushDirty)
+    .then(pullRemote)
+    .then(function(){ recordSync(true); return true; })
+    .catch(function(){ recordSync(false); return false; })   /* 靜默：不 toast、不對話框 */
+    .then(function(v){ syncing = false; return v; });
+}
+
+/* 觸發時機：開機、回到前景、網路恢復。都是 fire-and-forget。 */
+if ((window.__auth || {}).on){
+  setTimeout(syncNow, 1200);              /* 讓首屏先畫完，同步不跟它搶 */
+  window.addEventListener('online', function(){ syncNow(); });
+  document.addEventListener('visibilitychange', function(){
+    if (!document.hidden) syncNow();
+  });
+}
+
 var toastT;
 function toast(msg){
   var el = $('toast');
@@ -1944,6 +2207,8 @@ function go(name, push){
 function openSettings(){
   renderStorage();                       /* 容量是即時的，每次開都重算 */
   renderAccount();
+  renderSyncLine();
+  renderPrivacyLine();
   $('set-sheet').classList.add('open');
 }
 /* 五個分頁的頁首各有一顆，用 class 綁 —— 再多一頁也不必回來改這裡 */
@@ -3488,7 +3753,15 @@ function doDeleteCase(id, wasLast){
      按了沒反應是不能接受的。 */
   var wasCur = (id === cases.cur);
   for (var i = 0; i < cases.list.length; i++){
-    if (cases.list[i].id === id){ cases.list.splice(i, 1); break; }
+    if (cases.list[i].id === id){
+      /* 留一塊墓碑。硬刪除的話，其他裝置只會看到「這筆沒出現在拉取結果裡」，
+         那跟「還沒同步到」分不出來 —— 刪掉的案件會在別台機器上復活。 */
+      if (cases.list[i].rid){
+        cases.tombs = cases.tombs || [];
+        cases.tombs.push({ rid: cases.list[i].rid, at: Date.now() });
+      }
+      cases.list.splice(i, 1); break;
+    }
   }
   try{ localStorage.removeItem(caseKey(id)); }catch(err){}
 
@@ -3506,6 +3779,7 @@ function doDeleteCase(id, wasLast){
     newCase(false);
   }
   toast(wasLast ? '已刪除，目前沒有任何紀錄' : '已刪除');
+  syncSoon();
   photosClearCase(id).then(function(){ renderStorage(); refreshPhotoCounts(renderCases); }, function(){});
 }
 

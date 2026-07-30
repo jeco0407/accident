@@ -21,6 +21,7 @@ python3 -m http.server 8899
 | `test_cases.py` | 事故案件：舊資料遷移、案件隔離、切換、結案、刪除時照片一起走 |
 | `test_delete_trace.py` | 刪除案件的三條路徑，每一步同時比對畫面／記憶體索引／localStorage，並各自重新載入再驗一次 |
 | `test_auth.py` | M1 帳號骨架：旗標、驗證、**真實離線重開十次**、開啟時零對外請求 |
+| `test_sync.py` | M3 同步：攔截 fetch 驗 LWW、墓碑、照片不外流、失敗靜默 |
 | `a11y.py` | 無障礙稽核：五個分頁的對比度與觸控面積，實際量測而非目測 |
 
 需要 `websockets`：`pip3 install websockets`。
@@ -38,6 +39,10 @@ python3 -m http.server 8899
 **CDP 的 `Network.emulateNetworkConditions` 會在每次導覽後被重置。** 只在開頭設一次，之後整段都是在連線狀態下跑的 —— 測試會全過，而且看不出破綻。每次 `Page.navigate` 之後要重新套用，並逐次確認 `navigator.onLine === false`。
 
 **離線測試不能用帶 query 的網址。** service worker 是 cache-first、按**完整網址**比對，`index.html?t=123` 讀不到 `index.html` 的快取，真的離線時連頁面都載不進來。要測離線就用乾淨網址（`?auth=1` 這類開關已改成寫進 localStorage，就是為了這件事）。
+
+## 假回應要跨導覽存活
+
+`test_sync.py` 用 `Page.addScriptToEvaluateOnNewDocument` 換掉 `window.fetch`。這段腳本**每次導覽都會重跑**，所以假回應不能放在 `window` 上 —— 一重新載入就被重設成空的，測試會變成「什麼都沒拉到」而假通過。放進 localStorage。
 
 ## 稽核的盲點
 

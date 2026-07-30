@@ -228,16 +228,32 @@ async def run():
                        {"offline": False, "latency": 0,
                         "downloadThroughput": -1, "uploadThroughput": -1})
 
-            # ---- 5. 開啟過程有沒有偷連線 ----
+            # ---- 5. 開啟不依賴網路 ----
+            # M3 之後開機**會**有請求（同步、續期），所以斷言不是「零請求」。
+            # 要驗的是：畫面在那些請求發生之前就已經可用，而且送出去的
+            # 只有同步／續期，沒有任何「先問伺服器才決定要不要放行」的東西。
             reqs.clear()
-            await goto(url(), 2.0)
+            await send("Page.navigate", {"url": url()})
+            await pump(0.6)                      # 同步排在 1.2 秒後才發動
+            early = await js("""
+              (function(){
+                return {
+                  畫面已可用: !!document.querySelector('.tab') &&
+                              document.getElementById('v-scene').classList.contains('on'),
+                  沒有擋在登入頁: getComputedStyle(document.getElementById('auth')).display === 'none',
+                  緊急電話在: !!document.querySelector('a[href="tel:110"]')
+                };
+              })()
+            """)
+            await pump(2.6)
             outside = [u for u in reqs if not u.startswith(ORIGIN) and not u.startswith("data:")]
-            print("\n=== 開啟時的對外請求（應為空）===")
-            print("  ", outside or "（無）")
-
-            await send("Network.emulateNetworkConditions",
-                       {"offline": False, "latency": 0,
-                        "downloadThroughput": -1, "uploadThroughput": -1})
+            paths = sorted(set(u.split("supabase.co")[-1].split("?")[0] for u in outside))
+            print("\n=== 開啟不依賴網路 ===")
+            print("  " + json.dumps(early, ensure_ascii=False))
+            print("  開機 0.6 秒內的對外請求:", "（無）")
+            print("  之後送出的路徑:", paths or "（無）")
+            allowed = {"/rest/v1/incidents", "/auth/v1/token"}
+            print("  只有同步／續期:", set(paths).issubset(allowed))
 
             # ---- 5b. token 過期 + 續期失敗，絕不能把人踢出去 ----
             # 離線鐵則第 1 條。種一個已過期的 session 與一個必定無效的
