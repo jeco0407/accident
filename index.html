@@ -464,6 +464,12 @@ a.row-btn{color:inherit;text-decoration:none}
    使用者視線之外 —— 點下去像是什麼都沒發生。 */
 .case-note{font-size:13px;color:var(--muted);line-height:1.6;margin:10px 4px 0}
 
+/* 空白狀態：App 內部仍然握著一個案件，但那是實作需求，不該讓使用者
+   在列表裡看到一列「未記錄地點」—— 那看起來就像剛才根本沒刪掉。 */
+.case-empty{padding:26px 20px;text-align:center}
+.case-empty .t{font-size:16px;font-weight:500;color:var(--ink-2)}
+.case-empty .s{font-size:13.5px;color:var(--muted);line-height:1.65;margin-top:8px}
+
 .case-row{display:flex;align-items:center;width:100%;text-align:left;position:relative}
 .case-row + .case-row{border-top:1px solid var(--line-soft)}
 .case-row.is-cur{background:var(--amber-bg)}
@@ -1277,6 +1283,9 @@ function go(name, push){
     t.setAttribute('aria-selected', t.dataset.v === name ? 'true' : 'false');
   });
   if (push !== false && location.hash !== '#' + name) location.hash = name;
+  /* 案件標題與「是不是空的」都是從其他分頁填出來的，進「我的」時重畫一次，
+     不必在每個寫入點都記得通知這裡。renderCases 定義在後面，靠 hoisting。 */
+  if (name === 'me' && typeof renderCases === 'function') renderCases();
 }
 
 document.querySelectorAll('.tab').forEach(function(t){
@@ -2624,9 +2633,38 @@ function switchCase(id){
   toast('已切換到：' + caseTitle(id));
 }
 
+/* 這個案件有沒有任何內容。判斷用的是「所有欄位都空」，不是「沒有 key」——
+   清除進度會留下一堆空物件（`{}`），那跟從沒填過是同一回事。 */
+function caseIsEmpty(id){
+  var d = (id === cases.cur) ? caseData : rawLoad(caseKey(id)), k, v;
+  for (k in d){
+    if (!Object.prototype.hasOwnProperty.call(d, k)) continue;
+    v = d[k];
+    if (v == null) continue;
+    if (typeof v === 'object'){ if (Object.keys(v).length) return false; }
+    else return false;
+  }
+  return true;
+}
+
 function renderCases(){
   var box = $('case-box'), h = '', i, x, cur = caseById(cases.cur);
   var multi = cases.list.length > 1;
+
+  /* 只剩一件而且是空的 = 使用者眼中的「什麼都沒有」。
+     照常畫成一列會變成「刪了卻還在」，那正是這個空白狀態要解掉的誤會。 */
+  if (!multi && caseIsEmpty(cases.list[0].id)){
+    box.innerHTML =
+      '<div class="case-empty">' +
+        '<div class="t">目前沒有事故紀錄</div>' +
+        '<div class="s">在「現場」取得位置，或到「存證」拍第一張照片，<br>' +
+          '這裡就會自動出現一件。</div>' +
+      '</div>';
+    $('case-note').textContent = '';
+    $('case-note').hidden = true;
+    return;
+  }
+  $('case-note').hidden = false;
 
   for (i = 0; i < cases.list.length; i++){
     x = cases.list[i];
@@ -2716,13 +2754,13 @@ function deleteCase(id){
   var last = cases.list.length === 1;
   ask('刪除這件事故的所有紀錄與照片？',
       caseTitle(id) + '\n\n' +
-      (last ? '這是唯一一件，刪除後會留下一件空白的新紀錄。\n' : '') +
+      (last ? '刪除後就沒有任何事故紀錄了。\n' : '') +
       '這個動作無法復原。',
       '刪除',
-      function(){ doDeleteCase(id); });
+      function(){ doDeleteCase(id, last); });
 }
 
-function doDeleteCase(id){
+function doDeleteCase(id, wasLast){
   /* 先動索引並重畫，照片清理丟到背景。
      原本是反過來的（先清照片，成功了才移除案件），但那讓「畫面上消失」
      取決於一個 IndexedDB 操作有沒有回來 —— 只要它卡住，使用者按了刪除
@@ -2747,7 +2785,7 @@ function doDeleteCase(id){
     caseData = {};
     newCase(false);
   }
-  toast('已刪除');
+  toast(wasLast ? '已刪除，目前沒有任何紀錄' : '已刪除');
   photosClearCase(id).then(function(){ renderStorage(); }, function(){});
 }
 

@@ -19,6 +19,7 @@ python3 -m http.server 8899
 |---|---|
 | `cdp.py` | 通用驅動：`cdp.py <url> <等待秒數> <JS 運算式>`。`SHOT:路徑\|\|\|前置JS` 可截圖 |
 | `test_cases.py` | 事故案件：舊資料遷移、案件隔離、切換、結案、刪除時照片一起走 |
+| `test_delete_trace.py` | 刪除案件的三條路徑，每一步同時比對畫面／記憶體索引／localStorage，並各自重新載入再驗一次 |
 | `a11y.py` | 無障礙稽核：五個分頁的對比度與觸控面積，實際量測而非目測 |
 
 需要 `websockets`：`pip3 install websockets`。
