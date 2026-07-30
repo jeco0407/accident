@@ -4,18 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>隱私權政策 — Guardy</title>
-<meta name="theme-color" content="#FBF8F3">
+<meta name="theme-color" content="#FAF8F4">
 <meta name="description" content="Guardy 車禍緊急助手的隱私權政策。所有資料只存在你的手機裡。">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
 :root{
-  --bg:#FBF8F3; --card:#FFFFFF; --ink:#1C1A17; --ink-2:#4A443C; --muted:#8A8177;
-  --line:#E5DED2; --inset:#F4EFE7; --brand:#B0562E;
+  --bg:#FAF8F4; --card:#FFFFFF; --ink:#1C1A17; --ink-2:#4A443C; --muted:#6E665D;
+  --line:#E5DED2; --inset:#EEF5F3; --brand:#237F79;
 }
 :root[data-theme="dark"]{
-  --bg:#16130F; --card:#1F1B15; --ink:#F2EDE4; --ink-2:#C8C0B4; --muted:#8F877C;
-  --line:#332C23; --inset:#262019; --brand:#E08A5C;
+  --bg:#16130F; --card:#1F1B15; --ink:#F2EDE4; --ink-2:#C8C0B4; --muted:#9D9386;
+  --line:#332C23; --inset:#12302E; --brand:#5CC7BF;
 }
 *{box-sizing:border-box}
 body{
@@ -49,7 +49,7 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-si
     var dark = p === 'dark' || (p === 'auto' && mq.matches);
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
     var m = document.querySelector('meta[name="theme-color"]');
-    if (m) m.setAttribute('content', dark ? '#16130F' : '#FBF8F3');
+    if (m) m.setAttribute('content', dark ? '#16130F' : '#FAF8F4');
   }
   mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply);
   apply();

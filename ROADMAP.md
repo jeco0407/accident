@@ -98,7 +98,8 @@ Apple 審查指南 **4.2 Minimum Functionality** 明文排除「把網站包起�
 
 打開之前一定要先做兩件事：
 1. 在 Supabase 後台執行 `supabase/001_profiles.sql` 與 `002_incidents.sql`
-2. **重寫 `privacy.html`** —— 它現在還寫著「沒有伺服器、沒有帳號」，同步一開就是不實陳述
+2. **重寫 `privacy.html`** —— 它現在還寫著「沒有伺服器、沒有帳號」，同步一開就是不實陳述。而且 `terms.html`（v41 新增）已經描述帳號制，兩份文件目前互相矛盾，只是靠開關把服務條款藏起來
+3. **`terms.html` 找律師審閱** —— 責任限制與免責那幾節尤其重要
 
 下一步是 M4 業務員綁定。
 

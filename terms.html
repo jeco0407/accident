@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>服務條款 — Guardy</title>
+<meta name="theme-color" content="#FAF8F4">
+<meta name="description" content="Guardy 車禍緊急助手的服務條款。">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root{
+  --bg:#FAF8F4; --card:#FFFFFF; --ink:#1C1A17; --ink-2:#4A443C; --muted:#6E665D;
+  --line:#E5DED2; --inset:#EEF5F3; --brand:#237F79;
+}
+:root[data-theme="dark"]{
+  --bg:#16130F; --card:#1F1B15; --ink:#F2EDE4; --ink-2:#C8C0B4; --muted:#9D9386;
+  --line:#332C23; --inset:#12302E; --brand:#5CC7BF;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  line-height:1.75; -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:680px;margin:0 auto;padding:32px 20px calc(48px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+header img{width:28px;height:28px;display:block}
+header .b{font-size:17px;font-weight:700;letter-spacing:.04em}
+h1{font-size:26px;line-height:1.35;letter-spacing:-.02em;margin:0 0 6px}
+.updated{font-size:14px;color:var(--muted);margin:0 0 28px}
+h2{font-size:17px;letter-spacing:-.01em;margin:32px 0 10px}
+p,li{font-size:16px;color:var(--ink-2);margin:0 0 12px}
+ul{padding-left:20px;margin:0 0 12px}
+li{margin:0 0 6px}
+strong{color:var(--ink);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:0 0 8px}
+.card p:last-child{margin-bottom:0}
+.note{background:var(--inset);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:0 0 24px}
+a{color:var(--brand)}
+.back{display:inline-block;margin-top:36px;font-size:16px;font-weight:600;color:var(--brand);text-decoration:none}
+footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted)}
+</style>
+<script>
+(function(){
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  function apply(){
+    var p = 'auto';
+    try{ p = localStorage.getItem('aa.theme.v1') || 'auto'; }catch(e){}
+    var dark = p === 'dark' || (p === 'auto' && mq.matches);
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', dark ? '#16130F' : '#FAF8F4');
+  }
+  mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply);
+  apply();
+})();
+</script>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <img src="icons/mark.png" alt="">
+  <span class="b">GUARDY</span>
+</header>
+
+<h1>服務條款</h1>
+<p class="updated">最後更新：2026 年 7 月 30 日</p>
+
+<div class="note">
+  <p><strong>這份條款尚未經過律師審閱。</strong>內容是依實際功能誠實描述，但正式對外提供服務之前必須請法律專業人士確認，特別是責任限制與免責的部分。</p>
+</div>
+
+<h2>一、Guardy 是什麼</h2>
+<p>Guardy 是一個協助你處理車禍現場的工具。它提供定位、現場處理步驟、拍照清單、產險公司出險專線，以及調解與求償的一般性指引。</p>
+
+<h2>二、Guardy 不是什麼</h2>
+<div class="card">
+  <p><strong>不是緊急服務。</strong>需要警察或救護車時，請直接撥打 110 或 119。Guardy 只是幫你更快撥出這通電話，本身不會替你通報任何單位。</p>
+  <p><strong>不是法律意見。</strong>App 內關於責任歸屬、調解程序、求償金額的內容都是一般性資訊，不構成法律意見，也不能取代律師。</p>
+  <p><strong>不是保險理賠的承諾。</strong>實際的理賠範圍與金額，一律依你的保單條款與保險公司的認定為準。App 內的試算只是幫你整理有憑據的項目。</p>
+</div>
+
+<h2>三、你要自己負責的部分</h2>
+<ul>
+  <li>事故現場的判斷與行為，由你自己決定。App 提供的是參考步驟，不是指令。</li>
+  <li>你在 App 內填寫的資料（對方車牌、金額等）由你自行確認正確性。</li>
+  <li><strong>照片只存在你的手機裡。</strong>清除瀏覽器資料、換手機、手機損壞都會讓照片消失。重要的照片請自行備份到相簿。</li>
+</ul>
+
+<h2>四、帳號</h2>
+<p>使用 Guardy 需要建立帳號。你必須提供正確的電子郵件，並自行保管密碼。透過你的帳號所做的操作，視為你本人所為。</p>
+<p>你可以隨時在「設定」裡登出。登出不會刪除這支手機上的資料。</p>
+<p>若你違反本條款、或以明顯異常的方式使用服務（例如自動化大量請求），我們可能暫停或終止該帳號。</p>
+
+<h2>五、資料</h2>
+<div class="card">
+  <p><strong>事故照片永遠不會上傳。</strong>它們只存在你的裝置上，即使你登入了帳號也一樣。</p>
+  <p><strong>文字紀錄會同步到你的帳號</strong>（事故地點、時間、對方資料、求償金額、各項進度），這樣換手機時才找得回來。</p>
+  <p>詳細的蒐集與使用方式，見<a href="privacy.html">隱私權政策</a>。</p>
+</div>
+
+<h2>六、服務的可用性</h2>
+<p>Guardy 的核心功能設計成離線可用，但我們無法保證服務永遠不中斷、也無法保證在所有裝置上都能正常運作。定位精確度受限於你的裝置與所在環境。</p>
+<p>App 內的產險公司專線、法規說明等資訊，我們會盡力維持正確，但這些內容可能隨時異動，請以各單位的公告為準。</p>
+
+<h2>七、責任限制</h2>
+<p>在法律允許的範圍內，對於因使用或無法使用 Guardy 而產生的損失，我們不承擔責任。這包含但不限於：資料遺失、理賠結果不如預期、依 App 內容行動而產生的後果。</p>
+<p>本條不排除依法不得排除的責任。</p>
+
+<h2>八、費用</h2>
+<p>目前對一般使用者免費。若日後推出付費項目，會在收費前明確告知。</p>
+
+<h2>九、條款變更</h2>
+<p>條款變更時會更新本頁上方的日期。重大變更會在 App 內另行提示。</p>
+
+<h2>十、聯絡方式</h2>
+<p>對本條款有疑問，請來信 <a href="mailto:PLACEHOLDER_EMAIL">PLACEHOLDER_EMAIL</a>。</p>
+
+<h2>十一、準據法</h2>
+<p>本條款依中華民國法律解釋與適用。</p>
+
+<a class="back" href="index.html">← 回到 Guardy</a>
+
+<footer>
+  Guardy — 車禍緊急助手
+</footer>
+
+</div>
+</body>
+</html>

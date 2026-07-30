@@ -2,11 +2,12 @@
    策略：app shell 一律 cache-first，確保車禍現場沒有網路時也能開啟。
    改版時把 VERSION 加一，舊快取會在 activate 時清掉。 */
 
-var VERSION = 'aa-v40';
+var VERSION = 'aa-v41';
 var SHELL = [
   './',
   './index.html',
   './privacy.html',
+  './terms.html',
   './manifest.json',
   './favicon.ico',
   './icons/icon-192.png',
