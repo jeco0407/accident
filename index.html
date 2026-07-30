@@ -620,7 +620,7 @@ a.row-btn{color:inherit;text-decoration:none}
 
 .auth-head{
   position:relative;overflow:hidden;
-  padding:calc(env(safe-area-inset-top) + 34px) 22px 30px;
+  padding:calc(env(safe-area-inset-top) + 74px) 22px 30px;
   background:linear-gradient(170deg, var(--head-bg) 0%, var(--bg) 100%);
   border-bottom:1px solid var(--head-line);
 }
@@ -635,14 +635,76 @@ a.row-btn{color:inherit;text-decoration:none}
 .auth-in{max-width:440px;margin:0 auto;width:100%;
   padding:26px 22px calc(env(safe-area-inset-bottom) + 40px)}
 
-.auth-why{margin-bottom:24px}
-.why-row{display:flex;gap:13px;align-items:flex-start;padding:2px 0 14px}
-.why-row .ic{flex:0 0 34px;height:34px;border-radius:50%;
+/* ── 歡迎屏 ──
+   先講這個 App 是什麼，再要人填表。強制註冊本來就是門檻，
+   第一眼就丟表單，使用者只會覺得被擋住。 */
+.wel{min-height:100%;display:flex}
+.wel-in{max-width:430px;margin:0 auto;width:100%;display:flex;flex-direction:column;
+  padding:calc(env(safe-area-inset-top) + 26px) 24px calc(env(safe-area-inset-bottom) + 24px)}
+
+.wel-art{
+  width:100%;aspect-ratio:34/30;max-height:310px;
+  border-radius:32px;overflow:hidden;background:var(--head-bg);
+}
+@supports not (aspect-ratio: 1){ .wel-art{height:290px} }
+.wel-art svg{width:100%;height:100%;display:block}
+/* 插圖用品牌色的深淺兩階，不另外引進一組配色 */
+.wel-art .cloud{fill:var(--card);opacity:.75}
+.wel-art .cloud2{fill:var(--card);opacity:.55}
+.wel-art .ground{fill:var(--card);opacity:.7}
+.wel-art .lane,.wel-art .lane2{stroke:var(--card);stroke-width:5;stroke-linecap:round}
+.wel-art .lane2{opacity:.65}
+.wel-art .mark{fill:none;stroke:var(--brand);stroke-width:6;stroke-linejoin:round}
+.wel-art .mark .fill{fill:var(--brand);stroke:none}
+.wel-art .hole{fill:var(--head-bg);stroke:none}
+.wel-art .car-top{fill:var(--brand);opacity:.72}
+.wel-art .car-body{fill:var(--brand)}
+.wel-art .glass{fill:var(--head-bg)}
+.wel-art .tyre{fill:var(--ink)}
+.wel-art .hub{fill:var(--line)}
+.wel-art .lamp{fill:var(--amber)}
+.wel-art .pin{fill:var(--brand)}
+
+.wel-brand{text-align:center;margin-top:28px}
+.wel-brand h1{font-size:32px;font-weight:700;letter-spacing:-.035em;margin:0}
+.wel-brand h1 span{font-weight:500}
+.wel-brand p{font-size:16px;color:var(--muted);letter-spacing:.03em;margin:12px 0 0;line-height:1.6}
+
+.wel-feats{margin-top:30px;display:flex;flex-direction:column;gap:18px}
+.wel-feat{display:flex;align-items:center;gap:15px}
+.wel-feat .ic{flex:0 0 52px;height:52px;border-radius:50%;
   background:var(--head-bg);color:var(--brand);
   display:flex;align-items:center;justify-content:center}
-.why-row .ic .i{width:18px;height:18px}
-.why-row .t{flex:1;font-size:14px;color:var(--muted);line-height:1.6}
-.why-row .t b{font-size:15px;font-weight:600;color:var(--ink)}
+.wel-feat .ic .i{width:25px;height:25px}
+.wel-feat .t{flex:1;font-size:13.5px;color:var(--muted);line-height:1.65}
+.wel-feat .t b{display:block;font-size:17px;font-weight:600;color:var(--ink);
+  letter-spacing:.01em;margin-bottom:3px}
+
+.wel-cta{margin-top:auto;padding-top:32px;display:flex;flex-direction:column;gap:12px}
+.btn-outline2{
+  display:flex;align-items:center;justify-content:center;
+  width:100%;min-height:56px;border-radius:var(--r-md);
+  border:1.5px solid var(--brand);color:var(--brand);background:transparent;
+  font-size:17px;font-weight:600;letter-spacing:.03em;
+  transition:transform .12s ease;
+}
+.btn-outline2:active{transform:scale(.98)}
+/* 兩顆 CTA 要一樣高。btn-primary 本身的字級較大會撐出 64px，
+   在這裡蓋掉，跟外框鍵對齊 */
+.wel-cta .btn-primary{min-height:56px;font-size:17px;letter-spacing:.03em}
+
+.wel-terms{text-align:center;font-size:12px;color:var(--muted);line-height:1.75;margin:10px 0 0}
+/* 連結自己就是一個獨立的可點目標，要湊足 44px 高 */
+.wel-terms a{display:inline-block;padding:14px 10px;color:var(--brand);
+  text-decoration:underline;text-underline-offset:2px}
+
+.auth-back{
+  position:absolute;top:calc(env(safe-area-inset-top) + 20px);left:14px;
+  width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+  color:var(--ink-2);z-index:2;
+}
+.auth-back .i{width:24px;height:24px;fill:none;stroke:currentColor;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 .auth-seg{padding:0;margin-bottom:20px}
 
@@ -1353,76 +1415,125 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 
 <!-- 註冊／登入。只在「本機旗標為否」時顯示，顯示與否在首次繪製前就決定好了 -->
 <div class="auth" id="auth" role="dialog" aria-modal="true" aria-labelledby="auth-h">
-  <!-- 頁首沿用現場頁的暖色區塊與插圖，讓第一個畫面就認得出是同一個 App -->
-  <div class="auth-head">
-    <svg class="hero-art" viewBox="0 0 220 120" aria-hidden="true" focusable="false">
-      <g class="sky">
-        <rect x="6" y="46" width="16" height="42" rx="2"/>
-        <rect x="26" y="32" width="13" height="56" rx="2"/>
-        <rect x="43" y="52" width="18" height="36" rx="2"/>
-        <rect x="65" y="24" width="14" height="64" rx="2"/>
-        <rect x="83" y="44" width="20" height="44" rx="2"/>
-        <rect x="107" y="36" width="12" height="52" rx="2"/>
-        <rect x="123" y="56" width="18" height="32" rx="2"/>
-        <rect x="145" y="40" width="14" height="48" rx="2"/>
-        <rect x="163" y="50" width="19" height="38" rx="2"/>
-        <rect x="186" y="30" width="13" height="58" rx="2"/>
-      </g>
-      <path class="road" d="M0 96h220"/>
-      <g class="car">
-        <path d="M118 92v-7c0-1.7 1.4-3 3-3h6l4-5h11c1.4 0 2.7.7 3.4 1.9l1.8 3.1h4c1.7 0 3 1.4 3 3v7Z"/>
-        <circle cx="128" cy="92" r="4.2"/>
-        <circle cx="147" cy="92" r="4.2"/>
-      </g>
-      <path class="warn" d="M186 74.5 176 92h20Z"/>
-      <path class="warn-b" d="M186 81v4.4M186 88.6v.1"/>
-    </svg>
-    <div class="auth-brand">
-      <img src="icons/mark.png" alt="" width="30" height="30">
-      <span>GUARDY</span>
+
+  <!-- ── 歡迎屏：先講這個 App 是什麼，再要人填表 ── -->
+  <div class="wel" id="auth-welcome">
+    <div class="wel-in">
+      <div class="wel-art">
+        <svg viewBox="0 0 340 300" aria-hidden="true" focusable="false">
+          <!-- 天空 -->
+          <rect x="34" y="42" width="66" height="15" rx="7.5" class="cloud"/>
+          <rect x="238" y="62" width="50" height="12" rx="6" class="cloud2"/>
+
+          <!-- 盾牌：車 + 定位，就是這個 App 的兩件事 -->
+          <g class="mark" transform="translate(118,26) scale(1.05)">
+            <path d="M50 5 90 20v33c0 29-17 50-40 62C27 103 10 82 10 53V20Z"/>
+            <path d="M27 58l4-15c1-4 4-7 8-7h22c4 0 7 3 8 7l4 15" stroke-linecap="round"/>
+            <rect x="24" y="55" width="52" height="28" rx="7"/>
+            <circle cx="36" cy="84" r="5" class="fill"/>
+            <circle cx="64" cy="84" r="5" class="fill"/>
+            <path d="M50 96s-7-8-7-13c0-4.5 3.1-8 7-8s7 3.5 7 8c0 5-7 13-7 13Z" class="fill"/>
+            <circle cx="50" cy="82" r="2.5" class="hole"/>
+          </g>
+
+          <!-- 路面 -->
+          <ellipse cx="150" cy="292" rx="260" ry="88" class="ground"/>
+          <path d="M46 250h228" class="lane"/>
+          <path d="M86 274h168" class="lane2"/>
+
+          <!-- 車 -->
+          <g transform="translate(84,178)">
+            <path d="M25 53 34 32c2-5 6-8 12-8h55c6 0 10 3 13 8l10 21Z" class="car-top"/>
+            <path d="M22 51h106c5 0 9 4 9 9v8c0 5-4 9-9 9H22c-5 0-9-4-9-9v-8c0-5 4-9 9-9Z" class="car-body"/>
+            <path d="M44 30h18l6 18H35Z" class="glass"/>
+            <path d="M68 30h30c5 0 8 3 10 7l4 11H68Z" class="glass"/>
+            <circle cx="35" cy="76" r="11" class="tyre"/>
+            <circle cx="113" cy="76" r="11" class="tyre"/>
+            <circle cx="35" cy="76" r="5" class="hub"/>
+            <circle cx="113" cy="76" r="5" class="hub"/>
+            <rect x="128" y="57" width="5" height="10" rx="2" class="lamp"/>
+          </g>
+
+          <!-- 定位圖釘 -->
+          <g transform="translate(258,196)">
+            <circle cx="24" cy="24" r="24" class="pin"/>
+            <circle cx="24" cy="24" r="8" class="hole"/>
+            <path d="M16 44h16l-8 14Z" class="pin"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="wel-brand">
+        <h1 id="auth-h2">Guardy <span>守護你</span></h1>
+        <p>事故發生時，我陪你一步一步處理。</p>
+      </div>
+
+      <div class="wel-feats">
+        <div class="wel-feat">
+          <span class="ic"><svg class="i"><use href="#ic-pin"/></svg></span>
+          <span class="t"><b>快速定位</b>一鍵記下事故地點，報案與救援都用得上</span>
+        </div>
+        <div class="wel-feat">
+          <span class="ic"><svg class="i"><use href="#ic-check"/></svg></span>
+          <span class="t"><b>引導流程</b>清楚的步驟，帶你處理現場大小事</span>
+        </div>
+        <div class="wel-feat">
+          <span class="ic"><svg class="i"><use href="#ic-phone"/></svg></span>
+          <span class="t"><b>出險與求償</b>十家產險專線、調解途徑與應備文件</span>
+        </div>
+      </div>
+
+      <div class="wel-cta">
+        <button class="btn-primary" data-go="up">建立帳號</button>
+        <button class="btn-outline2" data-go="in">登入</button>
+      </div>
+
+      <p class="wel-terms">繼續即表示你同意 Guardy 的<br>
+        <a href="privacy.html">隱私權政策</a></p>
     </div>
-    <h1 id="auth-h">先建立帳號</h1>
-    <p class="auth-sub" id="auth-sub">事故紀錄會綁在你的帳號上，換手機也找得回來。</p>
   </div>
 
-  <div class="auth-in">
-    <!-- 為什麼要註冊。強制註冊是門檻，不解釋的話使用者只會覺得被擋住 -->
-    <div class="auth-why">
-      <div class="why-row">
-        <span class="ic"><svg class="i"><use href="#ic-shield"/></svg></span>
-        <span class="t"><b>出事當下不需要網路</b><br>建立完成後，離線也能直接開啟使用。</span>
+  <!-- ── 表單屏 ── -->
+  <div id="auth-pane" hidden>
+    <div class="auth-head">
+      <button class="auth-back" id="auth-back" aria-label="返回">
+        <svg class="i" viewBox="0 0 24 24"><path d="M15 5.5 8.5 12l6.5 6.5"/></svg>
+      </button>
+      <div class="auth-brand">
+        <img src="icons/mark.png" alt="" width="30" height="30">
+        <span>GUARDY</span>
       </div>
-      <div class="why-row">
-        <span class="ic"><svg class="i"><use href="#ic-camera"/></svg></span>
-        <span class="t"><b>照片永遠不上傳</b><br>事故照片只留在這支手機，帳號也帶不走。</span>
-      </div>
+      <h1 id="auth-h">先建立帳號</h1>
+      <p class="auth-sub" id="auth-sub">事故紀錄會綁在你的帳號上，換手機也找得回來。</p>
     </div>
 
-    <div class="seg auth-seg" id="auth-seg">
-      <button data-m="up" aria-pressed="true">建立帳號</button>
-      <button data-m="in" aria-pressed="false">我已經有帳號</button>
-    </div>
-
-    <form class="card auth-form" id="auth-form" novalidate>
-      <label for="auth-email">電子郵件</label>
-      <input type="email" id="auth-email" inputmode="email" autocomplete="email"
-             autocapitalize="off" spellcheck="false" placeholder="you@example.com">
-
-      <label for="auth-pw">密碼</label>
-      <input type="password" id="auth-pw" autocomplete="new-password" placeholder="至少 8 個字元">
-
-      <div id="auth-tel-wrap">
-        <label for="auth-tel">手機號碼<span class="opt-note">（選填）</span></label>
-        <input type="tel" id="auth-tel" inputmode="tel" autocomplete="tel" placeholder="0912345678">
-        <p class="auth-hint">留了之後，業務員需要時才聯絡得到你。不填也能用。</p>
+    <div class="auth-in">
+      <div class="seg auth-seg" id="auth-seg">
+        <button data-m="up" aria-pressed="true">建立帳號</button>
+        <button data-m="in" aria-pressed="false">我已經有帳號</button>
       </div>
 
-      <p class="auth-err" id="auth-err" hidden></p>
-      <button type="submit" class="btn-primary" id="auth-go">建立帳號</button>
-      <button type="button" class="auth-link" id="auth-forgot" hidden>忘記密碼？</button>
-    </form>
+      <form class="card auth-form" id="auth-form" novalidate>
+        <label for="auth-email">電子郵件</label>
+        <input type="email" id="auth-email" inputmode="email" autocomplete="email"
+               autocapitalize="off" spellcheck="false" placeholder="you@example.com">
 
-    <p class="auth-foot" id="auth-foot"></p>
+        <label for="auth-pw">密碼</label>
+        <input type="password" id="auth-pw" autocomplete="new-password" placeholder="至少 8 個字元">
+
+        <div id="auth-tel-wrap">
+          <label for="auth-tel">手機號碼<span class="opt-note">（選填）</span></label>
+          <input type="tel" id="auth-tel" inputmode="tel" autocomplete="tel" placeholder="0912345678">
+          <p class="auth-hint">留了之後，業務員需要時才聯絡得到你。不填也能用。</p>
+        </div>
+
+        <p class="auth-err" id="auth-err" hidden></p>
+        <button type="submit" class="btn-primary" id="auth-go">建立帳號</button>
+        <button type="button" class="auth-link" id="auth-forgot" hidden>忘記密碼？</button>
+      </form>
+
+      <p class="auth-foot" id="auth-foot"></p>
+    </div>
   </div>
 </div>
 
@@ -1776,6 +1887,25 @@ function account(){ return rawLoad(LS_ACC); }
     b.addEventListener('click', function(){ mode = b.dataset.m; paint(); });
   });
 
+  /* 歡迎屏 → 表單。哪一顆按進來，就決定表單的初始模式 */
+  function showPane(m){
+    mode = m;
+    $('auth-welcome').hidden = true;
+    $('auth-pane').hidden = false;
+    $('auth').scrollTop = 0;
+    paint();
+  }
+  $('auth-welcome').addEventListener('click', function(e){
+    var b = e.target.closest('[data-go]');
+    if (b) showPane(b.dataset.go);
+  });
+  $('auth-back').addEventListener('click', function(){
+    $('auth-pane').hidden = true;
+    $('auth-welcome').hidden = false;
+    $('auth').scrollTop = 0;
+    err.hidden = true;
+  });
+
   function fail(msg){ err.textContent = msg; err.hidden = false; }
 
   $('auth-form').addEventListener('submit', function(e){
@@ -1847,8 +1977,7 @@ function account(){ return rawLoad(LS_ACC); }
     $('auth-h').textContent = '確認信已寄出';
     $('auth-form').hidden = true;
     seg.hidden = true;
-    var why = document.querySelector('.auth-why');
-    if (why) why.hidden = true;
+    $('auth-back').hidden = true;
     $('auth-sub').innerHTML =
       '我們寄了一封確認信到 <strong>' + esc(email) + '</strong>。<br>' +
       '點開信裡的連結完成確認，再回來登入。';

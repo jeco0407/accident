@@ -23,6 +23,19 @@ def url(auth=True, extra=""):
     return ORIGIN + "/index.html" + q + extra
 
 
+WELCOME_JS = r"""
+(function(){
+  var w = document.getElementById('auth-welcome');
+  var p = document.getElementById('auth-pane');
+  var before = { 歡迎屏:!w.hidden, 表單:!p.hidden };
+  document.querySelector('#auth-welcome [data-go=up]').click();
+  return { 進來時: before,
+           按建立帳號後: { 歡迎屏:!w.hidden, 表單:!p.hidden,
+             模式: document.querySelector('#auth-seg [aria-pressed=true]').dataset.m } };
+})()
+"""
+
+
 async def run():
     proc = subprocess.Popen(
         [CHROME, "--headless=new", "--disable-gpu", f"--remote-debugging-port={PORT}",
@@ -113,6 +126,12 @@ async def run():
             await goto(url())
             print("\n=== 開啟功能、尚未註冊 ===")
             print(json.dumps(await js(SNAP), ensure_ascii=False, indent=2))
+
+            # ---- 1b. 歡迎屏 -> 表單 ----
+            # v40 之後第一屏是歡迎頁，表單要按下 CTA 才出現。
+            # 測試要走真實路徑，不然驗的是一個使用者看不到的表單。
+            print("\n=== 歡迎屏 ===")
+            print(json.dumps(await js(WELCOME_JS), ensure_ascii=False))
 
             # ---- 2. 驗證錯誤 ----
             print("\n=== 輸入驗證 ===")
