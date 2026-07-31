@@ -101,7 +101,7 @@ async def main():
             await asyncio.sleep(2.5)
             await ev("document.getElementById('install').style.display='none';document.getElementById('loc-btn').click()")
             await asyncio.sleep(3)
-            for i,name in enumerate(['現場','存證','出險','求償','我的']):
+            for i,name in enumerate(['現場','存證','出險','求償','個人']):
                 await ev(f"document.querySelectorAll('.tab')[{i}].click()")
                 await asyncio.sleep(.7)
                 print('─'*8, name, '─'*8)

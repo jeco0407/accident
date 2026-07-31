@@ -135,24 +135,24 @@ async def run():
 
             # ---- 2. 驗證錯誤 ----
             print("\n=== 輸入驗證 ===")
-            for email, pw, tel, label in [
-                ("", "", "", "全空"),
-                ("abc", "12345678", "", "email 格式錯"),
-                ("a@b.co", "123", "", "密碼太短"),
-                ("a@b.co", "12345678", "0912", "手機格式錯"),
+            # v43 拿掉了手機欄位（綁定功能取消後就沒有任何地方會讀它），
+            # 所以這裡也不再有「手機格式錯」那一列。
+            for email, pw, label in [
+                ("", "", "全空"),
+                ("abc", "12345678", "email 格式錯"),
+                ("a@b.co", "123", "密碼太短"),
             ]:
                 r = await js("""
                   (function(){
                     document.getElementById('auth-email').value = %s;
                     document.getElementById('auth-pw').value = %s;
-                    document.getElementById('auth-tel').value = %s;
                     document.getElementById('auth-go').click();
                     var e = document.getElementById('auth-err');
                     return { err: e.hidden ? null : e.textContent,
                              stillShown: getComputedStyle(document.getElementById('auth')).display !== 'none',
                              registered: localStorage.getItem('aa.registered.v1') };
                   })()
-                """ % (json.dumps(email), json.dumps(pw), json.dumps(tel)))
+                """ % (json.dumps(email), json.dumps(pw)))
                 print("  %-12s → %s" % (label, json.dumps(r, ensure_ascii=False)))
 
             # ---- 3. 真的打到 Supabase（只測錯誤路徑）----
@@ -185,6 +185,10 @@ async def run():
             await js("""
               (function(){
                 localStorage.setItem('aa.registered.v1','1');
+                /* v43：身分也要種下去。少了它，重開會停在身分屏，
+                   下面「離線重開十次」的 authShown 就會全部是 true —— 那是
+                   真實行為，不是壞掉，但驗的東西會變成別的。 */
+                localStorage.setItem('aa.role.v1','user');
                 localStorage.setItem('aa.account.v1', JSON.stringify({email:'seed@example.com'}));
                 localStorage.setItem('aa.session.v1', JSON.stringify({
                   access_token:'seed', refresh_token:'seed',
@@ -281,6 +285,7 @@ async def run():
             await js("""
               (function(){
                 localStorage.setItem('aa.registered.v1','1');
+                localStorage.setItem('aa.role.v1','user');
                 localStorage.setItem('aa.session.v1', JSON.stringify({
                   access_token:'expired', refresh_token:'definitely-invalid',
                   expires_at: Date.now() - 60000,
