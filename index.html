@@ -1589,10 +1589,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
       <div class="blk">
         <p class="sec-label"><svg class="i"><use href="#ic-shield"/></svg>關於</p>
         <div class="card">
-          <!-- 服務條款描述的是帳號制之後的服務。帳號還沒開啟之前顯示它，
-               等於對現在的使用者說一件不是事實的話（「使用 Guardy 需要建立帳號」）。
-               跟帳號功能同一個開關。 -->
-          <a class="row-btn" href="terms.html" id="row-terms" hidden>
+          <a class="row-btn" href="terms.html" id="row-terms">
             <span class="ic"><svg class="i"><use href="#ic-doc"/></svg></span>
             <span class="t">服務條款</span><span class="ar">›</span>
           </a>
@@ -2255,8 +2252,6 @@ function applyRow(row){
    但文字會，兩者必須分開講。 */
 function renderPrivacyLine(){
   var el = $('privacy-line');
-  var t = $('row-terms');
-  if (t) t.hidden = !(window.__auth || {}).on;
   if (!el) return;
   el.textContent = ((window.__auth || {}).on && isRegistered())
     ? '照片只存在這支手機，永遠不會上傳。文字紀錄會同步到你的帳號，換手機才找得回來。'
