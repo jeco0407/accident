@@ -552,6 +552,10 @@ body.is-offline .chip-off{display:flex}
 .prof-av{
   position:relative;flex:0 0 76px;width:76px;height:76px;border-radius:50%;
   background:var(--head-bg);overflow:visible;
+  /* padding:0 是必要的，不是多寫的。全域的 button 重置漏了 padding，
+     瀏覽器預設的 1px 6px 會把裡面的圖擠成 64×74 的長方形，
+     object-fit:cover 再裁一次，底色就從左右兩側露出來。 */
+  padding:0;
 }
 .prof-av img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
 .prof-av .ini{
@@ -588,22 +592,59 @@ body.is-offline .chip-off{display:flex}
 }
 .prof-edit .i{width:17px;height:17px}
 
-/* 我的資料：每一列都能點一下複製 —— 這些欄位存在的意義就是
-   事故當下要唸給別人聽或填進表格，能複製才有用 */
-.me-row{
-  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
-  padding:14px 18px;min-height:56px;
+/* ── 頭貼裁切 ──
+   z-index 180：要蓋過 sheet（100）與 viewer（150），
+   但留在 ask（200）與 toast 之下。 */
+.crop{
+  position:fixed;inset:0;z-index:180;display:none;
+  flex-direction:column;background:#141110;
+  padding-top:env(safe-area-inset-top);
+  padding-bottom:env(safe-area-inset-bottom);
 }
-.me-row + .me-row{border-top:1px solid var(--line-soft)}
-.me-row .k{flex:0 0 92px;font-size:14.5px;color:var(--muted)}
-.me-row .v{flex:1;font-size:16px;font-weight:500;word-break:break-all}
-.me-row .v.plate{font-size:19px;font-weight:700;letter-spacing:.08em;
-  font-variant-numeric:tabular-nums}
-.me-row .cp{flex:0 0 auto;color:var(--chev)}
-.me-row .cp .i{width:17px;height:17px}
-.me-empty{padding:22px 20px;text-align:center}
-.me-empty .t{font-size:16px;font-weight:600;margin:0 0 6px}
-.me-empty .d{font-size:14px;color:var(--muted);margin:0 0 16px;line-height:1.65}
+.crop.open{display:flex}
+.crop-top{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:6px 8px;flex:0 0 auto;
+}
+.crop-top button{min-height:48px;padding:0 14px;font-size:16.5px;color:rgba(255,255,255,.8)}
+.crop-top #crop-ok{font-weight:700;color:var(--brand-lite)}
+.crop-top .t{font-size:16px;font-weight:600;color:#fff}
+.crop-stage{flex:1;display:flex;align-items:center;justify-content:center;min-height:0}
+.crop-box{
+  position:relative;overflow:hidden;background:#000;
+  touch-action:none;             /* 自己處理拖曳與雙指，別讓瀏覽器搶去捲動 */
+  cursor:grab;
+}
+.crop-box:active{cursor:grabbing}
+.crop-box img{
+  position:absolute;left:50%;top:50%;
+  max-width:none;max-height:none;   /* 別讓其他規則把它縮回去 */
+  user-select:none;-webkit-user-drag:none;pointer-events:none;
+}
+/* 圓形取景框：用一圈超大的 box-shadow 把圓形以外壓暗，
+   比疊四個方塊乾淨，而且縮放時不會有接縫。 */
+.crop-mask{
+  position:absolute;inset:0;border-radius:50%;
+  box-shadow:0 0 0 9999px rgba(20,17,16,.62);
+  border:2px solid rgba(255,255,255,.85);
+  pointer-events:none;
+}
+.crop-ctl{flex:0 0 auto;padding:18px 24px 26px}
+.crop-ctl input[type=range]{
+  width:100%;height:44px;                 /* 44 是可觸控高度，不是視覺高度 */
+  -webkit-appearance:none;appearance:none;background:transparent;
+}
+.crop-ctl input[type=range]::-webkit-slider-runnable-track{
+  height:4px;border-radius:2px;background:rgba(255,255,255,.3)}
+.crop-ctl input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:26px;height:26px;border-radius:50%;
+  background:#fff;margin-top:-11px;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.crop-ctl input[type=range]::-moz-range-track{
+  height:4px;border-radius:2px;background:rgba(255,255,255,.3)}
+.crop-ctl input[type=range]::-moz-range-thumb{
+  width:26px;height:26px;border:0;border-radius:50%;background:#fff}
+.crop-hint{font-size:13px;color:rgba(255,255,255,.6);text-align:center;
+  margin:4px 0 0;line-height:1.6}
 
 .row-btn{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:16px 18px;min-height:60px}
 .row-btn + .row-btn{border-top:1px solid var(--line-soft)}
@@ -1448,13 +1489,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
             <svg class="i"><use href="#ic-id"/></svg>編輯個人資料
           </button>
         </div>
-        <p class="fineprint">頭貼與下面的資料都只存在這支手機裡，不會上傳。</p>
-      </div>
-
-      <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-id"/></svg>我的資料</p>
-        <div class="card" id="me-box"></div>
-        <p class="fineprint">事故現場要唸給對方、警察或保險公司聽的東西。點一下就複製。</p>
+        <p class="fineprint">頭貼與個人資料都只存在這支手機裡，不會上傳。</p>
       </div>
 
       <div class="blk">
@@ -1538,6 +1573,25 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 <!-- 頭貼。不加 capture —— 大部分人是從相簿挑一張現成的，
      強制開相機只會多一步 -->
 <input type="file" id="av-picker" accept="image/*" hidden>
+
+<!-- 頭貼裁切 -->
+<div class="crop" id="crop" role="dialog" aria-modal="true" aria-label="調整頭貼">
+  <div class="crop-top">
+    <button id="crop-cancel">取消</button>
+    <span class="t">調整頭貼</span>
+    <button id="crop-ok">完成</button>
+  </div>
+  <div class="crop-stage">
+    <div class="crop-box" id="crop-box">
+      <img id="crop-img" alt="">
+      <div class="crop-mask"></div>
+    </div>
+  </div>
+  <div class="crop-ctl">
+    <input type="range" id="crop-zoom" min="100" max="300" value="100" aria-label="縮放">
+    <p class="crop-hint">拖曳移動位置，用滑桿或兩指縮放。</p>
+  </div>
+</div>
 
 <!-- 個人資料 -->
 <div class="sheet" id="me-sheet" role="dialog" aria-modal="true" aria-label="個人資料">
@@ -3591,6 +3645,7 @@ document.addEventListener('keydown', function(e){
   if ($('sheet').classList.contains('open')) closeSheet();
   if ($('ins-sheet').classList.contains('open')) $('ins-sheet').classList.remove('open');
   if ($('other-sheet').classList.contains('open')){ $('other-sheet').classList.remove('open'); renderOther(); }
+  if ($('crop').classList.contains('open')){ closeCrop(); return; }
   if ($('me-sheet').classList.contains('open')){ $('me-sheet').classList.remove('open'); renderMe(); }
   if ($('viewer').classList.contains('open')) closeViewer();
 });
@@ -4231,9 +4286,6 @@ var ME_FIELDS = [
 
 function meData(){ return load(LS_ME); }
 function meVal(k){ return (meData()[k] || '').trim(); }
-function meFilled(){
-  return ME_FIELDS.some(function(f){ return meVal(f.k); });
-}
 function avatarSrc(){ return (rawLoad(LS_AVATAR) || {}).src || ''; }
 
 function renderMe(){
@@ -4266,76 +4318,171 @@ function renderMe(){
   var tag = $('prof-tag'), r = (window.__auth || {}).on ? myRole() : '';
   tag.hidden = !r;
   if (r) tag.innerHTML = ico(r === 'agent' ? 'id' : 'person') + ROLES[r];
-
-  /* 我的資料 */
-  var box = $('me-box');
-  if (!meFilled()){
-    box.innerHTML =
-      '<div class="me-empty">' +
-        '<p class="t">還沒填任何資料</p>' +
-        '<p class="d">車牌、保險公司、保單號碼、緊急聯絡人 ——<br>' +
-          '事故當下這些都要唸出來，先填好就不用翻皮夾。</p>' +
-        '<button class="btn-primary" id="me-fill">填寫我的資料</button>' +
-      '</div>';
-    $('me-fill').addEventListener('click', openMe);
-    return;
-  }
-
-  var html = '';
-  ME_FIELDS.forEach(function(f){
-    var v = meVal(f.k);
-    if (!v) return;
-    html += '<button class="me-row" data-cp="' + esc(v) + '">' +
-              '<span class="k">' + f.t + '</span>' +
-              '<span class="v' + (f.cls ? ' ' + f.cls : '') + '">' + esc(v) + '</span>' +
-              '<span class="cp">' + ico('copy') + '</span>' +
-            '</button>';
-  });
-  box.innerHTML = html;
-  box.querySelectorAll('.me-row').forEach(function(b){
-    b.addEventListener('click', function(){ copyText(this.dataset.cp, '已複製'); });
-  });
 }
 
 /* ── 頭貼 ──
    256px 見方就夠了 —— 這張圖唯一的用途是頁面上 76px 的圓框。
    存進 localStorage 而不是 IndexedDB：只有一張、又小，而且同步讀得到，
    進頁面時不會先閃一個佔位再換成照片。 */
-function squareCrop(img, size){
-  var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
-  var side = Math.min(w, h);
+/* 把畫布存成頭貼。單獨拉出來是因為存檔失敗要讓使用者看到 ——
+   rawSave() 會把例外吞掉，那在這裡是錯的：他會以為換好了，
+   下次開啟卻是空的。 */
+function saveAvatarCanvas(cv){
+  var url = cv.toDataURL('image/jpeg', 0.82);
+  try{ localStorage.setItem(LS_AVATAR, JSON.stringify({ src: url, at: Date.now() })); }
+  catch(e){ throw new Error('quota'); }
+  renderMe();
+  toast('頭貼已更新');
+}
+
+/* ── 裁切 ──
+   自動置中裁切在人臉上幾乎一定是錯的（頭通常偏上），所以上傳後
+   一律先進這一屏，讓使用者自己決定框在哪裡。
+
+   狀態只有三個數字：scale 與位移 tx／ty。所有互動 —— 拖曳、雙指、
+   滑桿 —— 都只是改這三個數字，然後 apply() 一次把畫面與夾限算完。
+   分開處理各自的邊界是這種介面最容易出錯的地方。 */
+var cropImg = null, cropBase = 1, cropScale = 1, cropTX = 0, cropTY = 0, cropSide = 0;
+var cropPts = {}, cropPrev = null;
+
+function cropClamp(){
+  if (cropScale < 1) cropScale = 1;
+  if (cropScale > 3) cropScale = 3;
+  /* 圖片永遠要蓋滿取景框，不能拖出黑邊 */
+  var w = cropImg.naturalWidth * cropBase * cropScale;
+  var h = cropImg.naturalHeight * cropBase * cropScale;
+  var mx = Math.max(0, (w - cropSide) / 2), my = Math.max(0, (h - cropSide) / 2);
+  if (cropTX >  mx) cropTX =  mx;
+  if (cropTX < -mx) cropTX = -mx;
+  if (cropTY >  my) cropTY =  my;
+  if (cropTY < -my) cropTY = -my;
+}
+function cropApply(){
+  cropClamp();
+  var w = cropImg.naturalWidth * cropBase, h = cropImg.naturalHeight * cropBase;
+  cropImg.style.width  = w + 'px';
+  cropImg.style.height = h + 'px';
+  cropImg.style.marginLeft = (-w / 2) + 'px';
+  cropImg.style.marginTop  = (-h / 2) + 'px';
+  /* translate 在 scale 之前寫 = 先縮放（以中心為原點）再位移，
+     所以 tx／ty 的單位就是螢幕像素，夾限算起來才直觀。 */
+  cropImg.style.transform =
+    'translate(' + cropTX + 'px,' + cropTY + 'px) scale(' + cropScale + ')';
+  $('crop-zoom').value = Math.round(cropScale * 100);
+}
+
+function openCrop(file){
+  return decode(file).then(function(src){
+    /* decode() 可能回 ImageBitmap，但這裡要放進 <img> 顯示，統一走 object URL */
+    if (src.close) src.close();
+    return new Promise(function(res, rej){
+      var url = URL.createObjectURL(file);
+      var im = $('crop-img');
+      im.onload = function(){
+        URL.revokeObjectURL(url);
+        cropImg = im;
+        /* **先把整屏打開再量。** 還是 display:none 的時候，
+           .crop-stage 的高度是 0，取景框會永遠掉到下面那個 200 的下限。 */
+        $('crop').classList.add('open');
+        /* 取景框：正方形，塞得下就用 88vw，最大 340 */
+        var stage = $('crop-box').parentElement.getBoundingClientRect();
+        cropSide = Math.max(200, Math.min(340, Math.min(window.innerWidth * 0.88, stage.height - 24)));
+        $('crop-box').style.width = $('crop-box').style.height = cropSide + 'px';
+        /* base = 剛好蓋滿取景框的倍率。以短邊為準，長邊才會有得拖。 */
+        cropBase = cropSide / Math.min(im.naturalWidth, im.naturalHeight);
+        cropScale = 1; cropTX = 0; cropTY = 0;
+        cropApply();
+        res();
+      };
+      im.onerror = function(){ URL.revokeObjectURL(url); rej(new Error('decode')); };
+      im.src = url;
+    });
+  });
+}
+function closeCrop(){
+  $('crop').classList.remove('open');
+  $('crop-img').removeAttribute('src');
+  cropImg = null; cropPts = {}; cropPrev = null;
+}
+
+/* 把取景框裡看到的東西畫成 256×256。
+   螢幕座標 → 原圖座標：k = base × scale，取景框中心對到原圖中心加上位移。 */
+function cropToCanvas(){
+  var k = cropBase * cropScale;
+  var sw = cropSide / k;
+  var sx = cropImg.naturalWidth  / 2 - (cropSide / 2 + cropTX) / k;
+  var sy = cropImg.naturalHeight / 2 - (cropSide / 2 + cropTY) / k;
   var cv = document.createElement('canvas');
-  cv.width = cv.height = size;
-  cv.getContext('2d').drawImage(img, (w - side) / 2, (h - side) / 2, side, side,
-                                0, 0, size, size);
+  cv.width = cv.height = 256;
+  cv.getContext('2d').drawImage(cropImg, sx, sy, sw, sw, 0, 0, 256, 256);
   return cv;
 }
 
-function setAvatar(file){
-  return decode(file).then(function(src){
-    var cv = squareCrop(src, 256);
-    if (src.close) src.close();
-    var url = cv.toDataURL('image/jpeg', 0.82);
-    /* rawSave 會把例外吞掉，但頭貼寫不進去必須讓使用者知道 ——
-       否則他會以為換好了，下次開啟卻是空的。 */
-    try{ localStorage.setItem(LS_AVATAR, JSON.stringify({ src: url, at: Date.now() })); }
-    catch(e){ throw new Error('quota'); }
-    renderMe();
-    toast('頭貼已更新');
+(function cropGestures(){
+  var box = $('crop-box');
+  function ids(){ return Object.keys(cropPts); }
+  function centroid(){
+    var k = ids(), x = 0, y = 0;
+    k.forEach(function(i){ x += cropPts[i].x; y += cropPts[i].y; });
+    return { x: x / k.length, y: y / k.length };
+  }
+  function spread(){
+    var k = ids();
+    if (k.length < 2) return 0;
+    var a = cropPts[k[0]], b = cropPts[k[1]];
+    return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+  }
+  box.addEventListener('pointerdown', function(e){
+    if (!cropImg) return;
+    box.setPointerCapture(e.pointerId);
+    cropPts[e.pointerId] = { x:e.clientX, y:e.clientY };
+    cropPrev = { c: centroid(), d: spread() };
   });
-}
+  box.addEventListener('pointermove', function(e){
+    if (!cropImg || !cropPts[e.pointerId]) return;
+    cropPts[e.pointerId] = { x:e.clientX, y:e.clientY };
+    var c = centroid(), d = spread();
+    cropTX += c.x - cropPrev.c.x;
+    cropTY += c.y - cropPrev.c.y;
+    /* 雙指才縮放。門檻 0 會讓手指剛放上去的那一幀跳一下 */
+    if (cropPrev.d > 10 && d > 10) cropScale *= d / cropPrev.d;
+    cropPrev = { c:c, d:d };
+    cropApply();
+  });
+  function up(e){
+    delete cropPts[e.pointerId];
+    cropPrev = ids().length ? { c: centroid(), d: spread() } : null;
+  }
+  box.addEventListener('pointerup', up);
+  box.addEventListener('pointercancel', up);
+})();
+
+$('crop-zoom').addEventListener('input', function(){
+  if (!cropImg) return;
+  cropScale = (+this.value) / 100;
+  cropApply();
+});
+$('crop-cancel').addEventListener('click', closeCrop);
+$('crop-ok').addEventListener('click', function(){
+  if (!cropImg) return;
+  var cv;
+  try{ cv = cropToCanvas(); }
+  catch(e){ toast('裁切失敗，請再試一次'); closeCrop(); return; }
+  try{ saveAvatarCanvas(cv); }
+  catch(e2){
+    toast(e2 && e2.message === 'quota'
+      ? '儲存空間不足，請先清掉一些照片' : '存不進去，請再試一次');
+  }
+  closeCrop();
+  if ($('me-sheet').classList.contains('open')) openMe();   /* 重畫編輯屏裡的預覽 */
+});
 
 $('prof-av').addEventListener('click', function(){ $('av-picker').click(); });
 $('av-picker').addEventListener('change', function(){
   var f = this.files && this.files[0];
   this.value = '';                       /* 讓同一個檔案可以再選一次 */
   if (!f) return;
-  toast('處理中…');
-  setAvatar(f).catch(function(e){
-    toast(e && e.message === 'quota'
-      ? '儲存空間不足，請先清掉一些照片'
-      : '這張圖片讀不進來，換一張試試');
-  });
+  openCrop(f).catch(function(){ toast('這張圖片讀不進來，換一張試試'); });
 });
 
 function removeAvatar(){

@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""頭貼上傳：走真實的 <input type=file>，用 CDP 的 DOM.setFileInputFiles 塞檔案。
+"""頭貼：上傳 → 裁切 → 存檔。
 
+走真實的 <input type=file>，用 CDP 的 DOM.setFileInputFiles 塞檔案。
 不用 DataTransfer 假造 —— 那條路在部分 Chrome 版本上 files 是唯讀的，
 而且測到的不是使用者真正走的那段程式碼。
+
+裁切那一段要驗的重點是**夾限**：不論怎麼拖、怎麼縮，圖片都不能
+被拖出取景框露出黑邊。那是這種介面唯一會真的出錯的地方。
 """
 import asyncio, json, os, subprocess, sys, time, urllib.request
 
@@ -76,7 +80,86 @@ async def run():
             await send("DOM.setFileInputFiles", {"nodeId": node, "files": [IMG]})
             # setFileInputFiles 不會觸發 change，自己補一個 —— 使用者真的選檔時是會有的
             await js("document.getElementById('av-picker').dispatchEvent(new Event('change',{bubbles:true}))")
-            await asyncio.sleep(2.0)
+            await asyncio.sleep(1.5)
+
+            print("\n=== 先進裁切屏，不直接存檔 ===")
+            r = await js("""
+              (function(){
+                return { 裁切屏開著: document.getElementById('crop').classList.contains('open'),
+                         已經偷存了: localStorage.getItem('aa.avatar.v1'),
+                         取景框: (function(){var b=document.getElementById('crop-box').getBoundingClientRect();
+                                   return Math.round(b.width)+'x'+Math.round(b.height);})(),
+                         滑桿: document.getElementById('crop-zoom').value };
+              })()
+            """)
+            print("  " + json.dumps(r, ensure_ascii=False))
+            bad += ok("上傳後先進裁切屏", r.get("裁切屏開著") is True)
+            bad += ok("按下完成之前不存檔", r.get("已經偷存了") is None)
+            bad += ok("取景框是正方形", r.get("取景框", "x").split("x")[0] == r.get("取景框", "x").split("x")[1])
+            # 取景框要真的依畫面大小算出來。v46 開發時這裡量到 200（下限），
+            # 原因是還沒 display 就去量 .crop-stage 的高度，量到 0。
+            bad += ok("取景框有依畫面放大（> 下限 200）",
+                      int(r.get("取景框", "0x0").split("x")[0]) > 200)
+
+            print("\n=== 夾限：拖不出黑邊 ===")
+            # 用力往各個方向拖，然後量圖片實際蓋住的範圍有沒有涵蓋整個取景框。
+            r = await js("""
+              (function(){
+                var box=document.getElementById('crop-box');
+                var img=document.getElementById('crop-img');
+                function drag(dx,dy){
+                  var b=box.getBoundingClientRect();
+                  var x=b.left+b.width/2, y=b.top+b.height/2;
+                  box.dispatchEvent(new PointerEvent('pointerdown',{pointerId:1,clientX:x,clientY:y,bubbles:true}));
+                  box.dispatchEvent(new PointerEvent('pointermove',{pointerId:1,clientX:x+dx,clientY:y+dy,bubbles:true}));
+                  box.dispatchEvent(new PointerEvent('pointerup',{pointerId:1,clientX:x+dx,clientY:y+dy,bubbles:true}));
+                }
+                function covers(){
+                  var b=box.getBoundingClientRect(), i=img.getBoundingClientRect();
+                  return i.left<=b.left+0.6 && i.top<=b.top+0.6 &&
+                         i.right>=b.right-0.6 && i.bottom>=b.bottom-0.6;
+                }
+                var res={};
+                [[900,0,'往右'],[-1800,0,'往左'],[0,900,'往下'],[0,-1800,'往上']].forEach(function(d){
+                  drag(d[0],d[1]); res[d[2]]=covers();
+                });
+                // 縮到最小仍要蓋滿
+                var z=document.getElementById('crop-zoom');
+                z.value=100; z.dispatchEvent(new Event('input',{bubbles:true}));
+                res['縮到最小']=covers();
+                z.value=300; z.dispatchEvent(new Event('input',{bubbles:true}));
+                drag(-2000,-2000);
+                res['放到最大再拖']=covers();
+                z.value=100; z.dispatchEvent(new Event('input',{bubbles:true}));
+                return res;
+              })()
+            """)
+            print("  " + json.dumps(r, ensure_ascii=False))
+            for k, v in r.items():
+                bad += ok("拖曳後仍蓋滿取景框：" + k, v is True)
+
+            print("\n=== 取消不留痕跡 ===")
+            r = await js("""
+              (function(){
+                document.getElementById('crop-cancel').click();
+                return { 關掉了: !document.getElementById('crop').classList.contains('open'),
+                         沒有存檔: localStorage.getItem('aa.avatar.v1') };
+              })()
+            """)
+            print("  " + json.dumps(r, ensure_ascii=False))
+            bad += ok("取消會關掉裁切屏", r.get("關掉了") is True)
+            bad += ok("取消不留下任何頭貼", r.get("沒有存檔") is None)
+
+            print("\n=== 重新上傳並按完成 ===")
+            doc = await send("DOM.getDocument")
+            root = doc["result"]["root"]["nodeId"]
+            q = await send("DOM.querySelector", {"nodeId": root, "selector": "#av-picker"})
+            node = q["result"]["nodeId"]
+            await send("DOM.setFileInputFiles", {"nodeId": node, "files": [IMG]})
+            await js("document.getElementById('av-picker').dispatchEvent(new Event('change',{bubbles:true}))")
+            await asyncio.sleep(1.5)
+            await js("document.getElementById('crop-ok').click()")
+            await asyncio.sleep(1.0)
 
             r = await js("""
               (function(){
@@ -98,6 +181,23 @@ async def run():
             bad += ok("存成 JPEG data URL", r.get("是jpeg") is True)
             bad += ok("裁成正方形 256", r.get("寬") == 256 and r.get("高") == 256)
             bad += ok("大小合理（< 60KB）", 0 < r.get("存檔KB", 0) < 60)
+
+            print("\n=== 頭貼塞滿圓框 ===")
+            # v46 之前這裡是壞的：全域的 button 重置沒有歸零 padding，
+            # UA 預設的 1px 6px 把圖擠成長方形，底下的圓形底色從兩側露出來。
+            r = await js("""
+              (function(){
+                var b=document.getElementById('prof-av').getBoundingClientRect();
+                var i=document.getElementById('prof-img').getBoundingClientRect();
+                var cs=getComputedStyle(document.getElementById('prof-av'));
+                return { 按鈕: Math.round(b.width)+'x'+Math.round(b.height),
+                         圖: Math.round(i.width)+'x'+Math.round(i.height),
+                         padding: cs.padding,
+                         塞滿: Math.abs(i.width-b.width)<0.6 && Math.abs(i.height-b.height)<0.6 };
+              })()
+            """)
+            print("  " + json.dumps(r, ensure_ascii=False))
+            bad += ok("圖片尺寸等於圓框，沒有露出底色", r.get("塞滿") is True)
 
             print("\n=== 重新載入後還在 ===")
             await send("Page.navigate", {"url": ORIGIN + "/index.html?t=%d" % (int(time.time()*1000)+2)})

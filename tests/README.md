@@ -22,7 +22,7 @@ python3 -m http.server 8899
 | `test_delete_trace.py` | 刪除案件的三條路徑，每一步同時比對畫面／記憶體索引／localStorage，並各自重新載入再驗一次 |
 | `test_auth.py` | M1 帳號骨架：旗標、驗證、**真實離線重開十次**、開啟時零對外請求 |
 | `test_role.py` | 身分（一般／業務員）：閘門順序、離線不再問、登出一起清，外加**靜態檢查 role 沒有變成權限** |
-| `test_avatar.py` | 頭貼：走真實 `<input type=file>` 上傳、裁切尺寸、重開仍在、**不出現在會同步的資料裡**、移除 |
+| `test_avatar.py` | 頭貼：走真實 `<input type=file>` 上傳、**裁切屏的夾限（拖不出黑邊）**、取消不留痕跡、塞滿圓框、重開仍在、**不出現在會同步的資料裡**、移除 |
 | `test_sync.py` | M3 同步：攔截 fetch 驗 LWW、墓碑、照片不外流、失敗靜默 |
 | `a11y.py` | 無障礙稽核：五個分頁的對比度與觸控面積，實際量測而非目測 |
 
@@ -51,6 +51,12 @@ python3 -m http.server 8899
 用 CDP 的 `DOM.setFileInputFiles`，不要在 JS 裡造 `DataTransfer` —— 後者在部分 Chrome 版本上 `files` 是唯讀的，而且測到的不是使用者真正走的那段程式碼。
 
 **`setFileInputFiles` 不會觸發 `change`**，要自己補一個 `dispatchEvent(new Event('change',{bubbles:true}))`，否則什麼都不會發生。
+
+## 量還沒顯示的東西，量到的是 0
+
+`display:none` 的元素 `getBoundingClientRect()` 全是 0。v46 的裁切取景框因此永遠掉到 200px 的下限 —— 程式在 `.crop` 還沒加上 `.open` 之前就去量 `.crop-stage` 的高度。**先開屏再量。**
+
+這種錯不會壞掉、不會報錯，只會安靜地一直用 fallback 值，所以測試要斷言「大於 fallback」而不只是「有值」。
 
 ## 兩個量錯的方式
 

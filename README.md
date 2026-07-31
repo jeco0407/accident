@@ -75,7 +75,7 @@ var CONFIG = {
 - **位置與時間**：localStorage
 - **對方資料、求償金額、各清單進度**：localStorage
 - **照片**：IndexedDB，儲存前縮到長邊 2048、JPEG 品質 0.85（原圖動輒 4MB，縮完約 300–500KB，且仍足以辨識車牌）
-- **頭貼**：localStorage（`aa.avatar.v1`），中央正方裁切到 256×256、JPEG 0.82，約 4KB。**刻意不用 IndexedDB** —— 只有一張又小，走 localStorage 才能同步讀到，進頁面不會先閃一個佔位圖再換成照片
+- **頭貼**：localStorage（`aa.avatar.v1`），256×256、JPEG 0.82，約 4KB。**刻意不用 IndexedDB** —— 只有一張又小，走 localStorage 才能同步讀到，進頁面不會先閃一個佔位圖再換成照片。上傳後一律進裁切屏（圓形取景框、拖曳、雙指或滑桿縮放），不自動置中裁 —— 自動裁在人臉上幾乎一定是錯的
 - **我的資料**（姓名、車牌、保險公司、保單號碼、緊急聯絡人）：localStorage（`aa.me.v1`）。跟頭貼一樣列在 `GLOBAL_KEYS` —— 它們屬於「這個人」而不是「這次事故」，開新案件不該被清掉
 - 第一次存照片時會呼叫 `navigator.storage.persist()`，降低瀏覽器清空儲存的機率
 
