@@ -148,6 +148,7 @@ Google Play 也有類似條款，但對 TWA 的容忍度高很多，因為 TWA �
 
 ```
 index.html      主程式，CSS 與 JS 全部內嵌
+hero.jpg        歡迎頁插畫，800×706／45KB，在 SW shell 裡
 privacy.html    隱私權政策（商店上架必要）
 terms.html      服務條款
 supabase/       資料庫 schema 與 RLS，在 Supabase 後台依序執行

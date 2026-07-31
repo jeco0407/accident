@@ -2,7 +2,7 @@
    策略：app shell 一律 cache-first，確保車禍現場沒有網路時也能開啟。
    改版時把 VERSION 加一，舊快取會在 activate 時清掉。 */
 
-var VERSION = 'aa-v46';
+var VERSION = 'aa-v47';
 var SHELL = [
   './',
   './index.html',
@@ -15,7 +15,11 @@ var SHELL = [
   './icons/icon-maskable-512.png',
   './icons/apple-touch-icon.png',
   './icons/favicon-96.png',
-  './icons/mark.png'
+  './icons/mark.png',
+  /* 歡迎頁的插畫。45KB，是 shell 裡最大的一個檔 ——
+     放進來的理由是它就是新使用者看到的第一個畫面，
+     離線開啟時破圖比多 45KB 難看得多。 */
+  './hero.jpg'
 ];
 
 self.addEventListener('install', function(e){

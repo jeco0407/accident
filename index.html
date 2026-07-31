@@ -759,32 +759,14 @@ a.row-btn{color:inherit;text-decoration:none}
   padding:calc(env(safe-area-inset-top) + 26px) 24px calc(env(safe-area-inset-bottom) + 24px)}
 
 .wel-art{
+  position:relative;
   width:100%;aspect-ratio:34/30;max-height:310px;
   border-radius:32px;overflow:hidden;background:var(--head-bg);
 }
 @supports not (aspect-ratio: 1){ .wel-art{height:290px} }
-.wel-art{position:relative}
-.wel-art svg{width:100%;height:100%;display:block}
-.wel-mark{
-  position:absolute;top:7%;left:50%;transform:translateX(-50%);
-  width:31%;max-width:112px;height:auto;z-index:1;
-}
-/* 插圖用品牌色的深淺兩階，不另外引進一組配色 */
-.wel-art .cloud{fill:var(--card);opacity:.75}
-.wel-art .cloud2{fill:var(--card);opacity:.55}
-.wel-art .ground{fill:var(--card);opacity:.7}
-.wel-art .lane,.wel-art .lane2{stroke:var(--card);stroke-width:5;stroke-linecap:round}
-.wel-art .lane2{opacity:.65}
-.wel-art .mark{fill:none;stroke:var(--brand);stroke-width:6;stroke-linejoin:round}
-.wel-art .mark .fill{fill:var(--brand);stroke:none}
-.wel-art .hole{fill:var(--head-bg);stroke:none}
-.wel-art .car-top{fill:var(--brand);opacity:.72}
-.wel-art .car-body{fill:var(--brand)}
-.wel-art .glass{fill:var(--head-bg)}
-.wel-art .tyre{fill:var(--ink)}
-.wel-art .hub{fill:var(--line)}
-.wel-art .lamp{fill:var(--amber)}
-.wel-art .pin{fill:var(--brand)}
+/* 圖片本身是 34/30，object-fit:cover 只是在 max-height 把它壓扁時
+   接手裁切，不讓它變形 */
+.wel-art img{width:100%;height:100%;display:block;object-fit:cover}
 
 .wel-brand{text-align:center;margin-top:28px}
 .wel-brand h1{font-size:32px;font-weight:700;letter-spacing:-.035em;margin:0}
@@ -1631,39 +1613,10 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <div class="wel" id="auth-welcome">
     <div class="wel-in">
       <div class="wel-art">
-        <!-- 品牌標記用實際的圖檔，不用 SVG 重畫一次 ——
-             重畫的版本永遠會跟真正的 logo 有落差，改了圖也不會同步 -->
-        <img class="wel-mark" src="icons/mark.png" alt="Guardy" width="112" height="112">
-        <svg viewBox="0 0 340 300" aria-hidden="true" focusable="false">
-          <!-- 天空 -->
-          <rect x="34" y="42" width="66" height="15" rx="7.5" class="cloud"/>
-          <rect x="238" y="62" width="50" height="12" rx="6" class="cloud2"/>
-
-          <!-- 路面 -->
-          <ellipse cx="150" cy="292" rx="260" ry="88" class="ground"/>
-          <path d="M46 250h228" class="lane"/>
-          <path d="M86 274h168" class="lane2"/>
-
-          <!-- 車 -->
-          <g transform="translate(84,178)">
-            <path d="M25 53 34 32c2-5 6-8 12-8h55c6 0 10 3 13 8l10 21Z" class="car-top"/>
-            <path d="M22 51h106c5 0 9 4 9 9v8c0 5-4 9-9 9H22c-5 0-9-4-9-9v-8c0-5 4-9 9-9Z" class="car-body"/>
-            <path d="M44 30h18l6 18H35Z" class="glass"/>
-            <path d="M68 30h30c5 0 8 3 10 7l4 11H68Z" class="glass"/>
-            <circle cx="35" cy="76" r="11" class="tyre"/>
-            <circle cx="113" cy="76" r="11" class="tyre"/>
-            <circle cx="35" cy="76" r="5" class="hub"/>
-            <circle cx="113" cy="76" r="5" class="hub"/>
-            <rect x="128" y="57" width="5" height="10" rx="2" class="lamp"/>
-          </g>
-
-          <!-- 定位圖釘 -->
-          <g transform="translate(258,196)">
-            <circle cx="24" cy="24" r="24" class="pin"/>
-            <circle cx="24" cy="24" r="8" class="hole"/>
-            <path d="M16 44h16l-8 14Z" class="pin"/>
-          </g>
-        </svg>
+        <!-- 純裝飾，alt 留空。它旁邊就是「Guardy 守護你」與三行說明，
+             讀螢幕的人不需要再聽一次插圖描述。
+             width/height 是為了讓瀏覽器先留好位置，圖載進來時版面不會跳。 -->
+        <img src="hero.jpg" alt="" width="800" height="706" decoding="async">
       </div>
 
       <div class="wel-brand">
