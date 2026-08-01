@@ -99,6 +99,7 @@ var CONFIG = {
 
 110 的紅與 119 的琥珀是**語意色，不跟著品牌走**。
 
+**歡迎／註冊／登入／身分這四屏是例外**：v52 起改成深色底（`#151517`），強調色是深色模式的品牌綠松 `#5CC7BF`。配色收在 `.auth` 自己的一組 `--a-*` 變數裡，**不受全域變數與深淺色設定影響** —— 淺色模式的使用者也會看到深色的登入流程。要調這四屏只改那組變數，動不到 App 本體。
 
 淺色與深色的差異全部收在 CSS 變數裡（`:root` 與 `:root[data-theme="dark"]`），元件本身不寫死顏色。要調色只改變數即可。
 
@@ -147,8 +148,7 @@ Google Play 也有類似條款，但對 TWA 的容忍度高很多，因為 TWA �
 ## 檔案結構
 
 ```
-index.html      主程式，CSS 與 JS 全部內嵌
-assets/         歡迎頁插畫 guardy-hero.png（920×1380／1.2MB，在 SW shell 裡）
+index.html      主程式，CSS 與 JS 全部內嵌（含歡迎頁那枚盾的 SVG）
 privacy.html    隱私權政策（商店上架必要）
 terms.html      服務條款
 supabase/       資料庫 schema 與 RLS，在 Supabase 後台依序執行

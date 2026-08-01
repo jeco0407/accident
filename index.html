@@ -719,11 +719,41 @@ a.row-btn{color:inherit;text-decoration:none}
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #acc-box .row-btn{border-top:1px solid var(--line-soft)}
 
-/* ── 註冊／登入 ──
+/* ── 註冊／登入／歡迎（v52）──
+   整組換成參考稿 guardy-auth-ui.html 的深色 + 螢光黃版型。
+
+   配色全部收在 .auth 自己的變數裡，全域的 --bg／--ink／--brand 一個都沒動 ——
+   五個分頁、所有 sheet、設定視窗的顏色不受影響。這三屏因此**不跟隨系統深淺色**，
+   永遠是深色，跟參考稿一致。
+
    預設 display:none。由首次繪製前的腳本在 <html> 上掛 data-auth="need"
    才顯示 —— 用 CSS 決定，才不會先閃一下 App 的內容。 */
-.auth{position:fixed;inset:0;z-index:300;background:var(--bg);
-  display:none;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.auth{
+  position:fixed;inset:0;z-index:300;
+  display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;
+
+  --a-bg:#151517;
+  --a-deep:#0c0c0e;
+  --a-card:#1c1c1f;
+  /* 輸入框邊線。參考稿用 #3a3a3e，在 #151517 上只有 1.7:1 ——
+     底色透明時這條線是唯一能辨識「這裡可以打字」的東西，WCAG 1.4.11 要 3:1。
+     提到 #6b6b72 是 3.5:1，肉眼幾乎看不出差別。 */
+  --a-line:#6b6b72;
+  --a-line-soft:#2b2b2f;   /* 純裝飾的分隔線，不承載資訊，不受 3:1 限制 */
+  --a-txt:#f5f5f2;
+  --a-dim:#9a9aa0;
+  --a-faint:#8a8a92;       /* placeholder 與框內圖示。參考稿的 #6b6b72 當文字只有 3.5:1 */
+  /* 強調色用的是 Guardy 深色模式的品牌綠松（--brand 在 dark 下就是這個值）。
+     參考稿給的是螢光黃 —— 換掉的理由是強調色等於「這個產品的顏色」，
+     登入說螢光黃、進去說綠松，這個 App 就有兩個品牌色而哪個都不算數。
+     附帶一個實際的問題：螢光黃在色相上緊鄰 119 的琥珀，同一個產品裡並存
+     會稀釋掉那顆警示鍵的意義。 */
+  --a-acc:#5CC7BF;
+  --a-acc-ink:#06201E;
+  --a-acc-soft:rgba(92,199,191,.14);
+
+  background:var(--a-bg);color:var(--a-txt);
+}
 :root[data-auth="need"] .auth{display:block}
 /* 已註冊但還沒選身分：同一個全螢幕容器，但只露出身分屏。
    用 CSS 而不是 JS 切，理由跟上面一樣 —— 已登入的人重開 App 時
@@ -734,195 +764,169 @@ a.row-btn{color:inherit;text-decoration:none}
 #auth-role{display:none}
 :root[data-auth="role"] #auth-role{display:block}
 
-/* ── 註冊／登入／身分屏共用的外殼 ──
-   三屏一個骨架：圓形返回鈕（絕對定位在左上）、置中的品牌鎖件、
-   置中的大標與副標、一張卡片、一顆膠囊主鍵。
-   原本的漸層頁首拿掉了 —— 置中排版下它會把視線往上拉，
-   而這三屏真正要人看的是中間的卡片。 */
+/* ── 歡迎屏 ──
+   參考稿的 Splash：兩道柔和的暗光暈打在近黑底上，中央一枚螢光黃盾。
+   原本那張暖紅實拍 Hero 拿掉了 —— 它跟這組配色沒有交集。 */
+.wel{
+  min-height:100%;display:flex;
+  background:
+    radial-gradient(65% 42% at 82% 10%, #232326 0%, transparent 70%),
+    radial-gradient(70% 46% at 10% 88%, #202024 0%, transparent 70%),
+    var(--a-deep);
+}
+.wel-in{
+  max-width:480px;margin:0 auto;width:100%;display:flex;flex-direction:column;
+  padding:calc(env(safe-area-inset-top) + 36px) 24px calc(env(safe-area-inset-bottom) + 24px);
+}
+.wel-logo{display:flex;justify-content:center}
+.wel-logo svg{width:96px;height:106px;display:block}
+.wel-logo .pulse{animation:wel-pulse 2.6s ease-in-out infinite;transform-origin:center}
+@keyframes wel-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@media (prefers-reduced-motion:reduce){.wel-logo .pulse{animation:none}}
+
+.wel-brand{text-align:center;margin-top:24px}
+.wel-brand h1{font-size:30px;font-weight:800;letter-spacing:.01em;margin:0;color:var(--a-txt)}
+.wel-brand h1 span{display:block;font-size:14px;font-weight:600;letter-spacing:.28em;
+  color:var(--a-acc);margin-top:9px}
+.wel-brand p{font-size:13px;color:var(--a-dim);line-height:1.75;margin:12px auto 0;max-width:20em}
+
+/* 三個賣點改成卡片列 —— 深色底下，單純的圖示＋文字會散掉，
+   要有一個實體的框把它們收成三個等重的單位 */
+.wel-feats{margin-top:30px;display:flex;flex-direction:column;gap:12px}
+.wel-feat{display:flex;align-items:center;gap:14px;
+  padding:14px 16px;background:var(--a-card);
+  border:1px solid var(--a-line-soft);border-radius:20px}
+.wel-feat .ic{flex:0 0 40px;height:40px;border-radius:50%;
+  background:var(--a-acc-soft);color:var(--a-acc);
+  display:flex;align-items:center;justify-content:center}
+.wel-feat .ic .i{width:20px;height:20px}
+.wel-feat .t{flex:1;font-size:12.5px;color:var(--a-dim);line-height:1.6}
+.wel-feat .t b{display:block;font-size:15px;font-weight:700;color:var(--a-txt);margin-bottom:2px}
+
+.wel-cta{margin-top:28px;display:flex;flex-direction:column;gap:12px}
+.btn-outline2{
+  display:flex;align-items:center;justify-content:center;
+  width:100%;min-height:54px;border-radius:999px;background:transparent;
+  font-size:15px;font-weight:700;transition:transform .12s ease;
+}
+.btn-outline2:active{transform:scale(.98)}
+/* 配色只套在 .wel-cta 底下 —— btn-primary 是共用類別，
+   不限定範圍的話，五個分頁與各個 sheet 的按鈕會一起變成螢光黃。 */
+.wel-cta .btn-primary{
+  min-height:54px;border-radius:999px;font-size:15px;font-weight:700;
+  background:var(--a-acc);color:var(--a-acc-ink);
+}
+.wel-cta .btn-outline2{border:1px solid var(--a-line);color:var(--a-txt)}
+
+.wel-terms{text-align:center;font-size:12px;color:var(--a-dim);line-height:1.7;margin:14px 0 0}
+/* 「繼續即表示…」與連結分成兩行：連結各自要有 44px 的可點高度，
+   跟說明文字排在同一行會把行高撐得很奇怪。 */
+.wel-terms .lead{display:block;margin:0 0 -6px}
+.wel-terms a{display:inline-block;padding:12px 8px;color:var(--a-acc);
+  text-decoration:underline;text-underline-offset:2px}
+
+/* ── 表單屏與身分屏共用的外殼 ──
+   圓形返回鈕（絕對定位在左上）、置中的品牌鎖件、置中的大標與副標、
+   一疊膠囊欄位、一顆螢光黃膠囊主鍵。 */
 .auth-head{
   position:relative;
-  padding:calc(env(safe-area-inset-top) + 18px) 22px 0;
+  padding:calc(env(safe-area-inset-top) + 14px) 22px 0;
   text-align:center;
 }
 /* 返回鈕壓在標題列上，不佔文件流 —— 佔了的話標題就不會真的置中 */
 .auth-back{
-  position:absolute;top:calc(env(safe-area-inset-top) + 14px);left:16px;
+  position:absolute;top:calc(env(safe-area-inset-top) + 10px);left:16px;
   width:44px;height:44px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  background:var(--card);border:1px solid var(--line);
-  color:var(--ink-2);z-index:2;
+  background:var(--a-card);border:1px solid var(--a-line-soft);
+  color:var(--a-txt);z-index:2;
 }
-.auth-back .i{width:21px;height:21px;fill:none;stroke:currentColor;
-  stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.auth-back .i{width:19px;height:19px;fill:none;stroke:currentColor;
+  stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 
-.auth-brand{display:flex;align-items:center;justify-content:center;gap:8px;
-  min-height:44px;margin-bottom:26px}
-.auth-brand img{width:26px;height:26px;display:block}
-.auth-brand span{font-size:21px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.auth-brand{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px}
+.auth-brand svg{width:20px;height:22px;display:block;flex-shrink:0}
+.auth-brand span{font-size:21px;font-weight:600;color:var(--a-txt);letter-spacing:.02em}
 
-.auth h1{font-size:26px;font-weight:700;letter-spacing:-.025em;line-height:1.3;margin:0}
-.auth-sub{font-size:14.5px;color:var(--muted);line-height:1.7;
-  margin:10px auto 0;max-width:21em}
+.auth h1{font-size:22px;font-weight:800;line-height:1.35;margin:24px 0 0;color:var(--a-txt)}
+.auth-sub{font-size:12.5px;color:var(--a-dim);line-height:1.6;margin:8px auto 0;max-width:22em}
 
 .auth-in{max-width:440px;margin:0 auto;width:100%;
-  padding:24px 22px calc(env(safe-area-inset-bottom) + 32px)}
+  padding:22px 22px calc(env(safe-area-inset-bottom) + 28px)}
 
-/* ── 卡片式表單 ── */
+/* 參考稿沒有卡片，表單直接躺在底色上。把原本的卡片背景與邊框拿掉，
+   間距改由 gap 統一控制。 */
 .auth-card{
-  background:var(--card);border:1px solid var(--line);
-  border-radius:24px;padding:28px 18px 22px;
+  background:transparent;border:0;border-radius:0;padding:0;
+  display:flex;flex-direction:column;gap:16px;
 }
 
-/* ── 缺口標籤欄位 ──
+/* ── 缺口標籤的膠囊欄位 ──
    標籤固定壓在上框線上（不是聚焦才浮起來的動畫）—— 這樣「這一格要填什麼」
    在還沒點進去、也還沒輸入任何字的時候就看得到，placeholder 則單純示範格式。
-   標籤靠一小塊與卡片同色的底把框線蓋掉，做出缺口。 */
-.fld{position:relative;margin-bottom:18px}
+   標籤靠一小塊與底色同色的底把框線蓋掉，做出缺口。 */
+.fld{position:relative}
 .fld input{
-  width:100%;min-height:58px;
-  padding:16px 16px 16px 46px;
-  font-size:16.5px;                     /* 低於 16px 時 iOS 會自動放大整頁 */
-  background:transparent;color:var(--ink);
-  /* 邊線用 --chev 不是 --line。底色改成透明之後，這條線是唯一能
-     辨識「這裡是一個輸入框」的東西 —— WCAG 1.4.11 對這種邊界要求 3:1，
-     而 --line 在白卡片上只有 1.24。 */
-  border:1px solid var(--chev);border-radius:16px;
+  width:100%;min-height:54px;
+  padding:15px 18px 15px 46px;
+  /* 參考稿是 13px，不能照抄 —— iOS 在小於 16px 的輸入框上會自動放大整頁 */
+  font-size:16px;
+  background:transparent;color:var(--a-txt);
+  border:1px solid var(--a-line);border-radius:999px;
 }
 .fld.has-eye input{padding-right:52px}
-.fld input::placeholder{color:var(--chev)}
-.fld input:focus{outline:none;border-color:var(--brand)}
+.fld input::placeholder{color:var(--a-faint)}
+.fld input:focus{outline:none;border-color:var(--a-acc)}
 .fld label{
-  position:absolute;top:-8px;left:34px;
-  padding:0 6px;background:var(--card);
-  font-size:12.5px;font-weight:600;color:var(--ink-2);
+  position:absolute;top:-8px;left:20px;z-index:2;
+  padding:0 7px;background:var(--a-bg);
+  font-size:12.5px;font-weight:600;color:var(--a-txt);
   pointer-events:none;
 }
-.fld input:focus ~ label{color:var(--brand)}
+.fld input:focus ~ label{color:var(--a-acc)}
 .fld .fic{
-  position:absolute;left:15px;top:50%;transform:translateY(-50%);
-  color:var(--chev);pointer-events:none;display:flex;
+  position:absolute;left:17px;top:50%;transform:translateY(-50%);
+  color:var(--a-faint);pointer-events:none;display:flex;
 }
-.fld .fic .i{width:20px;height:20px}
+.fld .fic .i{width:18px;height:18px}
 /* 眼睛是真的按鈕，要湊足 44px 可觸控 */
 .fld .eye{
-  position:absolute;right:4px;top:50%;transform:translateY(-50%);
-  width:46px;height:46px;display:flex;align-items:center;justify-content:center;
-  color:var(--chev);
+  position:absolute;right:5px;top:50%;transform:translateY(-50%);
+  width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+  color:var(--a-faint);
 }
-.fld .eye .i{width:21px;height:21px}
+.fld .eye .i{width:19px;height:19px}
 
-/* 忘記密碼靠右，跟輸入框拉開一點 */
-.auth-row{display:flex;justify-content:flex-end;margin:-6px 0 14px}
+/* 忘記密碼靠右 */
+.auth-row{display:flex;justify-content:flex-end;margin:-8px 0 -4px}
 .auth-link{min-height:44px;padding:0 4px;display:flex;align-items:center;
-  font-size:14px;font-weight:600;color:var(--brand)}
+  font-size:12.5px;font-weight:700;color:var(--a-acc)}
 
+/* 深色底下不能用原本的 --red 系列，那組是為淺色卡片調的 */
 .auth-err{
-  font-size:14px;color:var(--red);line-height:1.6;margin:0 0 16px;
-  padding:12px 14px;background:var(--red-bg);border:1px solid var(--red-line);
-  border-radius:var(--r-sm);
+  font-size:13.5px;color:#FFB4A8;line-height:1.6;margin:0;
+  padding:12px 14px;background:rgba(255,90,70,.12);
+  border:1px solid rgba(255,120,100,.45);border-radius:16px;
 }
-/* 膠囊主鍵，跟歡迎屏那兩顆同一個語彙 */
-.auth-card .btn-primary{min-height:56px;border-radius:999px;
-  font-size:17px;letter-spacing:.03em}
+.auth-card .btn-primary{
+  min-height:54px;border-radius:999px;font-size:15px;font-weight:700;
+  background:var(--a-acc);color:var(--a-acc-ink);margin-top:4px;
+}
 
-/* 底部切換：取代原本的分段控制。
-   分段控制會讓人以為兩邊是同時存在的兩個表單；一句「還沒有帳號？建立帳號」
-   才講清楚這是同一個表單的兩種模式。 */
-.auth-switch{text-align:center;font-size:14.5px;color:var(--muted);margin:20px 0 0}
+/* 底部切換：一句「還沒有帳號？建立帳號」講清楚這是同一個表單的兩種模式 */
+.auth-switch{text-align:center;font-size:13px;color:var(--a-dim);margin:26px 0 0}
 .auth-switch button{
   /* 「登入」只有兩個字，不給 min-width 的話寬度是 41px，差一點點 */
   min-width:44px;min-height:44px;padding:0 6px;
-  font-size:14.5px;font-weight:700;color:var(--brand);
+  font-size:13px;font-weight:800;color:var(--a-txt);
+  text-decoration:underline;text-underline-offset:3px;
 }
-.auth-foot{font-size:13px;color:var(--muted);line-height:1.7;
-  margin:16px auto 0;max-width:24em;text-align:center}
+.auth-foot{font-size:12px;color:var(--a-dim);line-height:1.7;
+  margin:14px auto 0;max-width:24em;text-align:center}
 
-/* ── 歡迎屏 ──
-   先講這個 App 是什麼，再要人填表。強制註冊本來就是門檻，
-   第一眼就丟表單，使用者只會覺得被擋住。
-
-   版面規格：Mobile-first。手機上滿版，桌面上收在 480 置中，
-   絕不長成寬版網站。 */
-.wel{
-  min-height:100%;display:flex;
-  /* 規格指定的顏色。收成變數，深色模式才有地方接手 —— 直接寫死的話，
-     淺綠圓圈會在深色卡片上變成一塊發亮的白斑。 */
-  --wel-teal:#2B9D96;
-  --wel-mint:#E5F2EF;
-}
-:root[data-theme="dark"] .wel{--wel-teal:#5CC7BF; --wel-mint:#12302E}
-.wel-in{
-  max-width:480px;margin:0 auto;width:100%;display:flex;flex-direction:column;
-  /* 390 這種窄機身左右各留 20，寬一點才給到 24 */
-  padding:calc(env(safe-area-inset-top) + 24px) 20px calc(env(safe-area-inset-bottom) + 24px);
-}
-@media (min-width:430px){
-  .wel-in{padding-left:24px;padding-right:24px}
-}
-
-/* Hero：高度由圖片自己的比例決定。
-   原本是 aspect-ratio + max-height —— 那是「先決定框、再把圖塞進去」，
-   一定得靠 object-fit:cover 裁掉超出的部分。拿掉框，圖就完整了。
-   圓角保留：那正是「看起來像圖片自帶的完整視覺」的來源，
-   拿掉會變成硬邊的方角，跟整份設計的圓潤語彙打架。 */
-.wel-art{width:100%;max-width:460px;margin:0 auto;border-radius:28px;overflow:hidden}
-/* height:auto + 圖片自己的長寬比 = 完整顯示。沒有 aspect-ratio、
-   沒有 max-height，就沒有東西會逼出裁切。 */
-.wel-art img{width:100%;height:auto;display:block;object-fit:contain}
-
-.wel-brand{text-align:center;margin-top:28px}
-/* Guardy 800、守護你 500 —— 同一行裡拉開兩階，
-   品牌名才會先被讀到，而不是跟後面四個字糊成一片 */
-.wel-brand h1{font-size:34px;font-weight:800;letter-spacing:-.035em;margin:0}
-.wel-brand h1 span{font-size:31px;font-weight:500;letter-spacing:-.01em}
-.wel-brand p{font-size:16px;color:#77736B;letter-spacing:.03em;margin:12px 0 0;line-height:1.6}
-:root[data-theme="dark"] .wel-brand p{color:var(--muted)}
-
-.wel-feats{margin-top:36px;display:flex;flex-direction:column;gap:22px}
-.wel-feat{display:flex;align-items:center;gap:16px}
-.wel-feat .ic{flex:0 0 50px;height:50px;border-radius:50%;
-  background:var(--wel-mint);color:var(--wel-teal);
-  display:flex;align-items:center;justify-content:center}
-.wel-feat .ic .i{width:23px;height:23px}
-.wel-feat .t{flex:1;font-size:13.5px;color:var(--muted);line-height:1.65}
-.wel-feat .t b{display:block;font-size:17px;font-weight:600;color:var(--ink);
-  letter-spacing:.01em;margin-bottom:3px}
-
-/* 原本是 margin-top:auto 把兩顆鍵頂到底 —— 在高螢幕上會撐出一大片空白，
-   間距變成「看螢幕多高」而不是設計決定的。改成固定 40。 */
-.wel-cta{margin-top:40px;display:flex;flex-direction:column;gap:12px}
-.btn-outline2{
-  display:flex;align-items:center;justify-content:center;
-  width:100%;min-height:56px;border-radius:999px;
-  border:1.5px solid var(--brand);color:var(--brand);background:transparent;
-  font-size:17px;font-weight:600;letter-spacing:.03em;
-  transition:transform .12s ease;
-}
-.btn-outline2:active{transform:scale(.98)}
-/* 兩顆 CTA 要一樣高。btn-primary 本身的字級較大會撐出 64px，
-   在這裡蓋掉，跟外框鍵對齊。
-   配色只套在 .wel-cta 底下 —— btn-primary 與 btn-outline2 是共用類別，
-   不限定範圍的話，五個分頁與各個 sheet 的按鈕會一起被改掉。 */
-/* 膠囊。三個屏（歡迎、表單、身分）的主鍵是同一個形狀，
-   使用者才會知道「這是往前走的那一顆」 */
-.wel-cta .btn-primary{
-  min-height:56px;border-radius:999px;font-size:17px;letter-spacing:.03em;
-  background:var(--wel-teal);color:#fff;
-}
-.wel-cta .btn-outline2{border:1px solid var(--wel-teal);color:var(--wel-teal)}
-
-/* 連結本身有 14px 的上內距（湊 44px 可點高度），
-   所以 margin 只補 2px，視覺上離按鈕剛好 16px */
-.wel-terms{text-align:center;font-size:12px;color:var(--muted);
-  line-height:1.7;margin:4px 0 0}
-/* 「繼續即表示…」與連結分成兩行：連結各自要有 44px 的可點高度，
-   跟說明文字排在同一行會把行高撐得很奇怪。 */
-.wel-terms .lead{display:block;margin:0 0 -6px}
-.wel-terms a{display:inline-block;padding:12px 8px;color:var(--wel-teal);
-  text-decoration:underline;text-underline-offset:2px}
-
-/* 身分屏的說明文字。表單那一側已經改用 .fld，這裡是唯一還用到的 */
-.auth-hint{font-size:13px;color:var(--muted);line-height:1.6;margin:-10px 0 18px}
+/* 身分屏的說明文字 */
+.auth-hint{font-size:12.5px;color:var(--a-dim);line-height:1.65;margin:-10px 0 18px}
+.auth-hint strong{color:var(--a-txt)}
 
 /* ── 身分選擇 ──
    兩張大卡而不是下拉選單。這個選擇只出現一次，值得佔版面把
@@ -951,6 +955,18 @@ a.row-btn{color:inherit;text-decoration:none}
 .role-opt[aria-pressed="true"] .tick .i{opacity:1;color:var(--solid-fg)}
 #role-go{margin-top:22px;min-height:56px;border-radius:999px;font-size:17px}
 #role-go:disabled{opacity:.45}
+/* 身分屏在 .auth 這個深色殼裡，上面那組用的是全域的淺色變數，
+   套進來會變成白卡片配深字。這裡只換顏色，版型完全沿用。 */
+.auth .role-opt{background:var(--a-card);border:1px solid var(--a-line-soft);border-radius:20px}
+.auth .role-opt .ic{background:var(--a-acc-soft);color:var(--a-acc)}
+.auth .role-opt .t{font-size:12.5px;color:var(--a-dim)}
+.auth .role-opt .t b{font-size:15px;font-weight:700;color:var(--a-txt)}
+.auth .role-opt[aria-pressed="true"]{border-color:var(--a-acc);background:rgba(92,199,191,.09)}
+.auth .role-opt .tick{border-color:var(--a-line)}
+.auth .role-opt[aria-pressed="true"] .tick{background:var(--a-acc);border-color:var(--a-acc)}
+.auth .role-opt[aria-pressed="true"] .tick .i{color:var(--a-acc-ink)}
+.auth #role-go{min-height:54px;border-radius:999px;font-size:15px;font-weight:700;
+  background:var(--a-acc);color:var(--a-acc-ink)}
 
 /* 空白狀態：App 內部仍然握著一個案件，但那是實作需求，不該讓使用者
    在列表裡看到一列「未記錄地點」—— 那看起來就像剛才根本沒刪掉。 */
@@ -1708,15 +1724,20 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <!-- ── 歡迎屏：先講這個 App 是什麼，再要人填表 ── -->
   <div class="wel" id="auth-welcome">
     <div class="wel-in">
-      <div class="wel-art">
-        <!-- 純裝飾，alt 留空。它旁邊就是「Guardy 守護你」與三行說明，
-             讀螢幕的人不需要再聽一次插圖描述。
-             width/height 是為了讓瀏覽器先留好位置，圖載進來時版面不會跳。 -->
-        <img src="assets/guardy-hero.png" alt="" width="920" height="1380" decoding="async">
+      <!-- 純裝飾，aria-hidden。它下面就是「Guardy」與三行說明，
+           讀螢幕的人不需要再聽一次盾牌的描述。
+           內嵌而不是外連 SVG 檔：少一個請求，離線也一定畫得出來。 -->
+      <div class="wel-logo" aria-hidden="true">
+        <svg class="pulse" viewBox="0 0 60 66" fill="none">
+          <path d="M30 3 L54 11 V32 C54 47 44 57 30 63 C16 57 6 47 6 32 V11 Z"
+                stroke="#5CC7BF" stroke-width="4" stroke-linejoin="round"/>
+          <path d="M14 33 H22 L26 24 L32 42 L36 33 H46"
+                stroke="#5CC7BF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </div>
 
       <div class="wel-brand">
-        <h1 id="auth-h2">Guardy <span>守護你</span></h1>
+        <h1 id="auth-h2">Guardy<span>守護你</span></h1>
         <p>事故發生時，我陪你一步一步處理。</p>
       </div>
 
@@ -1754,7 +1775,12 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
         <svg class="i" viewBox="0 0 24 24"><path d="M15 5.5 8.5 12l6.5 6.5"/></svg>
       </button>
       <div class="auth-brand">
-        <img src="icons/mark.png" alt="" width="26" height="26">
+        <svg viewBox="0 0 60 66" fill="none" aria-hidden="true">
+          <path d="M30 3 L54 11 V32 C54 47 44 57 30 63 C16 57 6 47 6 32 V11 Z"
+                stroke="currentColor" stroke-width="5" stroke-linejoin="round"/>
+          <path d="M16 33 H23 L27 26 L33 41 L36 33 H44"
+                stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
         <span>Guardy</span>
       </div>
       <h1 id="auth-h">先建立帳號</h1>
@@ -1802,7 +1828,12 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <div id="auth-role">
     <div class="auth-head">
       <div class="auth-brand">
-        <img src="icons/mark.png" alt="" width="26" height="26">
+        <svg viewBox="0 0 60 66" fill="none" aria-hidden="true">
+          <path d="M30 3 L54 11 V32 C54 47 44 57 30 63 C16 57 6 47 6 32 V11 Z"
+                stroke="currentColor" stroke-width="5" stroke-linejoin="round"/>
+          <path d="M16 33 H23 L27 26 L33 41 L36 33 H44"
+                stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
         <span>Guardy</span>
       </div>
       <h1>你的身分是？</h1>
