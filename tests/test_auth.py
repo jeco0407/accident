@@ -31,7 +31,9 @@ WELCOME_JS = r"""
   document.querySelector('#auth-welcome [data-go=up]').click();
   return { 進來時: before,
            按建立帳號後: { 歡迎屏:!w.hidden, 表單:!p.hidden,
-             模式: document.querySelector('#auth-seg [aria-pressed=true]').dataset.m } };
+             /* v51：模式改看標題與送出鍵的字，分段控制已移除 */
+             標題: document.getElementById('auth-h').textContent,
+             送出鍵: document.getElementById('auth-go').textContent } };
 })()
 """
 
@@ -163,7 +165,8 @@ async def run():
             #   錯誤有被翻成中文、旗標沒有被寫下去。
             r = await js("""
               new Promise(function(res){
-                document.querySelector('#auth-seg [data-m=in]').click();
+                /* v51 拿掉了分段控制，改成底部的「還沒有帳號？…」切換連結 */
+                document.getElementById('auth-switch-b').click();
                 document.getElementById('auth-email').value = 'nobody-' + Date.now() + '@guardy.invalid';
                 document.getElementById('auth-pw').value = 'definitely-not-the-password';
                 document.getElementById('auth-go').click();

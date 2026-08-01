@@ -734,22 +734,108 @@ a.row-btn{color:inherit;text-decoration:none}
 #auth-role{display:none}
 :root[data-auth="role"] #auth-role{display:block}
 
+/* ── 註冊／登入／身分屏共用的外殼 ──
+   三屏一個骨架：圓形返回鈕（絕對定位在左上）、置中的品牌鎖件、
+   置中的大標與副標、一張卡片、一顆膠囊主鍵。
+   原本的漸層頁首拿掉了 —— 置中排版下它會把視線往上拉，
+   而這三屏真正要人看的是中間的卡片。 */
 .auth-head{
-  position:relative;overflow:hidden;
-  padding:calc(env(safe-area-inset-top) + 74px) 22px 30px;
-  background:linear-gradient(170deg, var(--head-bg) 0%, var(--bg) 100%);
-  border-bottom:1px solid var(--head-line);
+  position:relative;
+  padding:calc(env(safe-area-inset-top) + 18px) 22px 0;
+  text-align:center;
 }
-.auth-head .hero-art{right:-14px;bottom:0;width:200px;opacity:.5}
-.auth-head .auth-brand,.auth-head h1,.auth-head .auth-sub{position:relative;z-index:1}
-.auth-brand{display:flex;align-items:center;gap:9px;margin-bottom:18px}
-.auth-brand img{width:30px;height:30px;display:block}
-.auth-brand span{font-size:17px;font-weight:700;color:var(--ink-2);letter-spacing:.06em}
-.auth h1{font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.25;margin:0}
-.auth-sub{font-size:15.5px;color:var(--ink-2);line-height:1.65;margin:11px 0 0;max-width:19em}
+/* 返回鈕壓在標題列上，不佔文件流 —— 佔了的話標題就不會真的置中 */
+.auth-back{
+  position:absolute;top:calc(env(safe-area-inset-top) + 14px);left:16px;
+  width:44px;height:44px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--card);border:1px solid var(--line);
+  color:var(--ink-2);z-index:2;
+}
+.auth-back .i{width:21px;height:21px;fill:none;stroke:currentColor;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.auth-brand{display:flex;align-items:center;justify-content:center;gap:8px;
+  min-height:44px;margin-bottom:26px}
+.auth-brand img{width:26px;height:26px;display:block}
+.auth-brand span{font-size:21px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+
+.auth h1{font-size:26px;font-weight:700;letter-spacing:-.025em;line-height:1.3;margin:0}
+.auth-sub{font-size:14.5px;color:var(--muted);line-height:1.7;
+  margin:10px auto 0;max-width:21em}
 
 .auth-in{max-width:440px;margin:0 auto;width:100%;
-  padding:26px 22px calc(env(safe-area-inset-bottom) + 40px)}
+  padding:24px 22px calc(env(safe-area-inset-bottom) + 32px)}
+
+/* ── 卡片式表單 ── */
+.auth-card{
+  background:var(--card);border:1px solid var(--line);
+  border-radius:24px;padding:28px 18px 22px;
+}
+
+/* ── 缺口標籤欄位 ──
+   標籤固定壓在上框線上（不是聚焦才浮起來的動畫）—— 這樣「這一格要填什麼」
+   在還沒點進去、也還沒輸入任何字的時候就看得到，placeholder 則單純示範格式。
+   標籤靠一小塊與卡片同色的底把框線蓋掉，做出缺口。 */
+.fld{position:relative;margin-bottom:18px}
+.fld input{
+  width:100%;min-height:58px;
+  padding:16px 16px 16px 46px;
+  font-size:16.5px;                     /* 低於 16px 時 iOS 會自動放大整頁 */
+  background:transparent;color:var(--ink);
+  /* 邊線用 --chev 不是 --line。底色改成透明之後，這條線是唯一能
+     辨識「這裡是一個輸入框」的東西 —— WCAG 1.4.11 對這種邊界要求 3:1，
+     而 --line 在白卡片上只有 1.24。 */
+  border:1px solid var(--chev);border-radius:16px;
+}
+.fld.has-eye input{padding-right:52px}
+.fld input::placeholder{color:var(--chev)}
+.fld input:focus{outline:none;border-color:var(--brand)}
+.fld label{
+  position:absolute;top:-8px;left:34px;
+  padding:0 6px;background:var(--card);
+  font-size:12.5px;font-weight:600;color:var(--ink-2);
+  pointer-events:none;
+}
+.fld input:focus ~ label{color:var(--brand)}
+.fld .fic{
+  position:absolute;left:15px;top:50%;transform:translateY(-50%);
+  color:var(--chev);pointer-events:none;display:flex;
+}
+.fld .fic .i{width:20px;height:20px}
+/* 眼睛是真的按鈕，要湊足 44px 可觸控 */
+.fld .eye{
+  position:absolute;right:4px;top:50%;transform:translateY(-50%);
+  width:46px;height:46px;display:flex;align-items:center;justify-content:center;
+  color:var(--chev);
+}
+.fld .eye .i{width:21px;height:21px}
+
+/* 忘記密碼靠右，跟輸入框拉開一點 */
+.auth-row{display:flex;justify-content:flex-end;margin:-6px 0 14px}
+.auth-link{min-height:44px;padding:0 4px;display:flex;align-items:center;
+  font-size:14px;font-weight:600;color:var(--brand)}
+
+.auth-err{
+  font-size:14px;color:var(--red);line-height:1.6;margin:0 0 16px;
+  padding:12px 14px;background:var(--red-bg);border:1px solid var(--red-line);
+  border-radius:var(--r-sm);
+}
+/* 膠囊主鍵，跟歡迎屏那兩顆同一個語彙 */
+.auth-card .btn-primary{min-height:56px;border-radius:999px;
+  font-size:17px;letter-spacing:.03em}
+
+/* 底部切換：取代原本的分段控制。
+   分段控制會讓人以為兩邊是同時存在的兩個表單；一句「還沒有帳號？建立帳號」
+   才講清楚這是同一個表單的兩種模式。 */
+.auth-switch{text-align:center;font-size:14.5px;color:var(--muted);margin:20px 0 0}
+.auth-switch button{
+  /* 「登入」只有兩個字，不給 min-width 的話寬度是 41px，差一點點 */
+  min-width:44px;min-height:44px;padding:0 6px;
+  font-size:14.5px;font-weight:700;color:var(--brand);
+}
+.auth-foot{font-size:13px;color:var(--muted);line-height:1.7;
+  margin:16px auto 0;max-width:24em;text-align:center}
 
 /* ── 歡迎屏 ──
    先講這個 App 是什麼，再要人填表。強制註冊本來就是門檻，
@@ -807,7 +893,7 @@ a.row-btn{color:inherit;text-decoration:none}
 .wel-cta{margin-top:40px;display:flex;flex-direction:column;gap:12px}
 .btn-outline2{
   display:flex;align-items:center;justify-content:center;
-  width:100%;min-height:56px;border-radius:16px;
+  width:100%;min-height:56px;border-radius:999px;
   border:1.5px solid var(--brand);color:var(--brand);background:transparent;
   font-size:17px;font-weight:600;letter-spacing:.03em;
   transition:transform .12s ease;
@@ -817,8 +903,10 @@ a.row-btn{color:inherit;text-decoration:none}
    在這裡蓋掉，跟外框鍵對齊。
    配色只套在 .wel-cta 底下 —— btn-primary 與 btn-outline2 是共用類別，
    不限定範圍的話，五個分頁與各個 sheet 的按鈕會一起被改掉。 */
+/* 膠囊。三個屏（歡迎、表單、身分）的主鍵是同一個形狀，
+   使用者才會知道「這是往前走的那一顆」 */
 .wel-cta .btn-primary{
-  min-height:56px;border-radius:16px;font-size:17px;letter-spacing:.03em;
+  min-height:56px;border-radius:999px;font-size:17px;letter-spacing:.03em;
   background:var(--wel-teal);color:#fff;
 }
 .wel-cta .btn-outline2{border:1px solid var(--wel-teal);color:var(--wel-teal)}
@@ -833,36 +921,8 @@ a.row-btn{color:inherit;text-decoration:none}
 .wel-terms a{display:inline-block;padding:12px 8px;color:var(--wel-teal);
   text-decoration:underline;text-underline-offset:2px}
 
-.auth-back{
-  position:absolute;top:calc(env(safe-area-inset-top) + 20px);left:14px;
-  width:44px;height:44px;display:flex;align-items:center;justify-content:center;
-  color:var(--ink-2);z-index:2;
-}
-.auth-back .i{width:24px;height:24px;fill:none;stroke:currentColor;
-  stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-
-.auth-seg{padding:0;margin-bottom:20px}
-
-.auth-form{padding:20px 18px}
-.auth-form label{display:block;font-size:14px;font-weight:600;color:var(--ink-2);
-  margin:0 0 7px}
-.auth-form label .opt-note{font-weight:500;color:var(--muted)}
-.auth-form input{
-  width:100%;min-height:52px;padding:12px 14px;margin-bottom:18px;
-  font-size:16.5px;                     /* 低於 16px 時 iOS 會自動放大整頁 */
-  background:var(--inset);border:1px solid var(--line);border-radius:var(--r-md);
-  color:var(--ink);
-}
-.auth-form input:focus{outline:none;border-color:var(--brand);background:var(--card)}
+/* 身分屏的說明文字。表單那一側已經改用 .fld，這裡是唯一還用到的 */
 .auth-hint{font-size:13px;color:var(--muted);line-height:1.6;margin:-10px 0 18px}
-.auth-err{
-  font-size:14px;color:var(--red);line-height:1.6;margin:0 0 16px;
-  padding:12px 14px;background:var(--red-bg);border:1px solid var(--red-line);
-  border-radius:var(--r-sm);
-}
-.auth-foot{font-size:13px;color:var(--muted);line-height:1.7;margin:18px 4px 0}
-.auth-link{display:block;width:100%;min-height:44px;margin-top:6px;
-  font-size:14.5px;font-weight:500;color:var(--muted)}
 
 /* ── 身分選擇 ──
    兩張大卡而不是下拉選單。這個選擇只出現一次，值得佔版面把
@@ -889,7 +949,7 @@ a.row-btn{color:inherit;text-decoration:none}
 .role-opt .tick .i{width:14px;height:14px;opacity:0}
 .role-opt[aria-pressed="true"] .tick{background:var(--brand);border-color:var(--brand)}
 .role-opt[aria-pressed="true"] .tick .i{opacity:1;color:var(--solid-fg)}
-#role-go{margin-top:22px}
+#role-go{margin-top:22px;min-height:56px;border-radius:999px;font-size:17px}
 #role-go:disabled{opacity:.45}
 
 /* 空白狀態：App 內部仍然握著一個案件，但那是實作需求，不該讓使用者
@@ -1227,6 +1287,11 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 <symbol id="ic-scale" viewBox="0 0 24 24"><path d="M12 5.4v14.2M8.4 19.6h7.2"/><path d="M4.6 8.2h14.8"/><path d="M4.6 8.2 2.2 13.4h4.8Z"/><path d="M19.4 8.2 17 13.4h4.8Z"/><circle cx="12" cy="4.5" r="1.1"/></symbol>
 <symbol id="ic-doc" viewBox="0 0 24 24"><path d="M13.4 3.6H7.2c-.9 0-1.6.7-1.6 1.6v13.6c0 .9.7 1.6 1.6 1.6h9.6c.9 0 1.6-.7 1.6-1.6V8.4Z"/><path d="M13.4 3.6v4.8h5"/><path d="M8.8 13.2h6.4M8.8 16.4h4.2"/></symbol>
 <symbol id="ic-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M12 7.4v9.2M14.4 9.6c-.5-.6-1.4-1-2.4-1-1.5 0-2.5.7-2.5 1.8s.9 1.5 2.5 1.8c1.6.3 2.5.7 2.5 1.8s-1 1.8-2.5 1.8c-1 0-1.9-.4-2.4-1"/></symbol>
+<!-- 表單欄位用。原本的圖示庫是照事故流程挑的，沒有信封／鎖／眼睛 -->
+<symbol id="ic-mail" viewBox="0 0 24 24"><rect x="3.2" y="5.4" width="17.6" height="13.2" rx="2.6"/><path d="m4.4 7.4 6.5 4.8c.7.5 1.5.5 2.2 0l6.5-4.8"/></symbol>
+<symbol id="ic-lock" viewBox="0 0 24 24"><rect x="4.6" y="10.4" width="14.8" height="9.6" rx="2.6"/><path d="M8.2 10.4V7.8a3.8 3.8 0 0 1 7.6 0v2.6"/><circle cx="12" cy="15.2" r="1.15" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ic-eye" viewBox="0 0 24 24"><path d="M2.6 12S6.4 5.9 12 5.9 21.4 12 21.4 12 17.6 18.1 12 18.1 2.6 12 2.6 12Z"/><circle cx="12" cy="12" r="2.9"/></symbol>
+<symbol id="ic-eye-off" viewBox="0 0 24 24"><path d="M9.6 6.4A9 9 0 0 1 12 6.1c5.6 0 9.4 5.9 9.4 5.9a17 17 0 0 1-3 3.6M6.6 7.8A17 17 0 0 0 2.6 12s3.8 5.9 9.4 5.9a8.9 8.9 0 0 0 3.4-.7"/><path d="M10 10a2.9 2.9 0 0 0 4 4"/><path d="m4.4 4.4 15.2 15.2"/></symbol>
 </svg>
 
 <!-- 離線標示：只在斷線時浮出，是「地圖鍵為什麼不能按」的唯一解釋 -->
@@ -1689,31 +1754,43 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
         <svg class="i" viewBox="0 0 24 24"><path d="M15 5.5 8.5 12l6.5 6.5"/></svg>
       </button>
       <div class="auth-brand">
-        <img src="icons/mark.png" alt="" width="30" height="30">
-        <span>GUARDY</span>
+        <img src="icons/mark.png" alt="" width="26" height="26">
+        <span>Guardy</span>
       </div>
       <h1 id="auth-h">先建立帳號</h1>
       <p class="auth-sub" id="auth-sub">事故紀錄會綁在你的帳號上，換手機也找得回來。</p>
     </div>
 
     <div class="auth-in">
-      <div class="seg auth-seg" id="auth-seg">
-        <button data-m="up" aria-pressed="true">建立帳號</button>
-        <button data-m="in" aria-pressed="false">我已經有帳號</button>
-      </div>
+      <form class="auth-card" id="auth-form" novalidate>
+        <div class="fld">
+          <span class="fic"><svg class="i"><use href="#ic-mail"/></svg></span>
+          <input type="email" id="auth-email" inputmode="email" autocomplete="email"
+                 autocapitalize="off" spellcheck="false" placeholder="you@example.com">
+          <label for="auth-email">電子郵件</label>
+        </div>
 
-      <form class="card auth-form" id="auth-form" novalidate>
-        <label for="auth-email">電子郵件</label>
-        <input type="email" id="auth-email" inputmode="email" autocomplete="email"
-               autocapitalize="off" spellcheck="false" placeholder="you@example.com">
+        <div class="fld has-eye">
+          <span class="fic"><svg class="i"><use href="#ic-lock"/></svg></span>
+          <input type="password" id="auth-pw" autocomplete="new-password" placeholder="至少 8 個字元">
+          <label for="auth-pw">密碼</label>
+          <button type="button" class="eye" id="auth-eye" aria-label="顯示密碼" aria-pressed="false">
+            <svg class="i"><use href="#ic-eye" id="auth-eye-use"/></svg>
+          </button>
+        </div>
 
-        <label for="auth-pw">密碼</label>
-        <input type="password" id="auth-pw" autocomplete="new-password" placeholder="至少 8 個字元">
+        <div class="auth-row">
+          <button type="button" class="auth-link" id="auth-forgot" hidden>忘記密碼？</button>
+        </div>
 
         <p class="auth-err" id="auth-err" hidden></p>
         <button type="submit" class="btn-primary" id="auth-go">建立帳號</button>
-        <button type="button" class="auth-link" id="auth-forgot" hidden>忘記密碼？</button>
       </form>
+
+      <p class="auth-switch" id="auth-switch">
+        <span id="auth-switch-t">已經有帳號了？</span>
+        <button type="button" id="auth-switch-b">登入</button>
+      </p>
 
       <p class="auth-foot" id="auth-foot"></p>
     </div>
@@ -1725,8 +1802,8 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <div id="auth-role">
     <div class="auth-head">
       <div class="auth-brand">
-        <img src="icons/mark.png" alt="" width="30" height="30">
-        <span>GUARDY</span>
+        <img src="icons/mark.png" alt="" width="26" height="26">
+        <span>Guardy</span>
       </div>
       <h1>你的身分是？</h1>
       <p class="auth-sub">兩種身分都能完整使用事故處理功能，之後可以在設定裡隨時更改。</p>
@@ -1746,7 +1823,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
         </button>
       </div>
 
-      <p class="auth-hint" style="margin:14px 0 0">
+      <p class="auth-hint" style="margin:14px 0 22px">
         選「保險業務員」<strong>不會</strong>讓你看到任何客戶的資料。Guardy 沒有後台，
         每一筆事故紀錄都只有本人看得到。目前業務員專屬功能還在製作中。
       </p>
@@ -2128,21 +2205,39 @@ function pushRole(r){
   if (!cfg.on || cfg.registered) return;      /* 已註冊或功能關閉 → 什麼都不做 */
 
   var mode = 'up';                            /* up = 建立帳號、in = 登入 */
-  var seg = $('auth-seg'), err = $('auth-err');
+  var err = $('auth-err');
 
   function paint(){
-    seg.querySelectorAll('button').forEach(function(b){
-      b.setAttribute('aria-pressed', b.dataset.m === mode ? 'true' : 'false');
-    });
-    $('auth-h').textContent = mode === 'up' ? '先建立帳號' : '登入你的帳號';
-    $('auth-go').textContent = mode === 'up' ? '建立帳號' : '登入';
-    $('auth-pw').setAttribute('autocomplete',
-      mode === 'up' ? 'new-password' : 'current-password');
-    $('auth-forgot').hidden = mode !== 'in';
+    var up = mode === 'up';
+    $('auth-h').textContent = up ? '建立帳號' : '登入 Guardy';
+    $('auth-sub').textContent = up
+      ? '事故紀錄會綁在你的帳號上，換手機也找得回來。'
+      : '歡迎回來。登入後就能取回你所有的事故紀錄。';
+    $('auth-go').textContent = up ? '建立帳號' : '登入';
+    $('auth-pw').setAttribute('autocomplete', up ? 'new-password' : 'current-password');
+    $('auth-pw').setAttribute('placeholder', up ? '至少 8 個字元' : '輸入你的密碼');
+    /* 忘記密碼只在登入模式出現。註冊時還沒有密碼可以忘 */
+    $('auth-forgot').hidden = up;
+    $('auth-switch-t').textContent = up ? '已經有帳號了？' : '還沒有帳號？';
+    $('auth-switch-b').textContent = up ? '登入' : '建立帳號';
     err.hidden = true;
+    updateNet();                      /* 底部說明也跟著模式換 */
   }
-  seg.querySelectorAll('button').forEach(function(b){
-    b.addEventListener('click', function(){ mode = b.dataset.m; paint(); });
+  $('auth-switch-b').addEventListener('click', function(){
+    mode = (mode === 'up') ? 'in' : 'up';
+    paint();
+    $('auth').scrollTop = 0;
+  });
+
+  /* 密碼顯示切換。type 換掉之後焦點會掉，補回去 —— 不然使用者按完眼睛
+     還要再點一次輸入框才能繼續打字。 */
+  $('auth-eye').addEventListener('click', function(){
+    var i = $('auth-pw'), show = i.type === 'password';
+    i.type = show ? 'text' : 'password';
+    this.setAttribute('aria-pressed', show ? 'true' : 'false');
+    this.setAttribute('aria-label', show ? '隱藏密碼' : '顯示密碼');
+    $('auth-eye-use').setAttribute('href', show ? '#ic-eye-off' : '#ic-eye');
+    i.focus();
   });
 
   /* 歡迎屏 → 表單。哪一顆按進來，就決定表單的初始模式 */
@@ -2231,7 +2326,7 @@ function pushRole(r){
   function showConfirmSent(email){
     $('auth-h').textContent = '確認信已寄出';
     $('auth-form').hidden = true;
-    seg.hidden = true;
+    $('auth-switch').hidden = true;
     $('auth-back').hidden = true;
     $('auth-sub').innerHTML =
       '我們寄了一封確認信到 <strong>' + esc(email) + '</strong>。<br>' +
@@ -2263,10 +2358,14 @@ function pushRole(r){
      等訊號。順便把送出鍵停用：M2 接了後端之後，離線註冊本來就會失敗，
      現在就讓行為一致，免得使用者以為註冊成功了。 */
   function updateNet(){
-    var off = !navigator.onLine;
+    var off = !navigator.onLine, up = mode === 'up';
+    /* 文案要跟著模式走。登入模式下寫「建立帳號需要網路」，
+       使用者會以為自己按錯了地方。 */
     $('auth-foot').textContent = off
-      ? '目前沒有網路，無法建立帳號。有訊號時再回來，之後就不再需要連線。'
-      : '建立帳號需要網路。建立完成後，事故當下不需要網路也能使用。';
+      ? (up ? '目前沒有網路，無法建立帳號。有訊號時再回來，之後就不再需要連線。'
+            : '目前沒有網路，無法登入。有訊號時再試一次。')
+      : (up ? '建立帳號需要網路。建立完成後，事故當下不需要網路也能使用。'
+            : '登入需要網路。登入之後，事故當下不需要網路也能使用。');
     $('auth-go').disabled = off;
   }
   window.addEventListener('online', updateNet);
