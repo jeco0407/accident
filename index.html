@@ -719,40 +719,61 @@ a.row-btn{color:inherit;text-decoration:none}
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #acc-box .row-btn{border-top:1px solid var(--line-soft)}
 
-/* ── 註冊／登入／歡迎（v52）──
-   整組換成參考稿 guardy-auth-ui.html 的深色 + 螢光黃版型。
+/* ── 註冊／登入／歡迎 ──
+   版型來自參考稿 guardy-auth-ui.html（v52），配色是 Guardy 自己的。
 
-   配色全部收在 .auth 自己的變數裡，全域的 --bg／--ink／--brand 一個都沒動 ——
-   五個分頁、所有 sheet、設定視窗的顏色不受影響。這三屏因此**不跟隨系統深淺色**，
-   永遠是深色，跟參考稿一致。
+   顏色全部收在 .auth 底下一組 --a-* 變數裡，全域的 --bg／--ink／--brand
+   一個都沒動 —— 五個分頁、所有 sheet、設定視窗不受影響。反過來說，要調
+   這四屏也只需要改這一組。
 
-   預設 display:none。由首次繪製前的腳本在 <html> 上掛 data-auth="need"
+   v53 起跟隨主題：淺色寫在 .auth 本體，深色由 :root[data-theme="dark"]
+   覆蓋。掛 data-theme 的是 <head> 裡那段首次繪製前的腳本，跟 App 本體
+   同一個來源 —— 所以「個人 → 外觀」手動指定淺／深色時，登入流程也會跟著換。
+
+   預設 display:none。由同一段腳本在 <html> 上掛 data-auth="need"
    才顯示 —— 用 CSS 決定，才不會先閃一下 App 的內容。 */
 .auth{
   position:fixed;inset:0;z-index:300;
   display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;
 
+  /* ── 淺色 ── 直接沿用 App 本體那組值，登入完成時的落差最小 */
+  --a-bg:#FAF8F4;
+  --a-deep:#FAF8F4;
+  --a-glow-1:#FFFFFF;
+  --a-glow-2:#FFFFFF;
+  --a-card:#FFFFFF;
+  --a-line:#8C8177;        /* = --chev。在 #FAF8F4 上 3.59:1，過 WCAG 1.4.11 的 3:1 */
+  --a-line-soft:#EDE6DC;   /* 純裝飾的分隔線，不承載資訊，不受 3:1 限制 */
+  --a-txt:#1E1A15;
+  --a-dim:#6E665D;
+  --a-faint:#6E665D;       /* placeholder 是文字，要 4.5:1，不能用 --a-line */
+  /* 強調色就是品牌色 —— 登入說一種顏色、進去說另一種，等於這個 App
+     有兩個品牌色而哪個都不算數。參考稿的螢光黃另外還有一個實際問題：
+     它在色相上緊鄰 119 的琥珀，並存會稀釋那顆警示鍵的意義。 */
+  --a-acc:#237F79;
+  --a-acc-ink:#FFFFFF;
+  --a-acc-soft:rgba(35,127,121,.10);
+
+  background:var(--a-bg);color:var(--a-txt);
+}
+/* ── 深色 ── 參考稿的近黑底。刻意不直接用 App 的 --bg(#16130F)：
+   那是偏暖的棕黑，這四屏要的是中性的冷黑，兩者放在一起才看得出是同一份設計。 */
+:root[data-theme="dark"] .auth{
   --a-bg:#151517;
   --a-deep:#0c0c0e;
+  --a-glow-1:#232326;
+  --a-glow-2:#202024;
   --a-card:#1c1c1f;
-  /* 輸入框邊線。參考稿用 #3a3a3e，在 #151517 上只有 1.7:1 ——
-     底色透明時這條線是唯一能辨識「這裡可以打字」的東西，WCAG 1.4.11 要 3:1。
-     提到 #6b6b72 是 3.5:1，肉眼幾乎看不出差別。 */
+  /* 參考稿的邊線是 #3a3a3e，在 #151517 上只有 1.7:1 —— 底色透明時這條線
+     是唯一能辨識「這裡可以打字」的東西，1.4.11 要 3:1。#6b6b72 是 3.45:1。 */
   --a-line:#6b6b72;
-  --a-line-soft:#2b2b2f;   /* 純裝飾的分隔線，不承載資訊，不受 3:1 限制 */
+  --a-line-soft:#2b2b2f;
   --a-txt:#f5f5f2;
   --a-dim:#9a9aa0;
-  --a-faint:#8a8a92;       /* placeholder 與框內圖示。參考稿的 #6b6b72 當文字只有 3.5:1 */
-  /* 強調色用的是 Guardy 深色模式的品牌綠松（--brand 在 dark 下就是這個值）。
-     參考稿給的是螢光黃 —— 換掉的理由是強調色等於「這個產品的顏色」，
-     登入說螢光黃、進去說綠松，這個 App 就有兩個品牌色而哪個都不算數。
-     附帶一個實際的問題：螢光黃在色相上緊鄰 119 的琥珀，同一個產品裡並存
-     會稀釋掉那顆警示鍵的意義。 */
+  --a-faint:#8a8a92;       /* 參考稿的 #6b6b72 當文字只有 3.45:1，不夠 */
   --a-acc:#5CC7BF;
   --a-acc-ink:#06201E;
   --a-acc-soft:rgba(92,199,191,.14);
-
-  background:var(--a-bg);color:var(--a-txt);
 }
 :root[data-auth="need"] .auth{display:block}
 /* 已註冊但還沒選身分：同一個全螢幕容器，但只露出身分屏。
@@ -765,13 +786,14 @@ a.row-btn{color:inherit;text-decoration:none}
 :root[data-auth="role"] #auth-role{display:block}
 
 /* ── 歡迎屏 ──
-   參考稿的 Splash：兩道柔和的暗光暈打在近黑底上，中央一枚螢光黃盾。
-   原本那張暖紅實拍 Hero 拿掉了 —— 它跟這組配色沒有交集。 */
+   參考稿的 Splash：兩道柔和的光暈打在底色上，中央一枚 Guardy 的盾。
+   淺色時光暈是白的（只會讓底色更亮），深色時是兩塊比底色淺一階的灰 ——
+   兩邊都不會讓上面的文字掉到門檻以下。 */
 .wel{
   min-height:100%;display:flex;
   background:
-    radial-gradient(65% 42% at 82% 10%, #232326 0%, transparent 70%),
-    radial-gradient(70% 46% at 10% 88%, #202024 0%, transparent 70%),
+    radial-gradient(65% 42% at 82% 10%, var(--a-glow-1) 0%, transparent 70%),
+    radial-gradient(70% 46% at 10% 88%, var(--a-glow-2) 0%, transparent 70%),
     var(--a-deep);
 }
 .wel-in{
@@ -779,7 +801,7 @@ a.row-btn{color:inherit;text-decoration:none}
   padding:calc(env(safe-area-inset-top) + 36px) 24px calc(env(safe-area-inset-bottom) + 24px);
 }
 .wel-logo{display:flex;justify-content:center}
-.wel-logo svg{width:96px;height:106px;display:block}
+.wel-logo img{width:100px;height:112px;display:block;object-fit:contain}
 .wel-logo .pulse{animation:wel-pulse 2.6s ease-in-out infinite;transform-origin:center}
 @keyframes wel-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
 @media (prefers-reduced-motion:reduce){.wel-logo .pulse{animation:none}}
@@ -845,7 +867,7 @@ a.row-btn{color:inherit;text-decoration:none}
   stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 
 .auth-brand{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px}
-.auth-brand svg{width:20px;height:22px;display:block;flex-shrink:0}
+.auth-brand img{width:26px;height:26px;display:block;flex-shrink:0}
 .auth-brand span{font-size:21px;font-weight:600;color:var(--a-txt);letter-spacing:.02em}
 
 .auth h1{font-size:22px;font-weight:800;line-height:1.35;margin:24px 0 0;color:var(--a-txt)}
@@ -902,11 +924,12 @@ a.row-btn{color:inherit;text-decoration:none}
 .auth-link{min-height:44px;padding:0 4px;display:flex;align-items:center;
   font-size:12.5px;font-weight:700;color:var(--a-acc)}
 
-/* 深色底下不能用原本的 --red 系列，那組是為淺色卡片調的 */
+/* 用 App 自己那組 --red：它本來就有淺／深兩套值，跟著主題翻，
+   不必在這裡再養一組平行的紅色 */
 .auth-err{
-  font-size:13.5px;color:#FFB4A8;line-height:1.6;margin:0;
-  padding:12px 14px;background:rgba(255,90,70,.12);
-  border:1px solid rgba(255,120,100,.45);border-radius:16px;
+  font-size:13.5px;color:var(--red);line-height:1.6;margin:0;
+  padding:12px 14px;background:var(--red-bg);
+  border:1px solid var(--red-line);border-radius:16px;
 }
 .auth-card .btn-primary{
   min-height:54px;border-radius:999px;font-size:15px;font-weight:700;
@@ -1724,16 +1747,12 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <!-- ── 歡迎屏：先講這個 App 是什麼，再要人填表 ── -->
   <div class="wel" id="auth-welcome">
     <div class="wel-in">
-      <!-- 純裝飾，aria-hidden。它下面就是「Guardy」與三行說明，
+      <!-- 純裝飾，alt 留空。它下面就是「Guardy」與三行說明，
            讀螢幕的人不需要再聽一次盾牌的描述。
-           內嵌而不是外連 SVG 檔：少一個請求，離線也一定畫得出來。 -->
-      <div class="wel-logo" aria-hidden="true">
-        <svg class="pulse" viewBox="0 0 60 66" fill="none">
-          <path d="M30 3 L54 11 V32 C54 47 44 57 30 63 C16 57 6 47 6 32 V11 Z"
-                stroke="#5CC7BF" stroke-width="4" stroke-linejoin="round"/>
-          <path d="M14 33 H22 L26 24 L32 42 L36 33 H46"
-                stroke="#5CC7BF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+           width/height 是為了讓瀏覽器先留好位置，圖載進來時版面不會跳。 -->
+      <div class="wel-logo">
+        <img class="pulse" src="icons/logo-mark.png" alt=""
+             width="340" height="380" decoding="async">
       </div>
 
       <div class="wel-brand">
@@ -1775,12 +1794,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
         <svg class="i" viewBox="0 0 24 24"><path d="M15 5.5 8.5 12l6.5 6.5"/></svg>
       </button>
       <div class="auth-brand">
-        <svg viewBox="0 0 60 66" fill="none" aria-hidden="true">
-          <path d="M30 3 L54 11 V32 C54 47 44 57 30 63 C16 57 6 47 6 32 V11 Z"
-                stroke="currentColor" stroke-width="5" stroke-linejoin="round"/>
-          <path d="M16 33 H23 L27 26 L33 41 L36 33 H44"
-                stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <img src="icons/mark.png" alt="" width="26" height="26">
         <span>Guardy</span>
       </div>
       <h1 id="auth-h">先建立帳號</h1>
@@ -1828,12 +1842,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <div id="auth-role">
     <div class="auth-head">
       <div class="auth-brand">
-        <svg viewBox="0 0 60 66" fill="none" aria-hidden="true">
-          <path d="M30 3 L54 11 V32 C54 47 44 57 30 63 C16 57 6 47 6 32 V11 Z"
-                stroke="currentColor" stroke-width="5" stroke-linejoin="round"/>
-          <path d="M16 33 H23 L27 26 L33 41 L36 33 H44"
-                stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <img src="icons/mark.png" alt="" width="26" height="26">
         <span>Guardy</span>
       </div>
       <h1>你的身分是？</h1>

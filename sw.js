@@ -2,7 +2,7 @@
    策略：app shell 一律 cache-first，確保車禍現場沒有網路時也能開啟。
    改版時把 VERSION 加一，舊快取會在 activate 時清掉。 */
 
-var VERSION = 'aa-v52';
+var VERSION = 'aa-v53';
 var SHELL = [
   './',
   './index.html',
@@ -15,10 +15,10 @@ var SHELL = [
   './icons/icon-maskable-512.png',
   './icons/apple-touch-icon.png',
   './icons/favicon-96.png',
-  './icons/mark.png'
-  /* v52 起歡迎頁的插畫改成內嵌 SVG（那枚盾），
-     assets/guardy-hero.png 已經沒有任何地方引用，也就從 shell 拿掉 ——
-     省下 1.2MB 的離線快取。檔案本身留在 repo 裡沒刪。 */
+  './icons/mark.png',
+  /* 歡迎屏中央那枚 logo（去背，340×380／10KB）。從 icon-512 取下來的，
+     不是把 96px 的 mark.png 放大 —— 那在 3x 螢幕上會糊。 */
+  './icons/logo-mark.png'
 ];
 
 self.addEventListener('install', function(e){

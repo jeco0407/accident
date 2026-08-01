@@ -99,7 +99,7 @@ var CONFIG = {
 
 110 的紅與 119 的琥珀是**語意色，不跟著品牌走**。
 
-**歡迎／註冊／登入／身分這四屏是例外**：v52 起改成深色底（`#151517`），強調色是深色模式的品牌綠松 `#5CC7BF`。配色收在 `.auth` 自己的一組 `--a-*` 變數裡，**不受全域變數與深淺色設定影響** —— 淺色模式的使用者也會看到深色的登入流程。要調這四屏只改那組變數，動不到 App 本體。
+**歡迎／註冊／登入／身分這四屏用的是另一套版型**（v52 起），配色收在 `.auth` 底下一組 `--a-*` 變數裡：淺色寫在 `.auth` 本體，深色由 `:root[data-theme="dark"] .auth` 覆蓋。**跟 App 本體同一個 `data-theme` 來源**，所以「個人 → 外觀」也管得到這四屏。深色的底是中性冷黑 `#151517`，刻意不用 App 偏暖的 `#16130F`。要調這四屏只改那組變數，動不到 App 本體。
 
 淺色與深色的差異全部收在 CSS 變數裡（`:root` 與 `:root[data-theme="dark"]`），元件本身不寫死顏色。要調色只改變數即可。
 
@@ -148,14 +148,14 @@ Google Play 也有類似條款，但對 TWA 的容忍度高很多，因為 TWA �
 ## 檔案結構
 
 ```
-index.html      主程式，CSS 與 JS 全部內嵌（含歡迎頁那枚盾的 SVG）
+index.html      主程式，CSS 與 JS 全部內嵌
 privacy.html    隱私權政策（商店上架必要）
 terms.html      服務條款
 supabase/       資料庫 schema 與 RLS，在 Supabase 後台依序執行
 manifest.json   PWA manifest
 sw.js           service worker，cache-first 快取 app shell
 vercel.json     快取標頭設定
-icons/          192 / 512 / maskable 512
+icons/          192 / 512 / maskable 512、mark.png、歡迎屏的去背 logo-mark.png
 screenshots/    商店列表與 manifest 用，1080×1920
 tests/          CDP 驗證腳本（手動重跑，見 tests/README.md）
 ```
