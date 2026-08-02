@@ -20,7 +20,12 @@
   --ink:#1E1A15;
   --ink-2:#4A423A;
   --muted:#6E665D;   /* 4.56:1，WCAG AA 一般文字 */
-  --chev:#8C8177;    /* 箭頭等 UI 元件，門檻 3:1 */
+  /* 箭頭 › 是用文字畫的，稽核會當文字量（門檻 4.5），不是 UI 元件的 3:1。
+     原本的 #8C8177 是 3.59:1。壓深到 #756B60 之後 4.91:1 ——
+     取這一階是因為引導屏的 .q-opt 底色比一般卡片再淺一點，
+     #796F64 在那裡只有 4.45，差 0.05 過不了。
+     順帶讓身分卡那個未選取的圈圈邊線也更清楚。 */
+  --chev:#756B60;
   --line:#EDE6DC;
   --line-soft:#F4EFE8;
 
@@ -451,7 +456,10 @@ body.is-offline .chip-off{display:flex}
   flex:0 0 24px;height:24px;border-radius:7px;border:1.5px solid var(--line);
   display:flex;align-items:center;justify-content:center;transition:.25s ease;
 }
-.ph .box::after{content:'';position:absolute;inset:-10px}
+/* inset:-10px 撐出來是 45×42 —— 高度差 2px 過不了 44。
+   改成明寫高度，就不會隨著方框本身的尺寸浮動。 */
+.ph .box::after{content:'';position:absolute;left:-10px;right:-10px;
+  top:50%;transform:translateY(-50%);height:44px}
 .ph.done .box{background:var(--green-ink);border-color:var(--green-ink)}
 .ph .box svg{width:13px;height:13px}
 .ph .box path{stroke:var(--on-green);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;fill:none}
@@ -485,7 +493,12 @@ body.is-offline .chip-off{display:flex}
 .viewer.open{display:flex}
 .viewer-top{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff}
 .viewer-top .t{flex:1;font-size:16px;font-weight:600}
-.viewer-top button{color:rgba(255,255,255,.75);font-size:16px;padding:6px 4px}
+/* padding:6px 4px 只撐到 40×37.6。這顆是全螢幕檢視器唯一的出口，
+   湊足 44 —— 跟 v34 的 .sheet-close 是同一類問題。 */
+.viewer-top button{
+  color:rgba(255,255,255,.75);font-size:16px;
+  min-width:44px;min-height:44px;padding:0 6px;
+}
 .viewer-img{flex:1;display:flex;align-items:center;justify-content:center;padding:0 12px;min-height:0}
 .viewer-img img{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px}
 .viewer-bar{display:flex;gap:10px;padding:16px 20px}
@@ -538,6 +551,12 @@ body.is-offline .chip-off{display:flex}
 .kv{display:flex;gap:10px;font-size:15px;line-height:1.7}
 .kv .k{flex:0 0 76px;color:var(--muted)}
 .kv .v{flex:1;color:var(--ink-2);word-break:break-word}
+/* 電話是真的可以按的。上下用內距撐到 44px 可觸控，再用等量的負外距
+   把行高收回來 —— 版面看起來完全一樣，但按得到。 */
+.kv .v .tel-a{
+  display:inline-block;padding:13px 2px;margin:-13px 0;
+  color:var(--brand);font-weight:600;
+}
 .other-sum .edit{
   display:flex;align-items:center;justify-content:center;gap:7px;
   width:100%;min-height:48px;margin-top:16px;border-radius:var(--r-sm);
@@ -1070,8 +1089,14 @@ a.row-btn{color:inherit;text-decoration:none}
    使用者才不會按下列印才發現跟預期不一樣。 */
 .cdoc{background:#fff;color:#16130F;max-width:520px;margin:0 auto;
   padding:26px 22px 40px;line-height:1.6}
-.cdoc h2{font-size:20px;font-weight:700;letter-spacing:.02em;margin:0;text-align:center}
+/* 這份文件是一張紙：白底黑字，不跟主題走。
+   所以裡面每一條有文字的規則都**明寫顏色**，不能靠 .cdoc 的繼承 ——
+   繼承值輸給任何一條命中的規則。實例：全域的 .kv .v{color:var(--ink-2)}
+   會蓋掉繼承來的黑字，深色模式下就變成白紙上的淺灰字（對比 1.96:1）。 */
+.cdoc h2{font-size:20px;font-weight:700;letter-spacing:.02em;margin:0;
+  text-align:center;color:#16130F}
 .cdoc .made{font-size:12.5px;color:#5B554C;text-align:center;margin:6px 0 0}
+.cdoc .warn strong{color:#6B2A14}
 .cdoc .warn{
   font-size:12.5px;color:#8A3A21;line-height:1.6;margin:18px 0 0;
   padding:10px 12px;background:#FDF3EC;border:1px solid #F0D9C8;border-radius:8px;
@@ -1081,19 +1106,19 @@ a.row-btn{color:inherit;text-decoration:none}
   margin:0 0 8px;padding-bottom:6px;border-bottom:1px solid #DDD6CB}
 .cdoc .kv{display:flex;gap:12px;font-size:13.5px;padding:4px 0}
 .cdoc .kv .k{flex:0 0 84px;color:#5B554C}
-.cdoc .kv .v{flex:1;min-width:0;word-break:break-all}
+.cdoc .kv .v{flex:1;min-width:0;word-break:break-all;color:#16130F}
 .cdoc .kv .v.none{color:#6E665D}   /* 不用更淺的灰 —— 這是文字，門檻 4.5:1 */
 
 .cdoc table{width:100%;border-collapse:collapse;font-size:13.5px}
 .cdoc th{text-align:left;font-weight:700;color:#5B554C;font-size:12px;
   letter-spacing:.06em;padding:0 0 6px;border-bottom:1px solid #DDD6CB}
 .cdoc th.r,.cdoc td.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-.cdoc td{padding:9px 0;border-bottom:1px solid #EFE9DF;vertical-align:top}
+.cdoc td{padding:9px 0;border-bottom:1px solid #EFE9DF;vertical-align:top;color:#16130F}
 .cdoc td .d{display:block;font-size:12px;color:#6E665D;margin-top:3px;line-height:1.5}
 .cdoc tr.grp td{padding:14px 0 4px;border:0;font-size:12px;font-weight:700;
   color:#5B554C;letter-spacing:.08em}
 .cdoc tr.sum td{padding:14px 0 0;border:0;border-top:2px solid #16130F;
-  font-size:16px;font-weight:700}
+  font-size:16px;font-weight:700;color:#16130F}
 .cdoc .sign{display:flex;gap:24px;margin-top:34px}
 .cdoc .sign div{flex:1;font-size:12.5px;color:#5B554C;
   border-top:1px solid #16130F;padding-top:6px}
@@ -1182,7 +1207,9 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 .ask-btns{display:flex;gap:10px;margin-top:22px}
 .ask-btns button{flex:1;min-height:50px;border-radius:var(--r-md);font-size:16px;font-weight:600}
 .ask-no{background:var(--line);color:var(--ink)}
-.ask-yes{background:var(--red);color:#fff}
+/* 不能寫死 #fff。深色的 --red 是淺鮭紅 #FF8A78，白字上去只有 2.29:1 ——
+   而這是刪除鍵，最不該看不清楚的一顆。--on-red 本來就有淺深兩套值。 */
+.ask-yes{background:var(--red);color:var(--on-red)}
 
 .sheet{
   position:fixed;inset:0;z-index:100;background:var(--bg);
@@ -3317,7 +3344,7 @@ function renderOther(){
          打開現場分頁時執行 —— 而且這包資料在帳號制上線後會同步到雲端。 */
       rows += '<div class="kv"><span class="k">' + f.t + '</span><span class="v">' +
               (f.k === 'tel'
-                ? '<a href="tel:' + v.replace(/[^0-9+#*,]/g, '') + '" style="color:var(--brand);font-weight:600">' + esc(v) + '</a>'
+                ? '<a class="tel-a" href="tel:' + v.replace(/[^0-9+#*,]/g, '') + '">' + esc(v) + '</a>'
                 : esc(v)) +
               '</span></div>';
     });
