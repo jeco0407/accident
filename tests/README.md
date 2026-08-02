@@ -73,3 +73,12 @@ python3 -m http.server 8899
 App 從 v30 起不用瀏覽器的 `confirm()`（在 PWA 殼裡可能被無聲吃掉），改用自己畫的 `#ask`。所以**覆寫 `window.confirm` 已經沒有作用**，測試要改按 `#ask-yes`：`test_cases.py` 裡的 `confirming()` 就是做這件事。
 
 如果哪天又要測真的 `confirm()`：它會**凍住 renderer**，`Runtime.evaluate` 的回應要等對話框被處理才回來。`await` 它就是死鎖，必須 fire-and-forget 之後再去處理對話框。
+
+## 用惡意字串當測試資料，是會咬到東西的
+
+`test_cdoc.py` 把對方姓名設成 `<img src=x onerror=alert(1)>`，跑到一半 **CDP 連線直接斷掉** —— 那段 script 真的執行了，`alert()` 凍住了 renderer。當下看起來像 Chrome 崩潰或腳本寫壞，實際上是測試資料咬出了 `renderOther()` 的 XSS（v54 修掉）。
+
+兩個教訓：
+
+- **CDP 連線莫名其妙斷掉，先懷疑是不是跳了 alert。** 阻塞式對話框會讓 `Runtime.evaluate` 永遠等不到回應。
+- **字串欄位的測試資料就該放尖括號。** 放「王小明」永遠測不出這種東西。

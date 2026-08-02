@@ -1047,6 +1047,70 @@ a.row-btn{color:inherit;text-decoration:none}
 .comp-sum .v{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 .comp-sum .n{font-size:13.5px;color:var(--green-ink);opacity:.8;margin:6px 0 0}
 .note-soft{font-size:13.5px;color:var(--muted);line-height:1.65;margin:10px 2px 0}
+
+/* ── 損害賠償請求明細 ──
+   求償分頁那七個欄位填完之後印得出來的一張表。做成一份「文件」而不是
+   一段文字，是因為它真正的用途是**攤在調解桌上給對方跟委員看** ——
+   一段 LINE 訊息做不到那件事。
+
+   所以它同時提供兩條出口：列印（瀏覽器可以另存 PDF）給桌上用，
+   複製／分享給線上傳給業務員用。 */
+.cdoc-actions{display:flex;gap:10px;margin-top:12px}
+.cdoc-actions button{
+  flex:1;min-height:48px;border-radius:var(--r-sm);
+  border:1px solid var(--line);background:var(--card);
+  font-size:15px;font-weight:600;color:var(--ink-2);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.cdoc-actions .i{width:19px;height:19px}
+.cdoc-actions button:disabled{opacity:.45}
+
+/* 文件本體。刻意寫成白底黑字的紙張感，不吃 App 的深色主題 ——
+   這張表存在的目的就是要被印出來，螢幕上先長得像紙，
+   使用者才不會按下列印才發現跟預期不一樣。 */
+.cdoc{background:#fff;color:#16130F;max-width:520px;margin:0 auto;
+  padding:26px 22px 40px;line-height:1.6}
+.cdoc h2{font-size:20px;font-weight:700;letter-spacing:.02em;margin:0;text-align:center}
+.cdoc .made{font-size:12.5px;color:#5B554C;text-align:center;margin:6px 0 0}
+.cdoc .warn{
+  font-size:12.5px;color:#8A3A21;line-height:1.6;margin:18px 0 0;
+  padding:10px 12px;background:#FDF3EC;border:1px solid #F0D9C8;border-radius:8px;
+}
+.cdoc section{margin-top:22px}
+.cdoc .sec-t{font-size:12.5px;font-weight:700;color:#5B554C;letter-spacing:.1em;
+  margin:0 0 8px;padding-bottom:6px;border-bottom:1px solid #DDD6CB}
+.cdoc .kv{display:flex;gap:12px;font-size:13.5px;padding:4px 0}
+.cdoc .kv .k{flex:0 0 84px;color:#5B554C}
+.cdoc .kv .v{flex:1;min-width:0;word-break:break-all}
+.cdoc .kv .v.none{color:#6E665D}   /* 不用更淺的灰 —— 這是文字，門檻 4.5:1 */
+
+.cdoc table{width:100%;border-collapse:collapse;font-size:13.5px}
+.cdoc th{text-align:left;font-weight:700;color:#5B554C;font-size:12px;
+  letter-spacing:.06em;padding:0 0 6px;border-bottom:1px solid #DDD6CB}
+.cdoc th.r,.cdoc td.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.cdoc td{padding:9px 0;border-bottom:1px solid #EFE9DF;vertical-align:top}
+.cdoc td .d{display:block;font-size:12px;color:#6E665D;margin-top:3px;line-height:1.5}
+.cdoc tr.grp td{padding:14px 0 4px;border:0;font-size:12px;font-weight:700;
+  color:#5B554C;letter-spacing:.08em}
+.cdoc tr.sum td{padding:14px 0 0;border:0;border-top:2px solid #16130F;
+  font-size:16px;font-weight:700}
+.cdoc .sign{display:flex;gap:24px;margin-top:34px}
+.cdoc .sign div{flex:1;font-size:12.5px;color:#5B554C;
+  border-top:1px solid #16130F;padding-top:6px}
+
+/* 列印：只留這張表。把 App 的固定定位、overflow:hidden、深色主題
+   全部推開 —— 少一項，印出來就是一張空白紙。 */
+@media print{
+  html,body{height:auto!important;overflow:visible!important;background:#fff!important}
+  body > *{display:none!important}
+  body > #cdoc-sheet{display:block!important;position:static!important;
+    inset:auto!important;padding:0!important;background:#fff!important;animation:none!important}
+  #cdoc-sheet .sheet-top,#cdoc-sheet .cdoc-print-hide{display:none!important}
+  #cdoc-sheet .sheet-scroll{overflow:visible!important;display:block!important}
+  .cdoc{max-width:none;margin:0;padding:0;box-shadow:none}
+  .cdoc .warn{background:#fff;border-color:#B9AFA1;color:#3A342C}
+  @page{margin:16mm}
+}
 .card-pad{padding:20px}
 .card-pad .lead{font-size:19px;font-weight:700;letter-spacing:-.01em;margin:0 0 8px}
 .card-pad .body{font-size:15px;color:var(--ink-2);line-height:1.75;margin:0 0 14px}
@@ -1536,6 +1600,11 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
             <p class="n" id="comp-count"></p>
           </div>
         </div>
+        <div class="cdoc-actions">
+          <button id="cdoc-open" disabled>
+            <span class="i-w"><svg class="i"><use href="#ic-doc"/></svg></span>匯出請求明細
+          </button>
+        </div>
         <p class="note-soft">只填你<strong>拿得出單據</strong>的金額。這份小計的力量，在於每一筆都有收據、估價單或薪資證明可以攤在桌上。</p>
       </div>
 
@@ -1726,6 +1795,25 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
     <button class="sheet-close" id="ins-close">關閉</button>
   </div>
   <div class="sheet-scroll"><div class="sheet-inner" id="ins-detail"></div></div>
+</div>
+
+<!-- 損害賠償請求明細。列印時 body 底下只有這一個會留著，
+     所以它必須是 body 的直接子元素，不能包在 .views 裡面 -->
+<div class="sheet" id="cdoc-sheet" role="dialog" aria-modal="true" aria-label="損害賠償請求明細">
+  <div class="sheet-top">
+    <span class="sheet-title">請求明細</span>
+    <button class="sheet-close" id="cdoc-close">關閉</button>
+  </div>
+  <div class="sheet-scroll">
+    <div class="cdoc" id="cdoc-body"></div>
+    <div class="cdoc-print-hide" style="max-width:520px;margin:0 auto;padding:0 22px 28px">
+      <div class="cdoc-actions">
+        <button id="cdoc-print"><span class="i-w"><svg class="i"><use href="#ic-doc"/></svg></span>列印／存成 PDF</button>
+        <button id="cdoc-copy"><span class="i-w"><svg class="i"><use href="#ic-copy"/></svg></span>複製文字</button>
+      </div>
+      <p class="note-soft">「列印」會開啟系統的列印視窗，在那裡可以選擇「儲存為 PDF」。</p>
+    </div>
+  </div>
 </div>
 
 <!-- 加入主畫面 -->
@@ -3224,16 +3312,19 @@ function renderOther(){
       if (f.k === 'plate') return;
       var v = (d[f.k] || '').trim();
       if (!v) return;
+      /* 這四個欄位是使用者在現場自己打進去的，一定要過 esc()。
+         漏掉的話，一個叫做 <img src=x onerror=…> 的「對方」會在每次
+         打開現場分頁時執行 —— 而且這包資料在帳號制上線後會同步到雲端。 */
       rows += '<div class="kv"><span class="k">' + f.t + '</span><span class="v">' +
               (f.k === 'tel'
-                ? '<a href="tel:' + v.replace(/[^0-9+#*,]/g, '') + '" style="color:var(--brand);font-weight:600">' + v + '</a>'
-                : v) +
+                ? '<a href="tel:' + v.replace(/[^0-9+#*,]/g, '') + '" style="color:var(--brand);font-weight:600">' + esc(v) + '</a>'
+                : esc(v)) +
               '</span></div>';
     });
     var plate = (d.plate || '').trim();
     box.innerHTML =
       '<div class="other-sum">' +
-        '<p class="plate' + (plate ? '' : ' none') + '">' + (plate || '（車牌未填）') + '</p>' +
+        '<p class="plate' + (plate ? '' : ' none') + '">' + (plate ? esc(plate) : '（車牌未填）') + '</p>' +
         rows +
         '<button class="edit" id="other-open">' + ico('id') + '編輯</button>' +
       '</div>';
@@ -3247,7 +3338,7 @@ function openOther(){
     '<p class="sub">邊問邊填，會自動儲存。全部只存在這支手機裡，不會上傳。</p></div><div class="card">';
 
   OTHER_FIELDS.forEach(function(f){
-    var v = (d[f.k] || '').replace(/"/g, '&quot;');
+    var v = esc(d[f.k] || '');
     html += '<div class="f"><label for="of-' + f.k + '">' + f.t + '</label>' +
             (f.area
               ? '<textarea id="of-' + f.k + '" placeholder="' + f.ph + '">' + v + '</textarea>'
@@ -3969,6 +4060,9 @@ function compStats(){
 function renderCompSum(){
   var st = compStats();
   $('comp-sum').classList.toggle('on', st.n > 0);
+  /* 一筆都沒填就沒有東西可以匯出。禁用而不是隱藏 —— 使用者要先看得到
+     「填完之後可以匯出」，才知道值得把收據一張張打進去。 */
+  $('cdoc-open').disabled = st.n === 0;
   $('comp-sum-empty').hidden = st.n > 0;
   $('comp-sum-filled').hidden = st.n === 0;
   if (st.n){
@@ -3976,6 +4070,132 @@ function renderCompSum(){
     $('comp-count').textContent = '目前填了 ' + st.n + ' 項，隨時可以再補';
   }
 }
+
+/* =========================================================
+   損害賠償請求明細
+   ---------------------------------------------------------
+   把求償分頁那七個欄位排成一張可以列印的表。
+
+   刻意**不叫它報價單**。報價單是一方對另一方的要約，帶有商業承諾的
+   意味；這張表是「我目前有單據可以證明的損失有這些」，性質完全不同。
+   拿一張寫著「報價單」的紙上調解桌，對方第一句話會是「這是你自己開的」。
+   叫它請求明細，每一列後面都對得上一張收據，才是它的力氣所在。
+
+   同樣的理由，慰撫金**不列進表裡**，只在附註說明它為什麼不在。
+   在一張看起來像正式文件的表上放一個猜出來的數字，比不放更糟。
+   ========================================================= */
+
+function cdocDate(){
+  var d = new Date();
+  return d.getFullYear() + ' 年 ' + (d.getMonth() + 1) + ' 月 ' + d.getDate() + ' 日';
+}
+
+/* 明細列：只收有填而且大於 0 的。填了 0 跟沒填在這張表上是同一件事 —— 
+   都代表「這一項我提不出金額」，列出來只會多一行 $0 讓表變弱。 */
+function cdocRows(){
+  var d = compData(), out = [], grp = '';
+  COMP_FIELDS.forEach(function(f){
+    if (f.g){ grp = f.g; return; }
+    var v = parseInt(d[f.k], 10);
+    if (isNaN(v) || v <= 0) return;
+    out.push({ g:grp, t:f.t, d:f.d, v:v });
+  });
+  return out;
+}
+
+function renderCdoc(){
+  var rows = cdocRows(), me = meData(), ot = otherData(), site = state.site;
+  var total = rows.reduce(function(a, r){ return a + r.v; }, 0);
+
+  function kv(k, v){
+    var has = (v || '').toString().trim();
+    return '<div class="kv"><span class="k">' + esc(k) + '</span>' +
+           '<span class="v' + (has ? '' : ' none') + '">' +
+           esc(has || '未填寫') + '</span></div>';
+  }
+
+  var h = '<h2>交通事故損害賠償請求明細</h2>' +
+          '<p class="made">製表日期：' + cdocDate() + '</p>';
+
+  /* 事故資訊 */
+  h += '<section><p class="sec-t">事故</p>';
+  h += kv('發生時間', site && site.at
+        ? new Date(site.at).toLocaleString('zh-TW', { hour12:false }) : '');
+  h += kv('地點', site ? (site.addr || (hasCoords(site) ? fmtLL(site) : '')) : '');
+  h += '</section>';
+
+  /* 兩造。用「請求人／相對人」而不是「我／對方」—— 這張紙會給第三個人看 */
+  h += '<section><p class="sec-t">請求人</p>' +
+       kv('姓名', me.name) + kv('車牌', me.plate) +
+       kv('保險公司', me.ins) + kv('保單號碼', me.policy) + '</section>';
+
+  h += '<section><p class="sec-t">相對人</p>' +
+       kv('姓名', ot.name) + kv('車牌', ot.plate) +
+       kv('電話', ot.tel) + kv('保險公司', ot.insurer) + '</section>';
+
+  /* 明細 */
+  h += '<section><p class="sec-t">請求項目</p><table><thead><tr>' +
+       '<th>項目</th><th class="r">金額（新臺幣）</th></tr></thead><tbody>';
+  var g = '';
+  rows.forEach(function(r){
+    if (r.g !== g){
+      g = r.g;
+      h += '<tr class="grp"><td colspan="2">' + esc(g) + '</td></tr>';
+    }
+    h += '<tr><td>' + esc(r.t) + '<span class="d">' + esc(r.d) + '</span></td>' +
+         '<td class="r">' + esc(money(r.v)) + '</td></tr>';
+  });
+  h += '<tr class="sum"><td>合計</td><td class="r">' + esc(money(total)) + '</td></tr>';
+  h += '</tbody></table></section>';
+
+  h += '<p class="warn"><strong>本表僅列出目前已有單據可以佐證的財產上損失。</strong>' +
+       '精神慰撫金沒有計算公式，法院是就個案衡量，因此不列入本表。' +
+       '各項金額以實際收據、估價單或薪資證明為準；本表不構成任何法律主張或金額承諾。</p>';
+
+  h += '<div class="sign"><div>請求人簽名</div><div>日期</div></div>';
+
+  $('cdoc-body').innerHTML = h;
+}
+
+/* 純文字版：給 LINE 給業務員用。跟紙本同一份內容，只是排版換成等寬的行。 */
+function cdocText(){
+  var rows = cdocRows(), me = meData(), ot = otherData(), site = state.site;
+  var total = rows.reduce(function(a, r){ return a + r.v; }, 0);
+  var L = ['交通事故損害賠償請求明細', '製表日期：' + cdocDate(), ''];
+
+  if (site && site.at) L.push('發生時間：' + new Date(site.at).toLocaleString('zh-TW', { hour12:false }));
+  var loc = site ? (site.addr || (hasCoords(site) ? fmtLL(site) : '')) : '';
+  if (loc) L.push('地點：' + loc);
+
+  var mine = [me.name, me.plate, me.ins, me.policy].filter(Boolean);
+  if (mine.length) L.push('', '【請求人】' + mine.join('／'));
+  var theirs = [ot.name, ot.plate, ot.tel, ot.insurer].filter(Boolean);
+  if (theirs.length) L.push('【相對人】' + theirs.join('／'));
+
+  L.push('', '【請求項目】');
+  var g = '';
+  rows.forEach(function(r){
+    if (r.g !== g){ g = r.g; L.push('— ' + g); }
+    L.push('  ' + r.t + '　' + money(r.v));
+  });
+  L.push('', '合計　' + money(total));
+  L.push('', '本表僅列出目前已有單據可以佐證的財產上損失，不含精神慰撫金。');
+  L.push('各項金額以實際收據、估價單或薪資證明為準。');
+  return L.join('\n');
+}
+
+$('cdoc-open').addEventListener('click', function(){
+  if (!compStats().n) return;
+  renderCdoc();
+  $('cdoc-sheet').classList.add('open');
+});
+$('cdoc-close').addEventListener('click', function(){
+  $('cdoc-sheet').classList.remove('open');
+});
+$('cdoc-print').addEventListener('click', function(){ window.print(); });
+$('cdoc-copy').addEventListener('click', function(){
+  copyText(cdocText(), '明細已複製');
+});
 
 function renderComp(){
   var d = compData(), box = $('comp-form');
@@ -4642,7 +4862,7 @@ function openMe(){
 
   html += '<div class="card">';
   ME_FIELDS.forEach(function(f){
-    var v = (d[f.k] || '').replace(/"/g, '&quot;');
+    var v = esc(d[f.k] || '');
     html += '<div class="f"><label for="mf-' + f.k + '">' + f.t + '</label>' +
             '<input id="mf-' + f.k + '" type="' + (f.type || 'text') + '"' +
             (f.cls ? ' class="' + f.cls + '"' : '') +
