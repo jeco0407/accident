@@ -4464,18 +4464,27 @@ function caseMeta(id){
 
 function renderCases(){
   var box = $('case-box'), h = '', i, x;
-  var multi = cases.list.length > 1;
+  var cur = caseById(cases.cur);
 
-  /* 只剩一件而且是空的 = 使用者眼中的「什麼都沒有」。
-     照常畫成一張卡會變成「刪了卻還在」，那正是這個空白狀態要解掉的誤會。 */
-  if (!multi && caseIsEmpty(cases.list[0].id)){
-    box.innerHTML =
-      '<div class="card case-empty">' +
-        '<div class="t">目前沒有事故紀錄</div>' +
-        '<div class="s">在「現場」取得位置，或到「存證」拍第一張照片，<br>' +
-          '這裡就會自動出現一件。</div>' +
-      '</div>';
-    return;
+  /* 目前這件是空的 = 使用者眼中的「還沒有進行中的紀錄」。
+     App 內部隨時握著一個案件（所有分頁都要有東西可以讀寫），但那是
+     **實作需求，不該讓使用者看到**。
+
+     這件事原本只在「只剩一件而且是空的」時處理，結案之後就失效了 ——
+     結案會自動開一件新的，畫面上於是多出一張跟剛結案那件同一天、
+     同樣標題、卻什麼都沒有的卡。看起來像結案沒結成功。
+
+     已結案的案件即使是空的也照常畫出來：使用者可能剛從列表切過去，
+     切過去卻整張卡消失會更難理解。 */
+  var hideCur = caseIsEmpty(cases.cur) && !(cur && cur.closed);
+
+  if (hideCur){
+    var onlyOne = cases.list.length === 1;
+    h += '<div class="card case-empty">' +
+           '<div class="t">' + (onlyOne ? '目前沒有事故紀錄' : '目前沒有進行中的紀錄') + '</div>' +
+           '<div class="s">在「現場」取得位置，或到「存證」拍第一張照片，<br>' +
+             '這裡就會自動出現一件。</div>' +
+         '</div>';
   }
 
   for (i = 0; i < cases.list.length; i++){
@@ -4512,7 +4521,9 @@ function renderCases(){
          '</div>';
   }
 
-  box.innerHTML = h + NEW_CARD;
+  /* 目前這件已經是空的，再按「開始新案件」只會多生一件空的。
+     這正是連按幾次「結案」會累積出一堆空案件的來源。 */
+  box.innerHTML = h + (hideCur ? '' : NEW_CARD);
 }
 
 $('case-box').addEventListener('click', function(e){
@@ -4535,10 +4546,13 @@ $('case-box').addEventListener('click', function(e){
     return;
   }
   if (a === 'close'){
-    ask('結案，並開始新的一件？', '紀錄與照片都會留著，隨時可以切回來。', '結案', function(){
+    /* 底層仍然會開一件新的（App 隨時要握著一個案件），但那件是空的、
+       畫面上不顯示，所以問句與提示都不再提它 —— 講一件使用者看不到的
+       東西，只會讓人以為結案沒結成功。 */
+    ask('把這件結案？', '紀錄與照片都會留著，隨時可以切回來。', '結案', function(){
       c.closed = Date.now();
       newCase();
-      toast('已結案，開始新的一件');
+      toast('已結案');
     });
   } else if (a === 'reopen'){
     c.closed = 0; writeCases(); renderCases(); toast('已重新開啟');
@@ -4548,6 +4562,7 @@ $('case-box').addEventListener('click', function(e){
       toast('已建立新案件');
     });
   }
+    if (isCur && hideCur) continue;   /* 上面那張空白狀態就是它 */
 });
 
 /* 目前案件換了人（新建、切換、把目前這件刪掉）之後，畫面要整個重來一次 */
