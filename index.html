@@ -42,7 +42,7 @@
 
   /* 語意 token：深色模式只要覆寫這些，元件不必動 */
   --solid-bg:#2F5A53;  --solid-fg:#FFFFFF;   /* 主要按鈕。白字 7.75:1 */
-  --cta-bg:#2F5A53;    --cta-fg:#FFFFFF;     /* 引導入口 */
+  --cta-bg:#2F5A53;    --cta-fg:#FFFFFF;     /* 目前步驟的實心按鈕 */
   --toast-bg:#2A251E;  --toast-fg:#FFFFFF;
   --on-red:#FFFFFF;    --on-green:#FFFFFF;
   --chrome:rgba(250,243,225,.9);            /* 頂欄／分頁列毛玻璃 */
@@ -364,45 +364,6 @@ body.is-offline .chip-off{display:flex}
   font-size:17px;font-weight:600;box-shadow:var(--shadow);
 }
 .btn-line:active{transform:scale(.985)}
-
-/* ═══════════ 引導入口 ═══════════ */
-/* ── 引導模式 ── */
-.guide-card{padding:20px}
-.guide-top{display:flex;align-items:center;gap:13px}
-.guide-top .t{font-size:19px;font-weight:700;letter-spacing:-.01em}
-.guide-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
-.guide-chips span{
-  font-size:13px;font-weight:500;color:var(--ink-2);
-  padding:8px 13px;border-radius:999px;
-  background:var(--inset);border:1px solid var(--line);
-}
-/* 回答過之後，氣泡改成顯示答案 */
-.guide-card.answered .guide-chips span{color:var(--brand);border-color:var(--brand)}
-.guide-foot{display:flex;align-items:flex-end;gap:14px;margin-top:18px}
-.guide-foot .d{flex:1;font-size:14px;color:var(--muted);line-height:1.6;margin:0}
-.guide-go{
-  flex:0 0 auto;display:flex;align-items:center;gap:6px;
-  min-height:48px;padding:0 18px;border-radius:var(--r-md);
-  background:var(--solid-bg);color:var(--solid-fg);
-  font-size:16px;font-weight:600;letter-spacing:-.01em;
-}
-.guide-go:active{transform:scale(.98)}
-.guide-go .i{width:1em;height:1em}
-/* 窄螢幕時說明與按鈕擠在一起會兩邊都難讀，改成上下 */
-@media (max-width:390px){
-  .guide-foot{flex-direction:column;align-items:stretch}
-  .guide-go{justify-content:center}
-}
-
-.guide-entry{padding:22px 20px;display:block;width:100%;text-align:left}
-.guide-entry .t{font-size:20px;font-weight:700;letter-spacing:-.01em;margin:0 0 6px}
-.guide-entry .d{font-size:15.5px;color:var(--ink-2);margin:0 0 18px;line-height:1.55}
-.guide-entry .go{
-  display:flex;align-items:center;justify-content:center;gap:8px;min-height:56px;
-  background:var(--cta-bg);color:var(--cta-fg);border-radius:var(--r-md);
-  font-size:18px;font-weight:600;
-}
-.guide-entry .go .i{width:.95em;height:.95em}
 
 /* ═══════════ Timeline ═══════════ */
 /* 卡片本身不是按鈕：上排（圖示＋標題＋勾選圈）才是勾選開關，
@@ -936,7 +897,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 .brandfoot p{font-size:12.5px;color:var(--muted);line-height:1.7;margin:10px 0 0}
 .brandfoot a{color:inherit;display:inline-flex;align-items:center;min-height:44px;min-width:44px;vertical-align:middle;margin:-14px 0}
 
-/* ═══════════ 引導 sheet ═══════════ */
 /* ── 確認對話框 ──
    不用瀏覽器的 confirm()：在 PWA 殼（TWA／standalone）裡它有可能被直接
    吃掉，回傳 false 而且什麼都不顯示 —— 使用者按了刪除卻毫無反應，
@@ -964,7 +924,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 .sheet.open{display:flex;animation:up .32s cubic-bezier(.32,.72,0,1)}
 @keyframes up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
 .sheet-top{display:flex;align-items:center;gap:14px;padding:14px 20px;max-width:520px;margin:0 auto;width:100%}
-.dots{flex:1;display:flex;gap:6px}
 .dot{flex:1;height:4px;border-radius:2px;background:var(--line);transition:background .3s ease}
 .dot.on{background:var(--brand)}
 .sheet-title{flex:1;font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -998,48 +957,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 .qhead .k{font-size:14px;font-weight:600;color:var(--brand);letter-spacing:.06em;margin:0 0 10px}
 .qhead h2{font-size:28px;line-height:1.3;letter-spacing:-.02em;font-weight:700;margin:0}
 .qhead .sub{font-size:16px;color:var(--ink-2);margin:12px 0 0;line-height:1.6}
-.q-opt{
-  display:flex;align-items:center;gap:14px;width:100%;text-align:left;
-  min-height:72px;padding:16px 18px;margin-bottom:10px;
-  background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
-  box-shadow:var(--shadow);transition:transform .12s ease;
-}
-.q-opt:active{transform:scale(.985)}
-.q-opt .ic{font-size:26px;line-height:1;flex:0 0 auto;display:flex;color:var(--ink-2)}
-.q-opt .t{flex:1;min-width:0;display:block;font-size:18px;font-weight:600;letter-spacing:-.01em}
-.q-opt .s{display:block;font-size:14px;color:var(--muted);font-weight:400;margin-top:3px;line-height:1.45}
-.q-opt .ar{color:var(--chev);font-size:21px}
-.q-opt.danger{background:var(--red-bg);border-color:var(--red-line)}
-.q-opt.danger .t,.q-opt.danger .ic{color:var(--red)}
 .sheet-back{margin-top:6px;font-size:15.5px;color:var(--muted);padding:12px 4px}
-.pin{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:var(--r-lg);margin-bottom:22px;border:1px solid}
-.pin .ic{font-size:30px;line-height:1;display:flex}
-.pin .b{flex:1;display:block;min-width:0}
-.pin .n{display:block;font-size:26px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
-.pin .d{display:block;font-size:14px;margin-top:3px;opacity:.85}
-.pin.a{background:var(--amber-bg);border-color:var(--amber-line);color:var(--amber)}
-.pin.r{background:var(--red-bg);border-color:var(--red-line);color:var(--red)}
-.res-h{padding:28px 0 20px}
-.res-h .k{font-size:14px;font-weight:600;color:var(--brand);letter-spacing:.06em;margin:0 0 10px}
-.res-h h2{font-size:27px;line-height:1.3;letter-spacing:-.02em;font-weight:700;margin:0}
-.res-h p{font-size:16px;color:var(--ink-2);margin:12px 0 0;line-height:1.6}
-/* 引導結果只是預覽，不能勾 —— 勾選只在現場頁那一份，免得兩邊進度對不起來 */
-.res-list{list-style:none;margin:0;padding:0;counter-reset:s}
-.res-list li{
-  display:flex;gap:12px;align-items:flex-start;padding:13px 0;
-  border-top:1px solid var(--line-soft);font-size:16.5px;font-weight:500;line-height:1.5;
-}
-.res-list li::before{
-  counter-increment:s;content:counter(s);flex:0 0 26px;height:26px;border-radius:50%;
-  background:var(--line-soft);color:var(--ink-2);font-size:13px;font-weight:700;
-  display:flex;align-items:center;justify-content:center;
-}
-.res-list li.done{color:var(--muted);text-decoration:line-through}
-.sheet-done{
-  display:flex;align-items:center;justify-content:center;width:100%;min-height:var(--tap);
-  margin:20px 0 8px;background:var(--solid-bg);color:var(--solid-fg);border-radius:var(--r-md);
-  font-size:18px;font-weight:600;
-}
 
 /* ═══════════ 安裝提示 ═══════════ */
 .install{
@@ -1116,8 +1034,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 <symbol id="ic-id" viewBox="0 0 24 24"><rect x="2.8" y="5.2" width="18.4" height="13.6" rx="2.4"/><circle cx="8.6" cy="10.8" r="2"/><path d="M5.4 15.8c.4-1.4 1.7-2.3 3.2-2.3s2.8.9 3.2 2.3"/><path d="M14.6 10.4h3.8M14.6 13.8h3.8"/></symbol>
 <symbol id="ic-wave" viewBox="0 0 24 24"><path d="M2.8 9.4c1.6-2.2 3.2-2.2 4.8 0s3.2 2.2 4.8 0 3.2-2.2 4.8 0 3.2 2.2 4.8 0"/><path d="M2.8 15.4c1.6-2.2 3.2-2.2 4.8 0s3.2 2.2 4.8 0 3.2-2.2 4.8 0 3.2 2.2 4.8 0"/></symbol>
 <symbol id="ic-video" viewBox="0 0 24 24"><rect x="2.8" y="6.6" width="12.6" height="10.8" rx="2.4"/><path d="m15.4 13 4 2.6c.6.4 1.4 0 1.4-.7V9.1c0-.7-.8-1.1-1.4-.7l-4 2.6Z"/></symbol>
-<symbol id="ic-cone" viewBox="0 0 24 24"><path d="M11 5.2h2l3.9 11H7.1Z"/><path d="M5.2 16.2h13.6c.6 0 1 .5 1 1v1.6c0 .6-.4 1-1 1H5.2c-.6 0-1-.4-1-1v-1.6c0-.5.4-1 1-1Z"/></symbol>
-<symbol id="ic-question" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M9.6 9.6a2.5 2.5 0 0 1 3.3-2.4c1 .4 1.7 1.3 1.7 2.4 0 1.4-1.1 1.9-1.8 2.4-.5.4-.8.9-.8 1.6"/><circle cx="12" cy="16.6" r=".95" fill="currentColor" stroke="none"/></symbol>
 <symbol id="ic-list" viewBox="0 0 24 24"><path d="M9.4 6.6h10M9.4 12h10M9.4 17.4h10"/><circle cx="5.2" cy="6.6" r=".95" fill="currentColor" stroke="none"/><circle cx="5.2" cy="12" r=".95" fill="currentColor" stroke="none"/><circle cx="5.2" cy="17.4" r=".95" fill="currentColor" stroke="none"/></symbol>
 <symbol id="ic-siren" viewBox="0 0 24 24"><path d="M8 13.2a4 4 0 0 1 8 0"/><path d="M6.4 13.2h11.2c.6 0 1 .5 1 1v2c0 .6-.4 1-1 1H6.4c-.6 0-1-.4-1-1v-2c0-.5.4-1 1-1Z"/><path d="M12 5.6V3.8M6.6 7.6 5.3 6.3M17.4 7.6l1.3-1.3"/></symbol>
 <symbol id="ic-folder" viewBox="0 0 24 24"><path d="M3.4 18.2V6.6c0-.9.7-1.6 1.6-1.6h4l2 2.4h7.6c.9 0 1.6.7 1.6 1.6v9.2c0 .9-.7 1.6-1.6 1.6H5c-.9 0-1.6-.7-1.6-1.6Z"/></symbol>
@@ -1208,23 +1124,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
           <span class="ic"><svg class="i"><use href="#ic-truck"/></svg></span>
           <span class="t">道路救援</span><span class="ar">›</span>
         </a>
-      </div>
-
-      <div class="blk">
-        <div class="card guide-card" id="guide-card">
-          <div class="guide-top">
-            <span class="badge-ic"><svg class="i"><use href="#ic-compass"/></svg></span>
-            <span class="t">引導模式</span>
-          </div>
-          <!-- 沒回答過：顯示它實際會問的三題；回答過：換成答案。由 renderGuideCard() 填 -->
-          <div class="guide-chips" id="guide-chips">
-            <span>有人受傷嗎？</span><span>車輛可以移動嗎？</span><span>報警了嗎？</span>
-          </div>
-          <div class="guide-foot">
-            <p class="d" id="guide-d">不知道該怎麼做？<br>回答三個問題，下面的清單會換成專屬於你的步驟。</p>
-            <button class="guide-go" id="guide-open"><span id="guide-go-t">開始引導</span><svg class="i"><use href="#ic-arrow"/></svg></button>
-          </div>
-        </div>
       </div>
 
       <div class="blk">
@@ -1439,17 +1338,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   </div>
 </nav>
 
-<!-- 引導模式 -->
-<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="引導模式">
-  <div class="sheet-top">
-    <div class="dots" id="dots"></div>
-    <button class="sheet-close" id="sheet-close">關閉</button>
-  </div>
-  <div class="sheet-scroll">
-    <div class="sheet-inner" id="sheet-body"></div>
-  </div>
-</div>
-
 <!-- 照片檢視器 -->
 <div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="照片">
   <div class="viewer-top">
@@ -1639,8 +1527,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 var LS = {
   tl:'aa.timeline.v1', ph:'aa.photos.v1', todo:'aa.todo.v1',
   install:'aa.install.dismissed.v1', claim:'aa.claim.v1', other:'aa.other.v1',
-  site:'aa.site.v1', comp:'aa.comp.v1', compdoc:'aa.compdoc.v1',
-  guide:'aa.guide.v1'   /* 引導模式的三個答案。現場清單依它長出來 */
+  site:'aa.site.v1', comp:'aa.comp.v1', compdoc:'aa.compdoc.v1'
 };
 
 function rawLoad(k){ try{ return JSON.parse(localStorage.getItem(k)) || {}; }catch(e){ return {}; } }
@@ -2168,71 +2055,26 @@ $('btn-map').addEventListener('click', function(){
 /* =========================================================
    現場處理 Timeline
    ========================================================= */
-/* 現場只有一份清單。沒走引導時是這五步；回答過三題後，依答案增減、改寫。
-   以前引導會另外產生一份待辦，跟這五步大半重疊、各算各的進度，
-   使用者不知道該照哪一份做 —— 所以合成一份。
-
-   進度用步驟 id 記，不用索引：重新回答後步驟會插進來或拿掉，
-   用索引的話已經勾過的會錯位到別的步驟上。 */
+/* 進度用步驟 id 記，不用索引 —— 以前的引導模式會插入或拿掉步驟（v63 移除）。 */
 var TL_LEGACY = ['hazard', 'photo', 'police', 'nosettle', 'insurer'];   /* 舊版索引 → id */
 
-function sceneSteps(g){
-  g = g || {};
-  /* 能不能移車是法規問題，不只是車況問題（道路交通事故處理辦法 §3）：
-     只有「無人傷亡且車輛尚能行駛」才能標繪後移置。有人受傷時原則上不得移動，
-     雙方都同意才例外；「不確定有沒有人受傷」一律照有人受傷處理。 */
-  var asked = !!g.injured,
-      canDrive = g.movable === 'yes',
-      moved = canDrive && g.injured === 'no',
-      hurtButDrivable = canDrive && !moved,
-      L = [];
-
-  if (g.injured === 'yes'){
-    L.push({ id:'119', ic:'cross', t:'撥 119，先處理傷者', d:'不要移動明顯受傷的人，等待救護人員。',
-             act:{ t:'撥打 119', tel:'119', danger:true } });
-  }
-  L.push({ id:'hazard', ic:'alert', t:'開雙黃燈、放三角警示架',
-           d:'一般道路放在車後 30–100 公尺（車速越快放越遠），高速公路約 100 公尺。' +
-             (asked && !moved ? '人員退到路肩或護欄外，不要站在車道上或車輛後方。' : '先確保自己不會被追撞。') });
-  L.push({ id:'photo', ic:'camera', t: moved ? '先拍照，再把車移到路邊' : '拍照存證',
-           d:(moved ? '移車前先把車輛位置與地面痕跡拍下來，這就是法規要求的「標繪」。' : '') +
-             '要拍：全景、碰撞點、車損、車牌、證件、地面痕跡、行車記錄器。',
-           act:{ t:'打開拍照清單', go:'photo' } });
-  if (g.reported === 'yes'){
-    L.push({ id:'police', ic:'siren', t:'向員警索取登記聯單',
-             d:'「交通事故當事人登記聯單」上有案件編號與雙方資料，後續申請文件都要用到。' });
-  } else {
-    L.push({ id:'police', ic:'siren', t:'撥 110 報案，索取登記聯單',
-             d:'不論事故大小都建議報警。向處理員警索取「交通事故當事人登記聯單」，後續申請文件都要用到。',
-             act:{ t:'撥打 110', tel:'110', danger: g.reported === 'no' } });
-  }
-  L.push(moved
-    ? { id:'nosettle', ic:'ban', t:'不私下和解、不簽任何文件', d:'金額與肇責都還沒釐清，先不承諾任何事。' }
-    : hurtButDrivable
-    ? { id:'nosettle', ic:'ban', t:'不私下和解、先不要移車',
-        d:'有人受傷時，車能開也不能自行移走。雙方都同意才可以先拍照標繪再移到路邊，否則等警方到場處理。也不要簽任何文件。' }
-    : { id:'nosettle', ic:'ban', t:'不私下和解、不隨意移車', d:'除非警方指示。現場一旦破壞就回不來了，也不要簽任何文件。' });
-  L.push({ id:'insurer', ic:'phone', t:'五日內通知保險公司出險', d:'越早通知，理賠越順。',
-           act:{ t:'查出險專線', go:'claim' } });
-
-  if (g.injured === 'yes'){
-    L.push({ id:'medical', ic:'cross', t:'就醫並索取「診斷證明書」',
-             d:'即使當下覺得還好，也建議當天就醫留紀錄。掛號費、藥費、復健收據正本都要留。' });
-    L.push({ id:'cali', ic:'id', t:'了解強制險傷害給付',
-             d:'強制汽車責任保險對受害人採無過失制，不論肇責都能申請醫療給付（單一車輛自撞的駕駛人本人除外）。細節可問' + who() + '。' });
-  } else if (g.injured === 'maybe'){
-    L.push({ id:'medical', ic:'cross', t:'讓不舒服的人先就醫',
-             d:'頭頸與內傷不一定當下有症狀。留下診斷證明與醫療收據，之後申請都靠這些。' });
-  } else if (g.injured === 'no'){
-    L.push({ id:'watch', ic:'alert', t:'接下來 48 小時留意身體',
-             d:'若出現頭暈、頸背疼痛，立刻就醫並主動告知是車禍造成。' });
-  }
-  if (asked){
-    L.push({ id:'analysis', ic:'list', t:'向警方申請「初步分析研判表」',
-             d:'事故 30 日後才能申請；現場圖與現場照片則是 7 日後。向處理的警察機關申請，有人受傷的案件也能在警政署網站線上申請。' });
-    L.push({ id:'repair', ic:'car', t:'保留修車估價單與收據', d:'理賠求償時要用。' });
-  }
-  return L;
+function sceneSteps(){
+  return [
+    { id:'hazard', ic:'alert', t:'開雙黃燈、放三角警示架',
+      d:'一般道路放在車後 30–100 公尺（車速越快放越遠），高速公路約 100 公尺。先確保自己不會被追撞。' },
+    { id:'photo', ic:'camera', t:'拍照存證',
+      d:'要拍：全景、碰撞點、車損、車牌、證件、地面痕跡、行車記錄器。',
+      act:{ t:'打開拍照清單', go:'photo' } },
+    { id:'police', ic:'siren', t:'撥 110 報案，索取登記聯單',
+      d:'不論事故大小都建議報警。向處理員警索取「交通事故當事人登記聯單」，後續申請文件都要用到。',
+      act:{ t:'撥打 110', tel:'110' } },
+    /* 有人受傷時原則上不得移車，雙方同意才可標繪後移置（道路交通事故處理辦法 §3）。
+       沒有引導問答之後分不出有沒有人受傷，所以一律寫保守的版本。 */
+    { id:'nosettle', ic:'ban', t:'不私下和解、不隨意移車',
+      d:'有人受傷時，除非雙方同意或警方指示，不要移車。沒人受傷且車能開，先拍照記下位置再移到路邊。也不要簽任何文件。' },
+    { id:'insurer', ic:'phone', t:'五日內通知保險公司出險', d:'越早通知，理賠越順。',
+      act:{ t:'查出險專線', go:'claim' } }
+  ];
 }
 
 /* 舊資料是 {0:true,1:true} 這種索引，讀的時候換成 id。只換不寫回，下次勾選時才存成新格式 */
@@ -2283,26 +2125,8 @@ function renderSteps(box, steps, st, onToggle){
   return n;
 }
 
-var GUIDE_ANS = {
-  injured:  { yes:'有人受傷', no:'沒有人受傷', maybe:'不確定有沒有人受傷' },
-  movable:  { yes:'車可以移動', no:'車不能動', maybe:'不確定能不能移車' },
-  reported: { yes:'已經報警', no:'還沒報警' }
-};
-
-function renderGuideCard(g){
-  var done = !!g.injured;
-  $('guide-card').classList.toggle('answered', done);
-  $('guide-chips').innerHTML = done
-    ? ['injured', 'movable', 'reported'].map(function(k){ return '<span>' + (GUIDE_ANS[k][g[k]] || '') + '</span>'; }).join('')
-    : '<span>有人受傷嗎？</span><span>車輛可以移動嗎？</span><span>報警了嗎？</span>';
-  $('guide-d').innerHTML = done
-    ? '下面的清單已依你的回答調整。<br>情況有變就重新回答，勾過的會保留。'
-    : '不知道該怎麼做？<br>回答三個問題，下面的清單會換成專屬於你的步驟。';
-  $('guide-go-t').textContent = done ? '重新回答' : '開始引導';
-}
-
 function renderTL(){
-  var g = load(LS.guide), steps = sceneSteps(g);
+  var steps = sceneSteps();
   var n = renderSteps($('tl'), steps, tlState(load(LS.tl)), function(id){
     var cur = tlState(load(LS.tl));
     cur[id] = !cur[id];
@@ -2310,7 +2134,6 @@ function renderTL(){
     renderTL();
   });
   $('tl-prog').textContent = '已完成 ' + n + ' / ' + steps.length;
-  renderGuideCard(g);
 }
 $('tl-reset').addEventListener('click', function(){
   save(LS.tl, {}); renderTL(); toast('現場處理進度已重設');
@@ -2895,7 +2718,6 @@ function openIns(i){
   html += '<p class="fineprint">各家產險的作業細節可能略有不同，實際流程以理賠人員說明為準。</p>';
 
   $('ins-detail').innerHTML = html;
-  $('sheet') && $('sheet').classList.remove('open');
   $('ins-sheet').classList.add('open');
   $('ins-sheet').querySelector('.sheet-scroll').scrollTop = 0;
 }
@@ -2916,131 +2738,17 @@ $('cl-reset').addEventListener('click', function(){
 });
 renderCL();
 
-/* =========================================================
-   引導模式 — 純 JS 決策樹，完全離線
-   ========================================================= */
-var FLOW = [
-  {
-    key:'injured', k:'第 1 題 / 共 3 題', q:'有人受傷嗎？',
-    sub:'包含你自己、乘客、對方與路人。只要有人喊痛，就算受傷。',
-    opts:[
-      { v:'yes',   ic:'cross',    t:'有人受傷', s:'先救人，其他都可以等', danger:true },
-      { v:'no',    ic:'check',    t:'沒有人受傷', s:'大家都能正常走動、說話' },
-      { v:'maybe', ic:'question', t:'不確定', s:'有人說不舒服，但看不出外傷' }
-    ]
-  },
-  {
-    key:'movable', k:'第 2 題 / 共 3 題', q:'車輛可以移動嗎？',
-    sub:'判斷要不要把車移到路邊，避免二次事故。',
-    opts:[
-      { v:'yes',   ic:'check',    t:'可以，只是輕微擦撞', s:'車還能發動、能開' },
-      { v:'no',    ic:'cone',     t:'不能動', s:'車損嚴重、卡住或漏油' },
-      { v:'maybe', ic:'question', t:'不確定', s:'保持現場最安全' }
-    ]
-  },
-  {
-    key:'reported', k:'第 3 題 / 共 3 題', q:'報警了嗎？',
-    sub:'有報警才有事故紀錄，後續理賠與肇責認定都靠它。',
-    opts:[
-      { v:'yes', ic:'siren', t:'已經報警了', s:'警方已到場或在路上' },
-      { v:'no',  ic:'phone', t:'還沒報警', s:'不論大小事故，都建議報警' }
-    ]
-  }
-];
-
-var ans = {}, idx = 0;
-
-$('guide-open').addEventListener('click', function(){ ans = {}; idx = 0; openSheet(); });
-$('sheet-close').addEventListener('click', closeSheet);
 document.addEventListener('keydown', function(e){
   if (e.key !== 'Escape') return;
   /* 確認對話框疊在最上層，Esc 應該只關掉它，不要一路關掉底下的東西 */
   if ($('ask').classList.contains('open')){ askClose(false); return; }
   if ($('set-sheet').classList.contains('open')){ $('set-sheet').classList.remove('open'); return; }
-  if ($('sheet').classList.contains('open')) closeSheet();
   if ($('ins-sheet').classList.contains('open')) $('ins-sheet').classList.remove('open');
   if ($('other-sheet').classList.contains('open')){ $('other-sheet').classList.remove('open'); renderOther(); }
   if ($('crop').classList.contains('open')){ closeCrop(); return; }
   if ($('me-sheet').classList.contains('open')){ $('me-sheet').classList.remove('open'); renderMe(); }
   if ($('viewer').classList.contains('open')) closeViewer();
 });
-
-function openSheet(){ $('sheet').classList.add('open'); renderSheet(); }
-function closeSheet(){ $('sheet').classList.remove('open'); }
-
-function renderDots(){
-  var d = $('dots'); d.innerHTML = '';
-  for (var i = 0; i <= FLOW.length; i++){
-    var s = document.createElement('span');
-    s.className = 'dot' + (i <= idx ? ' on' : '');
-    d.appendChild(s);
-  }
-}
-
-function pinHTML(){
-  var h = '';
-  if (ans.injured === 'yes' || ans.injured === 'maybe'){
-    h += '<a class="pin a" href="tel:119"><span class="ic">' + ico('cross') + '</span><span class="b">' +
-         '<span class="n">119</span><span class="d">有人受傷 — 立刻撥打</span></span></a>';
-  }
-  if (ans.reported === 'no'){
-    h += '<a class="pin r" href="tel:110"><span class="ic">' + ico('siren') + '</span><span class="b">' +
-         '<span class="n">110</span><span class="d">還沒報警 — 立刻撥打</span></span></a>';
-  }
-  return h;
-}
-
-function renderSheet(){
-  renderDots();
-  var body = $('sheet-body');
-  $('sheet').querySelector('.sheet-scroll').scrollTop = 0;
-  if (idx >= FLOW.length){ renderResult(); return; }
-
-  var q = FLOW[idx], html = pinHTML();
-  html += '<div class="qhead"><p class="k">' + q.k + '</p><h2>' + q.q + '</h2>' +
-          '<p class="sub">' + q.sub + '</p></div>';
-  q.opts.forEach(function(o, i){
-    html += '<button class="q-opt' + (o.danger ? ' danger' : '') + '" data-i="' + i + '">' +
-              '<span class="ic">' + ico(o.ic) + '</span>' +
-              '<span class="t">' + o.t + '<span class="s">' + o.s + '</span></span>' +
-              '<span class="ar">›</span></button>';
-  });
-  if (idx > 0) html += '<button class="sheet-back" id="back">← 上一題</button>';
-  body.innerHTML = html;
-
-  body.querySelectorAll('.q-opt').forEach(function(b){
-    b.addEventListener('click', function(){
-      ans[q.key] = q.opts[+b.dataset.i].v;
-      idx++;
-      renderSheet();
-    });
-  });
-  var bk = $('back');
-  if (bk) bk.addEventListener('click', function(){ idx--; renderSheet(); });
-}
-
-/* 回答完不再另外產生一份可勾選的待辦 —— 直接改寫現場頁的清單，這裡只給預覽。
-   以前的待辦只活在這個視窗裡，按「回到現場」就看不到了，想再看得重答一次。 */
-function renderResult(){
-  save(LS.guide, { injured:ans.injured, movable:ans.movable, reported:ans.reported });
-  renderTL();
-
-  var steps = sceneSteps(ans), st = tlState(load(LS.tl)), html = pinHTML();
-  html += '<div class="res-h"><p class="k">現場清單已更新</p><h2>接下來，照這 ' + steps.length + ' 步做</h2>' +
-          '<p>清單就在「現場」頁下方，做完一步勾一步。之前勾過的都保留著。</p></div><ol class="res-list">';
-  steps.forEach(function(s){
-    html += '<li' + (st[s.id] ? ' class="done"' : '') + '>' + s.t + '</li>';
-  });
-  html += '</ol><button class="sheet-done" id="done">看我的清單</button>' +
-          '<button class="sheet-back" id="restart">重新回答一次</button>';
-
-  $('sheet-body').innerHTML = html;
-  $('done').addEventListener('click', function(){
-    closeSheet(); go('scene');
-    $('tl').scrollIntoView({ behavior:'smooth', block:'start' });
-  });
-  $('restart').addEventListener('click', function(){ ans = {}; idx = 0; renderSheet(); });
-}
 
 /* =========================================================
    求償
@@ -3470,9 +3178,9 @@ function caseArea(id){
   return '';
 }
 
-/* 現場處理走到第幾步。分母是這個案件的清單長度 —— 回答過引導的案件步驟比較多 */
+/* 現場處理走到第幾步 */
 function caseProgress(id){
-  var pack = casePack(id), steps = sceneSteps(pack[LS.guide]), st = tlState(pack[LS.tl]), n = 0;
+  var pack = casePack(id), steps = sceneSteps(), st = tlState(pack[LS.tl]), n = 0;
   for (var i = 0; i < steps.length; i++) if (st[steps[i].id]) n++;
   return n + '/' + steps.length;
 }
@@ -4006,7 +3714,7 @@ renderMe();
    ========================================================= */
 $('btn-reset-all').addEventListener('click', function(){
   ask('清除這件事故的所有進度？', '照片會保留。若要留著紀錄，請改用「結案」。', '清除', function(){
-    save(LS.tl, {}); save(LS.ph, {}); save(LS.todo, {}); save(LS.claim, {}); save(LS.guide, {});
+    save(LS.tl, {}); save(LS.ph, {}); save(LS.todo, {}); save(LS.claim, {});
     save(LS.other, {}); save(LS.comp, {}); save(LS.compdoc, {});
     resetLoc();
     renderTL(); renderPH(); renderCL(); renderOther(); renderComp(); renderCases();

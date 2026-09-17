@@ -270,10 +270,6 @@ async def main():
                  "document.querySelectorAll('.tab')[0].click();"
                  "setTimeout(function(){document.getElementById('other-open').click()},250)",
                  "document.getElementById('other-close') && document.getElementById('other-close').click()"),
-                ("引導模式 #sheet", "#sheet",
-                 "document.querySelectorAll('.tab')[0].click();"
-                 "setTimeout(function(){document.getElementById('guide-open').click()},250)",
-                 "document.getElementById('sheet').classList.remove('open')"),
                 ("出險詳情 #ins-sheet", "#ins-sheet",
                  "document.querySelectorAll('.tab')[2].click();"
                  "setTimeout(function(){document.querySelector('.ins').click()},250)",
