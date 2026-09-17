@@ -2,7 +2,7 @@
 """無障礙稽核：對比度、觸控面積、可存取名稱。
 
 v54 之前這支只走五個分頁。問題是這個 App 有十一個覆蓋層（各種 sheet、
-裁切屏、照片檢視、註冊登入四屏），**一個都沒被掃過** —— 而歷史上出過的
+裁切屏、照片檢視），**一個都沒被掃過** —— 而歷史上出過的
 兩次問題都在那裡面（v34 的 .sheet-close 只有 40×38，v46 的裁切取景框）。
 腳本沒報錯不等於沒問題，只等於它沒走到那裡。
 
@@ -328,26 +328,15 @@ async def main():
             else:
                 report.append(("照片檢視 #viewer", "-", "無法開啟", "找不到 #picker"))
 
-            print("\n── 註冊／登入四屏 ──")
-            await send("Page.navigate", {"url": ORIGIN + "/index.html?auth=1"})
-            await asyncio.sleep(2.0)
-            await ev("localStorage.removeItem('aa.registered.v1');"
-                     "localStorage.removeItem('aa.role.v1')")
+            print("\n── 登入畫面已移除（v59）──")
+            # 以前開過 ?auth=1 預覽的瀏覽器，本機還留著 aa.authpreview.v1。確認它不再有任何作用
+            await ev("localStorage.setItem('aa.authpreview.v1','1')")
             await send("Page.navigate", {"url": ORIGIN + "/index.html"})
             await asyncio.sleep(2.5)
-            if await ev("document.documentElement.getAttribute('data-auth')") == "need":
-                await audit("歡迎屏 #auth-welcome", "#auth-welcome")
-                await ev("document.querySelector('[data-go=up]').click()")
-                await asyncio.sleep(.6)
-                await audit("建立帳號 #auth-pane", "#auth-pane")
-                await ev("document.getElementById('auth-switch-b').click()")
-                await asyncio.sleep(.6)
-                await audit("登入 #auth-pane", "#auth-pane")
-                await ev("document.documentElement.setAttribute('data-auth','role')")
-                await asyncio.sleep(.6)
-                await audit("身分選擇 #auth-role", "#auth-role")
-            else:
-                report.append(("註冊／登入四屏", "-", "無法開啟", "?auth=1 沒有生效"))
+            left = await ev("!!document.getElementById('auth') || "
+                            "document.documentElement.hasAttribute('data-auth')")
+            if left:
+                report.append(("登入畫面", "-", "沒有移除乾淨", "#auth 或 data-auth 仍存在"))
     finally:
         p.terminate()
 

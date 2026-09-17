@@ -8,7 +8,7 @@
 
 - [DEVLOG.md](DEVLOG.md) —— 開發歷程、重大決策與被推翻的方向
 - [ROADMAP.md](ROADMAP.md) —— 待辦、優化與未解的問題
-- [ARCHITECTURE.md](ARCHITECTURE.md) —— 帳號制與雲端同步的架構設計（設計中，尚未實作）
+- [ARCHITECTURE.md](ARCHITECTURE.md) —— 帳號制與雲端同步的架構設計（**v59 已整個移除**，留作紀錄）
 
 ## 部署
 
@@ -43,8 +43,6 @@ v58 起**不上架商店**，直接發網址。
 
 **綁定業務員的功能已於 v43 取消**（理由見 [DEVLOG](DEVLOG.md#被推翻的方向)）。文案中「有問題找誰」統一走 `who()`，v58 起回傳「我們」—— 客戶一律聯絡 LINE 官方帳號，不指向各自的業務員。
 
-登入後會問一次身分（一般使用者／保險業務員）。**那是使用者自述、未經驗證的，只影響介面，不帶任何資料權限。**
-
 ## 位置
 
 定位後把座標與時間寫進 localStorage（`aa.site.v1`），開啟時復原。**沒有背景定位** —— 只有使用者主動按「重新定位」才會取代，按「關閉」則清除。
@@ -61,15 +59,11 @@ v58 起**不上架商店**，直接發網址。
 
 地址只查一次，存進位置裡。
 
-## 帳號（M2，預設關閉）
+## 沒有帳號
 
-註冊／登入接 Supabase Auth，**直接 `fetch` 打 `/auth/v1/*`，不使用 supabase-js** —— 離線優先、沒有 build step，只為四個 POST 引入 SDK 不划算。專案 URL 與 anon key 在 `index.html` 的 `SUPA`。
+**v59 起移除了歡迎、註冊、登入、身分四屏，以及整段帳號與雲端同步的程式。** App 打開就是現場頁，所有資料只存在手機裡。
 
-> anon key 寫在前端是**設計如此**，安全性完全靠 RLS。不能外流的是 `service_role`，這個專案不使用它。
-
-目前預設關閉：head 腳本裡 `var ON = false`。網址加 `?auth=1` 開啟預覽（會記在本機，`?auth=0` 關掉）。開啟前必須先在 Supabase 後台依序執行 `supabase/001_profiles.sql`、`002_incidents.sql`、`003_role.sql`。
-
-開啟流程**只讀本機旗標 `aa.registered.v1`**，不呼叫任何線上檢查 —— 寫成「先查 session 再決定要不要顯示登入頁」，離線時會卡住。token 過期、續期失敗、離線都不清旗標；只有主動登出才清。
+以前用 `?auth=1` 預覽過的瀏覽器，本機還留著 `aa.authpreview.v1` 等 key，現在沒有任何程式會讀它們，不必清。帳號制的設計與 Supabase schema 留在 [ARCHITECTURE.md](ARCHITECTURE.md) 與 `supabase/` 當紀錄。
 
 ## 事故案件
 
@@ -120,7 +114,6 @@ v58 起**不上架商店**，直接發網址。
 
 110 的紅與 119 的琥珀是**語意色，不跟著品牌走**。
 
-**歡迎／註冊／登入／身分這四屏用的是另一套版型**（v52 起），配色收在 `.auth` 底下一組 `--a-*` 變數裡：淺色寫在 `.auth` 本體，深色由 `:root[data-theme="dark"] .auth` 覆蓋。**跟 App 本體同一個 `data-theme` 來源**，所以「個人 → 外觀」也管得到這四屏。深色的底是中性冷黑 `#151517`，刻意不用 App 偏暖的 `#16130F`。要調這四屏只改那組變數，動不到 App 本體。
 
 淺色與深色的差異全部收在 CSS 變數裡（`:root` 與 `:root[data-theme="dark"]`），元件本身不寫死顏色。要調色只改變數即可。
 
@@ -172,7 +165,7 @@ Google Play 也有類似條款，但對 TWA 的容忍度高很多，因為 TWA �
 index.html      主程式，CSS 與 JS 全部內嵌
 privacy.html    隱私權政策（商店上架必要）
 terms.html      服務條款
-supabase/       資料庫 schema 與 RLS，在 Supabase 後台依序執行
+supabase/       已停用（v59 移除帳號）。帳號制的 schema 與 RLS，留作紀錄
 manifest.json   PWA manifest
 sw.js           service worker，cache-first 快取 app shell
 vercel.json     快取標頭設定
@@ -181,7 +174,6 @@ screenshots/    商店列表與 manifest 用，1080×1920
 tests/          CDP 驗證腳本（手動重跑，見 tests/README.md）
 ```
 
-> 規劃中的帳號制會改變上面幾項：文字資料將同步到雲端，**照片仍然不上傳**。見 [ARCHITECTURE.md](ARCHITECTURE.md)。
 
 ## 免責
 

@@ -620,13 +620,6 @@ body.is-offline .chip-off{display:flex}
 .prof-t .nm.none{color:var(--muted);font-weight:600;font-size:18px}
 .prof-t .sub{font-size:13.5px;color:var(--muted);margin:5px 0 0;line-height:1.5;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.prof-tag{
-  display:inline-flex;align-items:center;gap:5px;margin-top:8px;
-  padding:4px 9px;border-radius:999px;
-  background:var(--head-bg);color:var(--brand);
-  font-size:12.5px;font-weight:600;
-}
-.prof-tag .i{width:13px;height:13px}
 /* 編輯鍵單獨一列、整條可按。跟頭貼擠在同一列的話，兩個目標都會太小 */
 .prof-edit{
   display:flex;align-items:center;justify-content:center;gap:7px;
@@ -754,285 +747,15 @@ a.row-btn{color:inherit;text-decoration:none}
 .case-new:active{transform:scale(.995)}
 
 .set-foot{font-size:13px;color:var(--muted);line-height:1.7;margin:14px 4px 0}
-
-.acc-row{display:flex;align-items:center;gap:14px;padding:15px 18px;min-height:56px}
-.acc-row + .acc-row{border-top:1px solid var(--line-soft)}
-.acc-row .k{flex:0 0 auto;font-size:15px;color:var(--muted)}
-.acc-row .v{flex:1;font-size:15.5px;font-weight:500;text-align:right;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#acc-box .row-btn{border-top:1px solid var(--line-soft)}
-
-/* ── 註冊／登入／歡迎 ──
-   版型來自參考稿 guardy-auth-ui.html（v52），配色是 Guardy 自己的。
-
-   顏色全部收在 .auth 底下一組 --a-* 變數裡，全域的 --bg／--ink／--brand
-   一個都沒動 —— 五個分頁、所有 sheet、設定視窗不受影響。反過來說，要調
-   這四屏也只需要改這一組。
-
-   v53 起跟隨主題：淺色寫在 .auth 本體，深色由 :root[data-theme="dark"]
-   覆蓋。掛 data-theme 的是 <head> 裡那段首次繪製前的腳本，跟 App 本體
-   同一個來源 —— 所以「個人 → 外觀」手動指定淺／深色時，登入流程也會跟著換。
-
-   預設 display:none。由同一段腳本在 <html> 上掛 data-auth="need"
-   才顯示 —— 用 CSS 決定，才不會先閃一下 App 的內容。 */
-.auth{
-  position:fixed;inset:0;z-index:300;
-  display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;
-
-  /* ── 淺色 ── 直接沿用 App 本體那組值，登入完成時的落差最小 */
-  --a-bg:#FAF8F4;
-  --a-deep:#FAF8F4;
-  --a-glow-1:#FFFFFF;
-  --a-glow-2:#FFFFFF;
-  --a-card:#FFFFFF;
-  --a-line:#8C8177;        /* = --chev。在 #FAF8F4 上 3.59:1，過 WCAG 1.4.11 的 3:1 */
-  --a-line-soft:#EDE6DC;   /* 純裝飾的分隔線，不承載資訊，不受 3:1 限制 */
-  --a-txt:#1E1A15;
-  --a-dim:#6E665D;
-  --a-faint:#6E665D;       /* placeholder 是文字，要 4.5:1，不能用 --a-line */
-  /* 強調色就是品牌色 —— 登入說一種顏色、進去說另一種，等於這個 App
-     有兩個品牌色而哪個都不算數。參考稿的螢光黃另外還有一個實際問題：
-     它在色相上緊鄰 119 的琥珀，並存會稀釋那顆警示鍵的意義。 */
-  --a-acc:#237F79;
-  --a-acc-ink:#FFFFFF;
-  --a-acc-soft:rgba(35,127,121,.10);
-
-  background:var(--a-bg);color:var(--a-txt);
-}
-/* ── 深色 ── 參考稿的近黑底。刻意不直接用 App 的 --bg(#16130F)：
-   那是偏暖的棕黑，這四屏要的是中性的冷黑，兩者放在一起才看得出是同一份設計。 */
-:root[data-theme="dark"] .auth{
-  --a-bg:#151517;
-  --a-deep:#0c0c0e;
-  --a-glow-1:#232326;
-  --a-glow-2:#202024;
-  --a-card:#1c1c1f;
-  /* 參考稿的邊線是 #3a3a3e，在 #151517 上只有 1.7:1 —— 底色透明時這條線
-     是唯一能辨識「這裡可以打字」的東西，1.4.11 要 3:1。#6b6b72 是 3.45:1。 */
-  --a-line:#6b6b72;
-  --a-line-soft:#2b2b2f;
-  --a-txt:#f5f5f2;
-  --a-dim:#9a9aa0;
-  --a-faint:#8a8a92;       /* 參考稿的 #6b6b72 當文字只有 3.45:1，不夠 */
-  --a-acc:#5CC7BF;
-  --a-acc-ink:#06201E;
-  --a-acc-soft:rgba(92,199,191,.14);
-}
-:root[data-auth="need"] .auth{display:block}
-/* 已註冊但還沒選身分：同一個全螢幕容器，但只露出身分屏。
-   用 CSS 而不是 JS 切，理由跟上面一樣 —— 已登入的人重開 App 時
-   不該先閃一下歡迎屏才被換成身分屏。 */
-:root[data-auth="role"] .auth{display:block}
-:root[data-auth="role"] #auth-welcome,
-:root[data-auth="role"] #auth-pane{display:none}
-#auth-role{display:none}
-:root[data-auth="role"] #auth-role{display:block}
-
-/* ── 歡迎屏 ──
-   參考稿的 Splash：兩道柔和的光暈打在底色上，中央一枚 Guardy 的盾。
-   淺色時光暈是白的（只會讓底色更亮），深色時是兩塊比底色淺一階的灰 ——
-   兩邊都不會讓上面的文字掉到門檻以下。 */
-.wel{
-  min-height:100%;display:flex;
-  background:
-    radial-gradient(65% 42% at 82% 10%, var(--a-glow-1) 0%, transparent 70%),
-    radial-gradient(70% 46% at 10% 88%, var(--a-glow-2) 0%, transparent 70%),
-    var(--a-deep);
-}
-.wel-in{
-  max-width:480px;margin:0 auto;width:100%;display:flex;flex-direction:column;
-  padding:calc(env(safe-area-inset-top) + 36px) 24px calc(env(safe-area-inset-bottom) + 24px);
-}
-.wel-logo{display:flex;justify-content:center}
-.wel-logo img{width:100px;height:112px;display:block;object-fit:contain}
-.wel-logo .pulse{animation:wel-pulse 2.6s ease-in-out infinite;transform-origin:center}
-@keyframes wel-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-@media (prefers-reduced-motion:reduce){.wel-logo .pulse{animation:none}}
-
-.wel-brand{text-align:center;margin-top:24px}
-.wel-brand h1{font-size:30px;font-weight:800;letter-spacing:.01em;margin:0;color:var(--a-txt)}
-.wel-brand h1 span{display:block;font-size:14px;font-weight:600;letter-spacing:.28em;
-  color:var(--a-acc);margin-top:9px}
-.wel-brand p{font-size:13px;color:var(--a-dim);line-height:1.75;margin:12px auto 0;max-width:20em}
-
-/* 三個賣點改成卡片列 —— 深色底下，單純的圖示＋文字會散掉，
-   要有一個實體的框把它們收成三個等重的單位 */
-.wel-feats{margin-top:30px;display:flex;flex-direction:column;gap:12px}
-.wel-feat{display:flex;align-items:center;gap:14px;
-  padding:14px 16px;background:var(--a-card);
-  border:1px solid var(--a-line-soft);border-radius:20px}
-.wel-feat .ic{flex:0 0 40px;height:40px;border-radius:50%;
-  background:var(--a-acc-soft);color:var(--a-acc);
-  display:flex;align-items:center;justify-content:center}
-.wel-feat .ic .i{width:20px;height:20px}
-.wel-feat .t{flex:1;font-size:12.5px;color:var(--a-dim);line-height:1.6}
-.wel-feat .t b{display:block;font-size:15px;font-weight:700;color:var(--a-txt);margin-bottom:2px}
-
-.wel-cta{margin-top:28px;display:flex;flex-direction:column;gap:12px}
 .btn-outline2{
   display:flex;align-items:center;justify-content:center;
   width:100%;min-height:54px;border-radius:999px;background:transparent;
   font-size:15px;font-weight:700;transition:transform .12s ease;
 }
 .btn-outline2:active{transform:scale(.98)}
-/* 配色只套在 .wel-cta 底下 —— btn-primary 是共用類別，
-   不限定範圍的話，五個分頁與各個 sheet 的按鈕會一起變成螢光黃。 */
-.wel-cta .btn-primary{
-  min-height:54px;border-radius:999px;font-size:15px;font-weight:700;
-  background:var(--a-acc);color:var(--a-acc-ink);
-}
-.wel-cta .btn-outline2{border:1px solid var(--a-line);color:var(--a-txt)}
+.av-del{min-height:44px;padding:0 4px;margin-top:8px;display:flex;align-items:center;
+  font-size:12.5px;font-weight:700;color:var(--red)}
 
-.wel-terms{text-align:center;font-size:12px;color:var(--a-dim);line-height:1.7;margin:14px 0 0}
-/* 「繼續即表示…」與連結分成兩行：連結各自要有 44px 的可點高度，
-   跟說明文字排在同一行會把行高撐得很奇怪。 */
-.wel-terms .lead{display:block;margin:0 0 -6px}
-.wel-terms a{display:inline-block;padding:12px 8px;color:var(--a-acc);
-  text-decoration:underline;text-underline-offset:2px}
-
-/* ── 表單屏與身分屏共用的外殼 ──
-   圓形返回鈕（絕對定位在左上）、置中的品牌鎖件、置中的大標與副標、
-   一疊膠囊欄位、一顆螢光黃膠囊主鍵。 */
-.auth-head{
-  position:relative;
-  padding:calc(env(safe-area-inset-top) + 14px) 22px 0;
-  text-align:center;
-}
-/* 返回鈕壓在標題列上，不佔文件流 —— 佔了的話標題就不會真的置中 */
-.auth-back{
-  position:absolute;top:calc(env(safe-area-inset-top) + 10px);left:16px;
-  width:44px;height:44px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  background:var(--a-card);border:1px solid var(--a-line-soft);
-  color:var(--a-txt);z-index:2;
-}
-.auth-back .i{width:19px;height:19px;fill:none;stroke:currentColor;
-  stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-
-.auth-brand{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px}
-.auth-brand img{width:26px;height:26px;display:block;flex-shrink:0}
-.auth-brand span{font-size:21px;font-weight:600;color:var(--a-txt);letter-spacing:.02em}
-
-.auth h1{font-size:22px;font-weight:800;line-height:1.35;margin:24px 0 0;color:var(--a-txt)}
-.auth-sub{font-size:12.5px;color:var(--a-dim);line-height:1.6;margin:8px auto 0;max-width:22em}
-
-.auth-in{max-width:440px;margin:0 auto;width:100%;
-  padding:22px 22px calc(env(safe-area-inset-bottom) + 28px)}
-
-/* 參考稿沒有卡片，表單直接躺在底色上。把原本的卡片背景與邊框拿掉，
-   間距改由 gap 統一控制。 */
-.auth-card{
-  background:transparent;border:0;border-radius:0;padding:0;
-  display:flex;flex-direction:column;gap:16px;
-}
-
-/* ── 缺口標籤的膠囊欄位 ──
-   標籤固定壓在上框線上（不是聚焦才浮起來的動畫）—— 這樣「這一格要填什麼」
-   在還沒點進去、也還沒輸入任何字的時候就看得到，placeholder 則單純示範格式。
-   標籤靠一小塊與底色同色的底把框線蓋掉，做出缺口。 */
-.fld{position:relative}
-.fld input{
-  width:100%;min-height:54px;
-  padding:15px 18px 15px 46px;
-  /* 參考稿是 13px，不能照抄 —— iOS 在小於 16px 的輸入框上會自動放大整頁 */
-  font-size:16px;
-  background:transparent;color:var(--a-txt);
-  border:1px solid var(--a-line);border-radius:999px;
-}
-.fld.has-eye input{padding-right:52px}
-.fld input::placeholder{color:var(--a-faint)}
-.fld input:focus{outline:none;border-color:var(--a-acc)}
-.fld label{
-  position:absolute;top:-8px;left:20px;z-index:2;
-  padding:0 7px;background:var(--a-bg);
-  font-size:12.5px;font-weight:600;color:var(--a-txt);
-  pointer-events:none;
-}
-.fld input:focus ~ label{color:var(--a-acc)}
-.fld .fic{
-  position:absolute;left:17px;top:50%;transform:translateY(-50%);
-  color:var(--a-faint);pointer-events:none;display:flex;
-}
-.fld .fic .i{width:18px;height:18px}
-/* 眼睛是真的按鈕，要湊足 44px 可觸控 */
-.fld .eye{
-  position:absolute;right:5px;top:50%;transform:translateY(-50%);
-  width:44px;height:44px;display:flex;align-items:center;justify-content:center;
-  color:var(--a-faint);
-}
-.fld .eye .i{width:19px;height:19px}
-
-/* 忘記密碼靠右 */
-.auth-row{display:flex;justify-content:flex-end;margin:-8px 0 -4px}
-.auth-link{min-height:44px;padding:0 4px;display:flex;align-items:center;
-  font-size:12.5px;font-weight:700;color:var(--a-acc)}
-
-/* 用 App 自己那組 --red：它本來就有淺／深兩套值，跟著主題翻，
-   不必在這裡再養一組平行的紅色 */
-.auth-err{
-  font-size:13.5px;color:var(--red);line-height:1.6;margin:0;
-  padding:12px 14px;background:var(--red-bg);
-  border:1px solid var(--red-line);border-radius:16px;
-}
-.auth-card .btn-primary{
-  min-height:54px;border-radius:999px;font-size:15px;font-weight:700;
-  background:var(--a-acc);color:var(--a-acc-ink);margin-top:4px;
-}
-
-/* 底部切換：一句「還沒有帳號？建立帳號」講清楚這是同一個表單的兩種模式 */
-.auth-switch{text-align:center;font-size:13px;color:var(--a-dim);margin:26px 0 0}
-.auth-switch button{
-  /* 「登入」只有兩個字，不給 min-width 的話寬度是 41px，差一點點 */
-  min-width:44px;min-height:44px;padding:0 6px;
-  font-size:13px;font-weight:800;color:var(--a-txt);
-  text-decoration:underline;text-underline-offset:3px;
-}
-.auth-foot{font-size:12px;color:var(--a-dim);line-height:1.7;
-  margin:14px auto 0;max-width:24em;text-align:center}
-
-/* 身分屏的說明文字 */
-.auth-hint{font-size:12.5px;color:var(--a-dim);line-height:1.65;margin:-10px 0 18px}
-.auth-hint strong{color:var(--a-txt)}
-
-/* ── 身分選擇 ──
-   兩張大卡而不是下拉選單。這個選擇只出現一次，值得佔版面把
-   「選了會怎樣」講清楚；下拉選單只能塞得下兩個詞。 */
-.role-list{display:flex;flex-direction:column;gap:12px;margin-bottom:6px}
-.role-opt{
-  display:flex;align-items:flex-start;gap:14px;text-align:left;width:100%;
-  padding:18px 16px;background:var(--card);
-  border:1.5px solid var(--line);border-radius:var(--r-md);
-  transition:border-color .12s ease, background .12s ease;
-}
-.role-opt .ic{flex:0 0 44px;height:44px;border-radius:50%;
-  background:var(--head-bg);color:var(--brand);
-  display:flex;align-items:center;justify-content:center}
-.role-opt .ic .i{width:22px;height:22px}
-.role-opt .t{flex:1;font-size:13.5px;color:var(--muted);line-height:1.6}
-.role-opt .t b{display:block;font-size:17px;font-weight:600;color:var(--ink);
-  margin-bottom:3px}
-/* 選中的狀態不能只靠邊框顏色 —— 對色覺障礙者那等於沒有回饋。
-   同時上邊框、底色與一個打勾，三個訊號。 */
-.role-opt[aria-pressed="true"]{border-color:var(--brand);background:var(--head-bg)}
-.role-opt .tick{flex:0 0 22px;height:22px;margin-top:11px;border-radius:50%;
-  border:1.5px solid var(--chev);display:flex;align-items:center;justify-content:center}
-.role-opt .tick .i{width:14px;height:14px;opacity:0}
-.role-opt[aria-pressed="true"] .tick{background:var(--brand);border-color:var(--brand)}
-.role-opt[aria-pressed="true"] .tick .i{opacity:1;color:var(--solid-fg)}
-#role-go{margin-top:22px;min-height:56px;border-radius:999px;font-size:17px}
-#role-go:disabled{opacity:.45}
-/* 身分屏在 .auth 這個深色殼裡，上面那組用的是全域的淺色變數，
-   套進來會變成白卡片配深字。這裡只換顏色，版型完全沿用。 */
-.auth .role-opt{background:var(--a-card);border:1px solid var(--a-line-soft);border-radius:20px}
-.auth .role-opt .ic{background:var(--a-acc-soft);color:var(--a-acc)}
-.auth .role-opt .t{font-size:12.5px;color:var(--a-dim)}
-.auth .role-opt .t b{font-size:15px;font-weight:700;color:var(--a-txt)}
-.auth .role-opt[aria-pressed="true"]{border-color:var(--a-acc);background:rgba(92,199,191,.09)}
-.auth .role-opt .tick{border-color:var(--a-line)}
-.auth .role-opt[aria-pressed="true"] .tick{background:var(--a-acc);border-color:var(--a-acc)}
-.auth .role-opt[aria-pressed="true"] .tick .i{color:var(--a-acc-ink)}
-.auth #role-go{min-height:54px;border-radius:999px;font-size:15px;font-weight:700;
-  background:var(--a-acc);color:var(--a-acc-ink)}
 
 /* 空白狀態：App 內部仍然握著一個案件，但那是實作需求，不該讓使用者
    在列表裡看到一列「未記錄地點」—— 那看起來就像剛才根本沒刪掉。 */
@@ -1368,38 +1091,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   apply();
 })();
 
-/* ── 帳號：是否顯示註冊／登入畫面 ──
-   跟主題一樣必須在首次繪製前決定，否則未註冊的使用者會先閃一下 App 內容。
-
-   離線鐵則第 2 條：「曾經註冊過」是一個本機旗標，一旦為真就永遠正常開啟。
-   這裡**只讀 localStorage**，不做任何網路判斷 —— 絕對不要寫成
-   「先 getSession() 再決定要不要顯示登入頁」，那在離線時會卡住。
-
-   M1 還沒有後端，預設關閉；網址加 ?auth=1 可以先試。
-   接上 Supabase（M2）之前不要打開，否則使用者會以為自己註冊了帳號。 */
-(function(){
-  var ON = false;                              /* ← M2 接好後改成 true */
-  /* ?auth=1 會記在本機。加到主畫面之後沒辦法再補 query，
-     而且離線測試必須用乾淨網址（cache-first 是按完整網址比對，
-     帶了 ?t=... 就讀不到快取）。 */
-  try{
-    if (/[?&]auth=1\b/.test(location.search)) localStorage.setItem('aa.authpreview.v1', '1');
-    if (/[?&]auth=0\b/.test(location.search)) localStorage.removeItem('aa.authpreview.v1');
-    if (localStorage.getItem('aa.authpreview.v1') === '1') ON = true;
-  }catch(e){}
-  var registered = false, role = '';
-  try{
-    registered = localStorage.getItem('aa.registered.v1') === '1';
-    role = localStorage.getItem('aa.role.v1') || '';
-  }catch(e){}
-  window.__auth = { on:ON, registered:registered, role:role };
-  /* 三種狀態，順序不能反：沒註冊 → 註冊屏；註冊了但沒選身分 → 身分屏。
-     身分同樣只讀本機 —— 選過一次就永遠不再問，離線也一樣。 */
-  if (ON){
-    if (!registered) document.documentElement.setAttribute('data-auth', 'need');
-    else if (!role)  document.documentElement.setAttribute('data-auth', 'role');
-  }
-})();
 </script>
 </head>
 <body>
@@ -1439,10 +1130,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 <symbol id="ic-doc" viewBox="0 0 24 24"><path d="M13.4 3.6H7.2c-.9 0-1.6.7-1.6 1.6v13.6c0 .9.7 1.6 1.6 1.6h9.6c.9 0 1.6-.7 1.6-1.6V8.4Z"/><path d="M13.4 3.6v4.8h5"/><path d="M8.8 13.2h6.4M8.8 16.4h4.2"/></symbol>
 <symbol id="ic-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M12 7.4v9.2M14.4 9.6c-.5-.6-1.4-1-2.4-1-1.5 0-2.5.7-2.5 1.8s.9 1.5 2.5 1.8c1.6.3 2.5.7 2.5 1.8s-1 1.8-2.5 1.8c-1 0-1.9-.4-2.4-1"/></symbol>
 <!-- 表單欄位用。原本的圖示庫是照事故流程挑的，沒有信封／鎖／眼睛 -->
-<symbol id="ic-mail" viewBox="0 0 24 24"><rect x="3.2" y="5.4" width="17.6" height="13.2" rx="2.6"/><path d="m4.4 7.4 6.5 4.8c.7.5 1.5.5 2.2 0l6.5-4.8"/></symbol>
-<symbol id="ic-lock" viewBox="0 0 24 24"><rect x="4.6" y="10.4" width="14.8" height="9.6" rx="2.6"/><path d="M8.2 10.4V7.8a3.8 3.8 0 0 1 7.6 0v2.6"/><circle cx="12" cy="15.2" r="1.15" fill="currentColor" stroke="none"/></symbol>
-<symbol id="ic-eye" viewBox="0 0 24 24"><path d="M2.6 12S6.4 5.9 12 5.9 21.4 12 21.4 12 17.6 18.1 12 18.1 2.6 12 2.6 12Z"/><circle cx="12" cy="12" r="2.9"/></symbol>
-<symbol id="ic-eye-off" viewBox="0 0 24 24"><path d="M9.6 6.4A9 9 0 0 1 12 6.1c5.6 0 9.4 5.9 9.4 5.9a17 17 0 0 1-3 3.6M6.6 7.8A17 17 0 0 0 2.6 12s3.8 5.9 9.4 5.9a8.9 8.9 0 0 0 3.4-.7"/><path d="M10 10a2.9 2.9 0 0 0 4 4"/><path d="m4.4 4.4 15.2 15.2"/></symbol>
 </svg>
 
 <!-- 離線標示：只在斷線時浮出，是「地圖鍵為什麼不能按」的唯一解釋 -->
@@ -1724,7 +1411,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
             <div class="prof-t">
               <p class="nm none" id="prof-name">還沒設定名字</p>
               <p class="sub" id="prof-sub"></p>
-              <span class="prof-tag" id="prof-tag" hidden></span>
             </div>
           </div>
           <button class="prof-edit" id="prof-edit">
@@ -1885,137 +1571,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   </div>
 </div>
 
-<!-- 註冊／登入。只在「本機旗標為否」時顯示，顯示與否在首次繪製前就決定好了 -->
-<div class="auth" id="auth" role="dialog" aria-modal="true" aria-labelledby="auth-h">
-
-  <!-- ── 歡迎屏：先講這個 App 是什麼，再要人填表 ── -->
-  <div class="wel" id="auth-welcome">
-    <div class="wel-in">
-      <!-- 純裝飾，alt 留空。它下面就是「Guardy」與三行說明，
-           讀螢幕的人不需要再聽一次盾牌的描述。
-           width/height 是為了讓瀏覽器先留好位置，圖載進來時版面不會跳。 -->
-      <div class="wel-logo">
-        <img class="pulse" src="icons/logo-mark.png" alt=""
-             width="340" height="380" decoding="async">
-      </div>
-
-      <div class="wel-brand">
-        <h1 id="auth-h2">Guardy<span>守護你</span></h1>
-        <p>事故發生時，我陪你一步一步處理。</p>
-      </div>
-
-      <div class="wel-feats">
-        <div class="wel-feat">
-          <span class="ic"><svg class="i"><use href="#ic-pin"/></svg></span>
-          <span class="t"><b>快速定位</b>一鍵記下事故地點，報案與救援都用得上</span>
-        </div>
-        <div class="wel-feat">
-          <span class="ic"><svg class="i"><use href="#ic-check"/></svg></span>
-          <span class="t"><b>引導流程</b>清楚的步驟，帶你處理現場大小事</span>
-        </div>
-        <div class="wel-feat">
-          <span class="ic"><svg class="i"><use href="#ic-phone"/></svg></span>
-          <span class="t"><b>出險與求償</b>一站式處理理賠、調解與應備文件</span>
-        </div>
-      </div>
-
-      <div class="wel-cta">
-        <button class="btn-primary" data-go="up">建立帳號</button>
-        <button class="btn-outline2" data-go="in">登入</button>
-      </div>
-
-      <p class="wel-terms">
-        <span class="lead">繼續即表示你同意 Guardy 的</span>
-        <a href="terms.html">服務條款</a><span>與</span><a href="privacy.html">隱私權政策</a>
-      </p>
-    </div>
-  </div>
-
-  <!-- ── 表單屏 ── -->
-  <div id="auth-pane" hidden>
-    <div class="auth-head">
-      <button class="auth-back" id="auth-back" aria-label="返回">
-        <svg class="i" viewBox="0 0 24 24"><path d="M15 5.5 8.5 12l6.5 6.5"/></svg>
-      </button>
-      <div class="auth-brand">
-        <img src="icons/mark.png" alt="" width="26" height="26">
-        <span>Guardy</span>
-      </div>
-      <h1 id="auth-h">先建立帳號</h1>
-      <p class="auth-sub" id="auth-sub">事故紀錄會綁在你的帳號上，換手機也找得回來。</p>
-    </div>
-
-    <div class="auth-in">
-      <form class="auth-card" id="auth-form" novalidate>
-        <div class="fld">
-          <span class="fic"><svg class="i"><use href="#ic-mail"/></svg></span>
-          <input type="email" id="auth-email" inputmode="email" autocomplete="email"
-                 autocapitalize="off" spellcheck="false" placeholder="you@example.com">
-          <label for="auth-email">電子郵件</label>
-        </div>
-
-        <div class="fld has-eye">
-          <span class="fic"><svg class="i"><use href="#ic-lock"/></svg></span>
-          <input type="password" id="auth-pw" autocomplete="new-password" placeholder="至少 8 個字元">
-          <label for="auth-pw">密碼</label>
-          <button type="button" class="eye" id="auth-eye" aria-label="顯示密碼" aria-pressed="false">
-            <svg class="i"><use href="#ic-eye" id="auth-eye-use"/></svg>
-          </button>
-        </div>
-
-        <div class="auth-row">
-          <button type="button" class="auth-link" id="auth-forgot" hidden>忘記密碼？</button>
-        </div>
-
-        <p class="auth-err" id="auth-err" hidden></p>
-        <button type="submit" class="btn-primary" id="auth-go">建立帳號</button>
-      </form>
-
-      <p class="auth-switch" id="auth-switch">
-        <span id="auth-switch-t">已經有帳號了？</span>
-        <button type="button" id="auth-switch-b">登入</button>
-      </p>
-
-      <p class="auth-foot" id="auth-foot"></p>
-    </div>
-  </div>
-
-  <!-- ── 身分屏 ──
-       登入成功之後才問。放在歡迎屏會變成「還沒用過就要先自我分類」，
-       那時候使用者根本不知道選了會發生什麼事。 -->
-  <div id="auth-role">
-    <div class="auth-head">
-      <div class="auth-brand">
-        <img src="icons/mark.png" alt="" width="26" height="26">
-        <span>Guardy</span>
-      </div>
-      <h1>你的身分是？</h1>
-      <p class="auth-sub">兩種身分都能完整使用事故處理功能，之後可以在設定裡隨時更改。</p>
-    </div>
-
-    <div class="auth-in">
-      <div class="role-list" id="role-list">
-        <button type="button" class="role-opt" data-role="user" aria-pressed="false">
-          <span class="ic"><svg class="i"><use href="#ic-person"/></svg></span>
-          <span class="t"><b>一般使用者</b>我為自己或家人使用 Guardy</span>
-          <span class="tick"><svg class="i"><use href="#ic-check"/></svg></span>
-        </button>
-        <button type="button" class="role-opt" data-role="agent" aria-pressed="false">
-          <span class="ic"><svg class="i"><use href="#ic-id"/></svg></span>
-          <span class="t"><b>保險業務員</b>我在保險業服務，也想用它協助客戶</span>
-          <span class="tick"><svg class="i"><use href="#ic-check"/></svg></span>
-        </button>
-      </div>
-
-      <p class="auth-hint" style="margin:14px 0 22px">
-        選「保險業務員」<strong>不會</strong>讓你看到任何客戶的資料。Guardy 沒有後台，
-        每一筆事故紀錄都只有本人看得到。目前業務員專屬功能還在製作中。
-      </p>
-
-      <button type="button" class="btn-primary" id="role-go" disabled>繼續</button>
-    </div>
-  </div>
-</div>
 
 <!-- 設定：獨立視窗。從「現場」頁首的齒輪進來，不佔分頁列的位置 -->
 <div class="sheet" id="set-sheet" role="dialog" aria-modal="true" aria-label="設定">
@@ -2025,11 +1580,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   </div>
   <div class="sheet-scroll">
     <div class="sheet-inner">
-      <div class="blk" id="acc-blk" hidden>
-        <p class="sec-label"><svg class="i"><use href="#ic-person"/></svg>帳號</p>
-        <div class="card" id="acc-box"></div>
-      </div>
-
       <div class="blk">
         <p class="sec-label"><svg class="i"><use href="#ic-camera"/></svg>這件事故</p>
         <div class="card">
@@ -2049,7 +1599,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
         <div class="card" style="margin-top:12px">
           <p class="storage" id="storage-info"></p>
         </div>
-        <p class="set-foot" id="sync-line" hidden></p>
       </div>
 
       <div class="blk">
@@ -2074,7 +1623,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
             <span class="t">隱私權政策</span><span class="ar">›</span>
           </a>
         </div>
-        <p class="set-foot" id="privacy-line"></p>
+        <p class="set-foot" id="privacy-line">事故資料與照片只存在這支手機裡，不會上傳任何地方。</p>
       </div>
     </div>
   </div>
@@ -2143,14 +1692,12 @@ function writeCase(){
   rawSave(caseKey(cases.cur), caseData);
   touchCase(cases.cur);
 }
-/* 任何一次寫入都要記下「本機最後編輯時間」。同步用它跟伺服器比新舊，
-   沒有它就只能比「誰比較晚送達」—— 離線幾天後補送的舊資料會蓋掉新的。 */
+/* 記下案件最後編輯時間 */
 function touchCase(id){
   var e = caseById(id);
   if (!e) return;
   e.up = Date.now();
   rawSave(LS_CASES, cases);
-  if (typeof syncSoon === 'function') syncSoon();
 }
 function curCaseId(){ return cases ? cases.cur : ''; }
 function caseById(id){
@@ -2226,676 +1773,6 @@ $('ask-yes').addEventListener('click', function(){ askClose(true); });
 /* 點背景關閉，等同取消 */
 $('ask').addEventListener('click', function(e){ if (e.target === this) askClose(false); });
 
-/* =========================================================
-   帳號（M1：只有骨架，沒有後端）
-   ---------------------------------------------------------
-   這一段刻意只碰 localStorage。整個註冊流程**沒有任何網路請求** ——
-   不是因為做不到，是因為 M1 要先把離線行為驗證到滿意。
-   接了真後端之後只有 submitAuth() 需要改，畫面與開啟流程都不必動。
-
-   離線鐵則（ARCHITECTURE 第二節）在這裡的體現：
-   - 開啟時只讀本機旗標，不呼叫 getSession()
-   - 旗標只在使用者主動登出時清除；token 過期、續期失敗、離線都不清
-   ========================================================= */
-/* Supabase。anon key 是**設計上就要公開**的，靠 RLS 擋，不是祕密。
-   service_role key 永遠不會出現在這個檔案裡 —— 它繞過所有 RLS。 */
-var SUPA = {
-  url: 'https://hujiiaqlbuwzfdfxqqfq.supabase.co',
-  key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9' +
-       '.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1amlpYXFsYnV3emZkZnhxcWZxIiwicm9sZSI6ImFub24i' +
-       'LCJpYXQiOjE3ODU0MTQwNzEsImV4cCI6MjEwMDk5MDA3MX0' +
-       '.WGqbTNevErZQfHUAvw8EbzEAie7vANstAbgVhEmGtdY'
-};
-
-var LS_REG = 'aa.registered.v1', LS_ACC = 'aa.account.v1', LS_SESS = 'aa.session.v1';
-
-/* 刻意不用 supabase-js。這裡只需要四個 POST，而引入 SDK 要付的代價是：
-   多一個要塞進 service worker 快取的檔案、多一份要跟著更新的依賴，
-   而這個 App 的第一原則是「離線可用、沒有 build step」。 */
-function supaReq(method, path, body, token, extraHeaders){
-  var ctrl = (typeof AbortController === 'function') ? new AbortController() : null;
-  var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, 15000) : null;
-  var headers = { 'apikey': SUPA.key, 'Content-Type': 'application/json' };
-  if (token) headers['Authorization'] = 'Bearer ' + token;
-  if (extraHeaders) for (var k in extraHeaders) headers[k] = extraHeaders[k];
-
-  var init = { method: method, headers: headers, signal: ctrl ? ctrl.signal : undefined };
-  if (body != null) init.body = JSON.stringify(body);
-
-  return fetch(SUPA.url + path, init).then(function(res){
-    if (timer) clearTimeout(timer);
-    return res.text().then(function(t){
-      var j = null;
-      try{ j = t ? JSON.parse(t) : null; }catch(e){}
-      return { ok: res.ok, status: res.status, body: j };
-    });
-  }, function(err){
-    if (timer) clearTimeout(timer);
-    throw err;
-  });
-}
-
-function supaFetch(path, body, token){
-  var ctrl = (typeof AbortController === 'function') ? new AbortController() : null;
-  /* 沒有逾時的話，訊號差的時候按鈕會一直轉，使用者不知道發生什麼事 */
-  var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, 15000) : null;
-  var headers = { 'apikey': SUPA.key, 'Content-Type': 'application/json' };
-  if (token) headers['Authorization'] = 'Bearer ' + token;
-
-  return fetch(SUPA.url + path, {
-    method: 'POST', headers: headers,
-    body: JSON.stringify(body || {}),
-    signal: ctrl ? ctrl.signal : undefined
-  }).then(function(res){
-    if (timer) clearTimeout(timer);
-    return res.text().then(function(t){
-      var j = null;
-      try{ j = t ? JSON.parse(t) : null; }catch(e){}
-      return { ok: res.ok, status: res.status, body: j };
-    });
-  }, function(err){
-    if (timer) clearTimeout(timer);
-    throw err;
-  });
-}
-
-/* Supabase 的錯誤訊息是英文，而且對一般人沒有意義。
-   只翻譯我們真的會遇到的那幾種，其餘給一句誠實的通則。 */
-function authMsg(r){
-  var b = r.body || {};
-  var code = b.error_code || b.code || '';
-  var msg = (b.msg || b.error_description || b.message || b.error || '') + '';
-  if (r.status === 0) return '連不上伺服器，請確認網路後再試一次。';
-  if (code === 'invalid_credentials' || /invalid login/i.test(msg))
-    return '電子郵件或密碼不對。';
-  if (code === 'email_not_confirmed' || /email not confirmed/i.test(msg))
-    return '這個信箱還沒完成確認，請先收信點開確認連結。';
-  if (code === 'user_already_exists' || /already registered|already been registered/i.test(msg))
-    return '這個信箱已經註冊過了，請改用「我已經有帳號」登入。';
-  if (code === 'weak_password' || /password should be/i.test(msg))
-    return '密碼強度不足，請換一組長一點的。';
-  if (code === 'over_email_send_rate_limit' || r.status === 429)
-    return '嘗試次數太多，請等幾分鐘再試。';
-  if (code === 'signup_disabled') return '目前暫停開放註冊。';
-  return msg ? ('無法完成：' + msg) : '無法完成，請稍後再試一次。';
-}
-
-function saveSession(s){
-  if (!s || !s.access_token) return null;
-  var sess = {
-    access_token: s.access_token,
-    refresh_token: s.refresh_token,
-    /* expires_in 是秒數。存成絕對時間，重開 App 才算得出還剩多久 */
-    expires_at: Date.now() + (s.expires_in || 3600) * 1000,
-    user: { id: (s.user || {}).id || '', email: (s.user || {}).email || '' }
-  };
-  rawSave(LS_SESS, sess);
-  return sess;
-}
-function session(){ return rawLoad(LS_SESS); }
-
-/* 靜默續期（離線鐵則第 1、4 條）。
-   失敗**一律不做任何事** —— 不清旗標、不跳登入頁、不顯示錯誤。
-   token 過期不等於登出；下次有網路再試就好。 */
-function refreshSession(){
-  var s = session();
-  if (!s.refresh_token || !navigator.onLine) return Promise.resolve(false);
-  if (s.expires_at && s.expires_at - Date.now() > 5 * 60 * 1000) return Promise.resolve(true);
-  return supaFetch('/auth/v1/token?grant_type=refresh_token',
-                   { refresh_token: s.refresh_token })
-    .then(function(r){
-      if (r.ok && r.body && r.body.access_token){ saveSession(r.body); return true; }
-      return false;
-    })
-    .catch(function(){ return false; });
-}
-
-function isRegistered(){
-  try{ return localStorage.getItem(LS_REG) === '1'; }catch(e){ return false; }
-}
-function account(){ return rawLoad(LS_ACC); }
-
-/* ── 身分 ──
-   **這是使用者自己宣告的，沒有經過任何驗證。** 任何人都可以點「保險業務員」。
-   所以它只准影響「看到什麼介面」，絕不能拿來決定「讀得到什麼資料」——
-   一旦有一條 RLS 政策長成 `role = 'agent'`，等於把後台送給所有人。
-   incidents 與 profiles 的權限規則到今天為止都還是 auth.uid() = 本人，
-   加這個欄位沒有動到其中任何一條。 */
-var LS_ROLE = 'aa.role.v1';
-var ROLES = { user:'一般使用者', agent:'保險業務員' };
-
-function myRole(){
-  try{ var r = localStorage.getItem(LS_ROLE); return ROLES[r] ? r : ''; }catch(e){ return ''; }
-}
-function setRole(r){
-  if (!ROLES[r]) return false;
-  try{ localStorage.setItem(LS_ROLE, r); }catch(e){ return false; }
-  (window.__auth || {}).role = r;
-  pushRole(r);
-  return true;
-}
-/* 寫到雲端只是為了換手機時帶得回來，失敗完全不影響本機。
-   離線鐵則第 3 條：這一行不在任何核心路徑上。 */
-function pushRole(r){
-  var s = session();
-  if (!(window.__auth || {}).on || !navigator.onLine) return;
-  if (!s.access_token || !s.user || !s.user.id) return;
-  supaReq('PATCH', '/rest/v1/profiles?id=eq.' + encodeURIComponent(s.user.id),
-          { role: r }, s.access_token, { Prefer:'return=minimal' })
-    .catch(function(){});
-}
-
-(function initAuth(){
-  var cfg = window.__auth || { on:false, registered:false };
-  if (!cfg.on || cfg.registered) return;      /* 已註冊或功能關閉 → 什麼都不做 */
-
-  var mode = 'up';                            /* up = 建立帳號、in = 登入 */
-  var err = $('auth-err');
-
-  function paint(){
-    var up = mode === 'up';
-    $('auth-h').textContent = up ? '建立帳號' : '登入 Guardy';
-    $('auth-sub').textContent = up
-      ? '事故紀錄會綁在你的帳號上，換手機也找得回來。'
-      : '歡迎回來。登入後就能取回你所有的事故紀錄。';
-    $('auth-go').textContent = up ? '建立帳號' : '登入';
-    $('auth-pw').setAttribute('autocomplete', up ? 'new-password' : 'current-password');
-    $('auth-pw').setAttribute('placeholder', up ? '至少 8 個字元' : '輸入你的密碼');
-    /* 忘記密碼只在登入模式出現。註冊時還沒有密碼可以忘 */
-    $('auth-forgot').hidden = up;
-    $('auth-switch-t').textContent = up ? '已經有帳號了？' : '還沒有帳號？';
-    $('auth-switch-b').textContent = up ? '登入' : '建立帳號';
-    err.hidden = true;
-    updateNet();                      /* 底部說明也跟著模式換 */
-  }
-  $('auth-switch-b').addEventListener('click', function(){
-    mode = (mode === 'up') ? 'in' : 'up';
-    paint();
-    $('auth').scrollTop = 0;
-  });
-
-  /* 密碼顯示切換。type 換掉之後焦點會掉，補回去 —— 不然使用者按完眼睛
-     還要再點一次輸入框才能繼續打字。 */
-  $('auth-eye').addEventListener('click', function(){
-    var i = $('auth-pw'), show = i.type === 'password';
-    i.type = show ? 'text' : 'password';
-    this.setAttribute('aria-pressed', show ? 'true' : 'false');
-    this.setAttribute('aria-label', show ? '隱藏密碼' : '顯示密碼');
-    $('auth-eye-use').setAttribute('href', show ? '#ic-eye-off' : '#ic-eye');
-    i.focus();
-  });
-
-  /* 歡迎屏 → 表單。哪一顆按進來，就決定表單的初始模式 */
-  function showPane(m){
-    mode = m;
-    $('auth-welcome').hidden = true;
-    $('auth-pane').hidden = false;
-    $('auth').scrollTop = 0;
-    paint();
-  }
-  $('auth-welcome').addEventListener('click', function(e){
-    var b = e.target.closest('[data-go]');
-    if (b) showPane(b.dataset.go);
-  });
-  $('auth-back').addEventListener('click', function(){
-    $('auth-pane').hidden = true;
-    $('auth-welcome').hidden = false;
-    $('auth').scrollTop = 0;
-    err.hidden = true;
-  });
-
-  function fail(msg){ err.textContent = msg; err.hidden = false; }
-
-  $('auth-form').addEventListener('submit', function(e){
-    e.preventDefault();
-    var email = $('auth-email').value.trim();
-    var pw = $('auth-pw').value;
-
-    /* 自己驗，不靠瀏覽器的原生提示 —— 那些氣泡在各家瀏覽器長得都不一樣，
-       而且無法翻成中文。 */
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ fail('請輸入正確的電子郵件。'); return; }
-    if (pw.length < 8){ fail('密碼至少要 8 個字元。'); return; }
-
-    var btn = $('auth-go');
-    btn.disabled = true;
-    btn.textContent = mode === 'up' ? '建立中…' : '登入中…';
-    err.hidden = true;
-
-    var req = mode === 'up'
-      ? supaFetch('/auth/v1/signup', { email: email, password: pw })
-      : supaFetch('/auth/v1/token?grant_type=password',
-                  { email: email, password: pw });
-
-    req.then(function(r){
-      if (!r.ok){ fail(authMsg(r)); return; }
-      var b = r.body || {};
-
-      /* 專案若開著「確認信」，註冊回來的是使用者資料但**沒有 session**。
-         這時候還不能算註冊完成 —— 旗標一旦寫下去，下次開啟就直接進 App，
-         但實際上他還登不進來。誠實一點，停在「去收信」。 */
-      if (mode === 'up' && !b.access_token){
-        showConfirmSent(email);
-        return;
-      }
-
-      var sess = saveSession(b);
-      if (!sess){ fail('登入回應不完整，請再試一次。'); return; }
-
-      try{
-        localStorage.setItem(LS_REG, '1');
-        rawSave(LS_ACC, { email: sess.user.email || email, at: Date.now() });
-      }catch(e2){
-        fail('這支手機的儲存空間無法寫入，請確認沒有在無痕模式。'); return;
-      }
-      toast(mode === 'up' ? '帳號已建立' : '已登入');
-      renderAccount();
-      /* 登入成功後才問身分。這支手機已經選過就直接放行。
-         換手機時會再問一次 —— 大可去雲端撈回來，但那要等網路回應，
-         等於讓「登入完看不看得到 App」取決於一個請求。兩下的事，不值得。 */
-      if (myRole()) document.documentElement.removeAttribute('data-auth');
-      else          document.documentElement.setAttribute('data-auth', 'role');
-    }).catch(function(e2){
-      /* AbortError = 我們自己的 15 秒逾時 */
-      fail(e2 && e2.name === 'AbortError'
-        ? '等太久了，可能是訊號不穩。請再試一次。'
-        : '連不上伺服器，請確認網路後再試一次。');
-    }).then(function(){
-      /* 只還原按鈕，不要呼叫 paint() —— paint() 會清掉錯誤訊息，
-         那正是剛剛才設好、使用者需要看到的東西。 */
-      btn.disabled = !navigator.onLine;
-      btn.textContent = mode === 'up' ? '建立帳號' : '登入';
-    });
-  });
-
-  /* 等待確認信。刻意換掉整個表單 —— 留著表單會讓人一直重按 */
-  function showConfirmSent(email){
-    $('auth-h').textContent = '確認信已寄出';
-    $('auth-form').hidden = true;
-    $('auth-switch').hidden = true;
-    $('auth-back').hidden = true;
-    $('auth-sub').innerHTML =
-      '我們寄了一封確認信到 <strong>' + esc(email) + '</strong>。<br>' +
-      '點開信裡的連結完成確認，再回來登入。';
-    $('auth-foot').textContent = '沒收到？看一下垃圾郵件匣。信箱打錯的話，重新整理再填一次。';
-  }
-
-  /* 忘記密碼 */
-  $('auth-forgot').addEventListener('click', function(){
-    var email = $('auth-email').value.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){
-      fail('請先在上面填入你註冊時的電子郵件。'); return;
-    }
-    var b = this;
-    b.disabled = true; b.textContent = '寄送中…';
-    supaFetch('/auth/v1/recover', { email: email }).then(function(){
-      /* 不論成功失敗都給同一句話。回報「查無此信箱」等於讓任何人
-         拿這個表單去測試某個信箱有沒有註冊過。 */
-      err.hidden = true;
-      $('auth-foot').textContent = '如果 ' + email + ' 有註冊過，重設密碼的信已經寄出了。';
-    }).catch(function(){
-      fail('連不上伺服器，請確認網路後再試一次。');
-    }).then(function(){
-      b.disabled = false; b.textContent = '忘記密碼？';
-    });
-  });
-
-  /* 連線狀態要跟著變，不能只在載入時算一次 —— 使用者很可能是在這一頁
-     等訊號。順便把送出鍵停用：M2 接了後端之後，離線註冊本來就會失敗，
-     現在就讓行為一致，免得使用者以為註冊成功了。 */
-  function updateNet(){
-    var off = !navigator.onLine, up = mode === 'up';
-    /* 文案要跟著模式走。登入模式下寫「建立帳號需要網路」，
-       使用者會以為自己按錯了地方。 */
-    $('auth-foot').textContent = off
-      ? (up ? '目前沒有網路，無法建立帳號。有訊號時再回來，之後就不再需要連線。'
-            : '目前沒有網路，無法登入。有訊號時再試一次。')
-      : (up ? '建立帳號需要網路。建立完成後，事故當下不需要網路也能使用。'
-            : '登入需要網路。登入之後，事故當下不需要網路也能使用。');
-    $('auth-go').disabled = off;
-  }
-  window.addEventListener('online', updateNet);
-  window.addEventListener('offline', updateNet);
-  updateNet();
-
-  paint();
-})();
-
-/* 身分屏。**跟 initAuth 分開**：initAuth 在「已註冊」時會直接 return，
-   但已註冊卻還沒選身分的人正需要這一段。 */
-var openRolePicker = function(){};
-(function initRolePicker(){
-  if (!(window.__auth || {}).on) return;
-  var list = $('role-list'), go = $('role-go'), picked = '';
-
-  function mark(r){
-    picked = ROLES[r] ? r : '';
-    list.querySelectorAll('.role-opt').forEach(function(x){
-      x.setAttribute('aria-pressed', x.dataset.role === picked ? 'true' : 'false');
-    });
-    go.disabled = !picked;
-    go.textContent = '繼續';
-  }
-
-  /* 從設定進來時要帶著目前的選擇 —— 開起來兩個都沒選中，
-     會讓人以為自己從來沒選過。 */
-  openRolePicker = function(cur){
-    mark(cur || '');
-    document.documentElement.setAttribute('data-auth', 'role');
-    $('auth').scrollTop = 0;
-  };
-
-  list.addEventListener('click', function(e){
-    var b = e.target.closest('.role-opt');
-    if (b) mark(b.dataset.role);
-  });
-
-  go.addEventListener('click', function(){
-    if (!picked) return;
-    if (!setRole(picked)){
-      /* 寫不進去就不要放行。放行了下次開啟還是會問，而使用者
-         會以為自己選過了 —— 不如當下就說清楚。 */
-      go.textContent = '無法儲存，請確認沒有在無痕模式';
-      return;
-    }
-    document.documentElement.removeAttribute('data-auth');
-    renderAccount();
-    toast('已設定為' + ROLES[picked]);
-  });
-})();
-
-/* 設定視窗裡的帳號區塊 */
-function renderAccount(){
-  var box = $('acc-box');
-  if (!box) return;
-  var on = (window.__auth || {}).on;
-  $('acc-blk').hidden = !on;
-  if (!on) return;
-  var a = account(), sess = session(), r = myRole();
-  if (sess.user && sess.user.email) a.email = sess.user.email;
-  box.innerHTML =
-    '<div class="acc-row">' +
-      '<span class="k">登入信箱</span>' +
-      '<span class="v">' + esc(a.email || '（未登入）') + '</span>' +
-    '</div>' +
-    (r ? '<button class="row-btn" id="btn-role">' +
-           '<span class="ic">' + ico(r === 'agent' ? 'id' : 'person') + '</span>' +
-           '<span class="t">身分</span>' +
-           '<span class="rv">' + ROLES[r] + '</span><span class="ar">›</span></button>' : '') +
-    '<button class="row-btn warn" id="btn-signout">' +
-      '<span class="ic">' + ico('ban') + '</span>' +
-      '<span class="t">登出</span><span class="ar">›</span></button>';
-
-  /* 改身分就是把身分屏叫回來，不另外做一個切換 UI ——
-     同一個選擇用兩套介面呈現，只會讓人懷疑兩邊是不是不同的東西 */
-  if ($('btn-role')) $('btn-role').addEventListener('click', function(){
-    $('set-sheet').classList.remove('open');
-    openRolePicker(myRole());
-  });
-
-  if (typeof renderMe === 'function') renderMe();
-
-  $('btn-signout').addEventListener('click', function(){
-    /* 登出是唯一會清掉旗標的路徑。清掉之後下次開啟就會回到註冊畫面。
-       事故資料留著不動 —— 登出不是刪除。 */
-    ask('登出這個帳號？', '事故紀錄與照片會留在這支手機上，不會被刪除。\n' +
-        '下次開啟需要重新登入。', '登出', function(){
-      var s = session();
-      /* 通知伺服器讓 refresh token 失效。**不等它** ——
-         離線或伺服器沒回應時，本機還是要能登出。 */
-      if (s.access_token && navigator.onLine){
-        supaFetch('/auth/v1/logout', {}, s.access_token).catch(function(){});
-      }
-      try{
-        localStorage.removeItem(LS_REG);
-        localStorage.removeItem(LS_ACC);
-        localStorage.removeItem(LS_SESS);
-        /* 身分也要清。留著的話，下一個在這支手機登入的人會直接繼承
-           上一個人的身分，而且不會被問。 */
-        localStorage.removeItem(LS_ROLE);
-      }catch(e){}
-      location.reload();
-    });
-  });
-}
-
-/* 開機時試著續期。fire-and-forget —— 這一行的成敗絕不影響 App 能不能用。
-   離線鐵則第 1 條：token 過期不等於登出，續期失敗就沉默重試。 */
-if ((window.__auth || {}).on && isRegistered()) {
-  refreshSession();
-  /* 回到前景時再試一次。App 常常被切走幾小時，回來時 token 已經過期 */
-  document.addEventListener('visibilitychange', function(){
-    if (!document.hidden) refreshSession();
-  });
-}
-
-/* =========================================================
-   同步（M3）
-   ---------------------------------------------------------
-   只同步文字。**照片永遠不上傳**，只送一個張數。
-
-   離線鐵則第 3、4 條在這裡的體現：
-   - 這一整段都不在任何核心路徑上。沒同步、同步失敗、伺服器掛掉，
-     現場／存證／出險／110 全都照常運作
-   - 失敗一律靜默。最多在設定視窗顯示「上次同步：⋯」，
-     絕不用錯誤對話框打斷使用者
-   ========================================================= */
-var LS_SYNC = 'aa.sync.v1';
-var syncing = false, syncTimer = null;
-
-function syncMeta(){ return rawLoad(LS_SYNC); }
-
-function uuid(){
-  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
-  /* 舊瀏覽器的退路。id 由前端產生是刻意的 —— 離線時也要能先建好本機紀錄，
-     不必等伺服器回一個 id 才能開始用。 */
-  var b = new Uint8Array(16);
-  (window.crypto && crypto.getRandomValues)
-    ? crypto.getRandomValues(b)
-    : (function(){ for (var i = 0; i < 16; i++) b[i] = Math.floor(Math.random() * 256); })();
-  b[6] = (b[6] & 0x0f) | 0x40; b[8] = (b[8] & 0x3f) | 0x80;
-  var h = [];
-  for (var i = 0; i < 16; i++) h.push((b[i] + 0x100).toString(16).slice(1));
-  return h.slice(0,4).join('') + '-' + h.slice(4,6).join('') + '-' +
-         h.slice(6,8).join('') + '-' + h.slice(8,10).join('') + '-' + h.slice(10).join('');
-}
-
-function canSync(){
-  if (!(window.__auth || {}).on) return false;
-  if (!isRegistered() || !navigator.onLine) return false;
-  var s = session();
-  return !!(s.access_token && s.user && s.user.id);
-}
-
-/* 寫入之後不要立刻送 —— 使用者正在打字，每個字都送一次很浪費。
-   等他停下來三秒再說。 */
-function syncSoon(){
-  if (!canSync()) return;
-  clearTimeout(syncTimer);
-  syncTimer = setTimeout(function(){ syncNow(); }, 3000);
-}
-
-function caseToRow(e){
-  var pack = casePack(e.id), uid = session().user.id;
-  return {
-    id: e.rid,
-    user_id: uid,
-    occurred_at: new Date(e.ts).toISOString(),
-    location:    pack[LS.site]  || null,
-    other_party: pack[LS.other] || null,
-    claim:       pack[LS.comp]  || null,
-    progress: {
-      tl:      pack[LS.tl]      || {},
-      ph:      pack[LS.ph]      || {},
-      todo:    pack[LS.todo]    || {},
-      claim:   pack[LS.claim]   || {},
-      compdoc: pack[LS.compdoc] || {},
-      guide:   pack[LS.guide]   || {}
-    },
-    photo_count: photoCounts[e.id] || 0,
-    closed_at: e.closed ? new Date(e.closed).toISOString() : null,
-    deleted_at: null,
-    updated_at: new Date(e.up || e.ts).toISOString()
-  };
-}
-
-function pushDirty(){
-  var rows = [], i, e;
-  for (i = 0; i < cases.list.length; i++){
-    e = cases.list[i];
-    if (!e.rid) e.rid = uuid();
-    /* sy = 上次成功送出時的 up。相等就代表這筆沒動過 */
-    if (e.sy === e.up && e.sy != null) continue;
-    rows.push(caseToRow(e));
-  }
-  /* 已刪除的案件也要送，否則其他裝置永遠不知道它被刪了 */
-  var tombs = cases.tombs || [];
-  for (i = 0; i < tombs.length; i++){
-    rows.push({
-      id: tombs[i].rid, user_id: session().user.id,
-      occurred_at: new Date(tombs[i].at).toISOString(),
-      deleted_at: new Date(tombs[i].at).toISOString(),
-      updated_at: new Date(tombs[i].at).toISOString()
-    });
-  }
-  if (!rows.length) return Promise.resolve();
-
-  return supaReq('POST', '/rest/v1/incidents', rows, session().access_token,
-                 { 'Prefer': 'resolution=merge-duplicates,return=minimal' })
-    .then(function(r){
-      if (!r.ok) throw new Error('push ' + r.status);
-      for (var j = 0; j < cases.list.length; j++) cases.list[j].sy = cases.list[j].up;
-      cases.tombs = [];
-      rawSave(LS_CASES, cases);
-    });
-}
-
-function pullRemote(){
-  var since = syncMeta().lastPull || '1970-01-01T00:00:00Z';
-  var path = '/rest/v1/incidents?select=*&updated_at=gt.' +
-             encodeURIComponent(since) + '&order=updated_at.asc';
-  return supaReq('GET', path, null, session().access_token).then(function(r){
-    if (!r.ok) throw new Error('pull ' + r.status);
-    var rows = r.body || [], changed = false, newest = since;
-    for (var i = 0; i < rows.length; i++){
-      if (applyRow(rows[i])) changed = true;
-      if (rows[i].updated_at > newest) newest = rows[i].updated_at;
-    }
-    var m = syncMeta(); m.lastPull = newest; rawSave(LS_SYNC, m);
-    if (changed){
-      rawSave(LS_CASES, cases);
-      renderAllForCase();
-    }
-  });
-}
-
-/* Last-Write-Wins，比的是 updated_at。回傳有沒有真的改到東西。 */
-function applyRow(row){
-  var e = null, i;
-  for (i = 0; i < cases.list.length; i++){
-    if (cases.list[i].rid === row.id){ e = cases.list[i]; break; }
-  }
-  var remoteUp = Date.parse(row.updated_at) || 0;
-
-  if (row.deleted_at){
-    if (!e) return false;
-    if ((e.up || 0) > remoteUp) return false;     /* 本機之後又改過，不刪 */
-    cases.list.splice(i, 1);
-    try{ localStorage.removeItem(caseKey(e.id)); }catch(err){}
-    photosClearCase(e.id).catch(function(){});
-    if (cases.cur === e.id){
-      if (!cases.list.length){ cases.cur = ''; caseData = {}; newCase(false); }
-      else { cases.cur = cases.list[0].id; caseData = rawLoad(caseKey(cases.cur)); }
-    }
-    return true;
-  }
-
-  if (e && (e.up || 0) >= remoteUp) return false;  /* 本機比較新或一樣新，不覆蓋 */
-
-  if (!e){
-    e = { id: 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
-          ts: Date.parse(row.occurred_at) || Date.now(), closed: 0, rid: row.id };
-    cases.list.unshift(e);
-  }
-  e.ts = Date.parse(row.occurred_at) || e.ts;
-  e.closed = row.closed_at ? Date.parse(row.closed_at) : 0;
-  e.up = remoteUp; e.sy = remoteUp;
-
-  var pr = row.progress || {};
-  var pack = {};
-  if (row.location)    pack[LS.site]  = row.location;
-  if (row.other_party) pack[LS.other] = row.other_party;
-  if (row.claim)       pack[LS.comp]  = row.claim;
-  if (pr.tl)      pack[LS.tl]      = pr.tl;
-  if (pr.ph)      pack[LS.ph]      = pr.ph;
-  if (pr.todo)    pack[LS.todo]    = pr.todo;
-  if (pr.claim)   pack[LS.claim]   = pr.claim;
-  if (pr.compdoc) pack[LS.compdoc] = pr.compdoc;
-  if (pr.guide)   pack[LS.guide]   = pr.guide;
-  rawSave(caseKey(e.id), pack);
-  if (cases.cur === e.id) caseData = pack;
-  return true;
-}
-
-/* 同步狀態只出現在這一行。ARCHITECTURE 第七節：絕不用錯誤對話框打斷使用者。 */
-/* 這一行會隨帳號功能開關而改變意思。
-   同步上線之後還寫「什麼都不上傳」就是不實陳述 —— 照片仍然不上傳，
-   但文字會，兩者必須分開講。 */
-function renderPrivacyLine(){
-  var el = $('privacy-line');
-  if (!el) return;
-  el.textContent = ((window.__auth || {}).on && isRegistered())
-    ? '照片只存在這支手機，永遠不會上傳。文字紀錄會同步到你的帳號，換手機才找得回來。'
-    : '事故資料與照片只存在這支手機裡，不會上傳任何地方。';
-}
-
-function renderSyncLine(){
-  var el = $('sync-line');
-  if (!el) return;
-  if (!(window.__auth || {}).on || !isRegistered()){ el.hidden = true; return; }
-  el.hidden = false;
-  var m = syncMeta();
-  if (!navigator.onLine){
-    el.textContent = '目前離線。紀錄都在這支手機裡，有網路時會自動同步。';
-  } else if (m.lastOkAt){
-    var mins = Math.round((Date.now() - m.lastOkAt) / 60000);
-    el.textContent = '上次同步：' +
-      (mins < 1 ? '剛剛' : mins < 60 ? mins + ' 分鐘前'
-       : new Date(m.lastOkAt).toLocaleString('zh-TW', { hour12:false }));
-  } else {
-    el.textContent = '尚未同步過。';
-  }
-}
-
-function recordSync(ok){
-  var m = syncMeta();
-  if (ok) m.lastOkAt = Date.now(); else m.lastErrAt = Date.now();
-  rawSave(LS_SYNC, m);
-  if (typeof renderSyncLine === 'function') renderSyncLine();
-}
-
-function syncNow(){
-  if (!canSync() || syncing) return Promise.resolve(false);
-  syncing = true;
-  return refreshSession()
-    .then(function(){ return refreshPhotoCounts ? new Promise(function(res){
-      refreshPhotoCounts(res);
-    }) : null; })
-    .then(pushDirty)
-    .then(pullRemote)
-    .then(function(){ recordSync(true); return true; })
-    .catch(function(){ recordSync(false); return false; })   /* 靜默：不 toast、不對話框 */
-    .then(function(v){ syncing = false; return v; });
-}
-
-/* 觸發時機：開機、回到前景、網路恢復。都是 fire-and-forget。 */
-if ((window.__auth || {}).on){
-  setTimeout(syncNow, 1200);              /* 讓首屏先畫完，同步不跟它搶 */
-  window.addEventListener('online', function(){ syncNow(); });
-  document.addEventListener('visibilitychange', function(){
-    if (!document.hidden) syncNow();
-  });
-}
-
 var toastT;
 function toast(msg){
   var el = $('toast');
@@ -2926,7 +1803,6 @@ function go(name, push){
   if (name === 'me' && typeof renderCases === 'function'){
     renderCases();
     refreshPhotoCounts(renderCases);   /* 張數是非同步的，回來再補畫一次 */
-    /* 信箱與身分可能在別的地方（登入、身分屏）改過，進來時重畫一次 */
     renderMe();
   }
 }
@@ -2935,9 +1811,6 @@ function go(name, push){
    分頁列的位置要留給事故現場用得到的東西。 */
 function openSettings(){
   renderStorage();                       /* 容量是即時的，每次開都重算 */
-  renderAccount();
-  renderSyncLine();
-  renderPrivacyLine();
   $('set-sheet').classList.add('open');
 }
 /* 五個分頁的頁首各有一顆，用 class 綁 —— 再多一頁也不必回來改這裡 */
@@ -4739,12 +3612,6 @@ function doDeleteCase(id, wasLast){
   var wasCur = (id === cases.cur);
   for (var i = 0; i < cases.list.length; i++){
     if (cases.list[i].id === id){
-      /* 留一塊墓碑。硬刪除的話，其他裝置只會看到「這筆沒出現在拉取結果裡」，
-         那跟「還沒同步到」分不出來 —— 刪掉的案件會在別台機器上復活。 */
-      if (cases.list[i].rid){
-        cases.tombs = cases.tombs || [];
-        cases.tombs.push({ rid: cases.list[i].rid, at: Date.now() });
-      }
       cases.list.splice(i, 1); break;
     }
   }
@@ -4764,7 +3631,6 @@ function doDeleteCase(id, wasLast){
     newCase(false);
   }
   toast(wasLast ? '已刪除，目前沒有任何紀錄' : '已刪除');
-  syncSoon();
   photosClearCase(id).then(function(){ renderStorage(); refreshPhotoCounts(renderCases); }, function(){});
 }
 
@@ -4827,20 +3693,11 @@ function renderMe(){
   nm.textContent = name || '還沒設定名字';
   nm.classList.toggle('none', !name);
 
-  /* 副標優先顯示登入的信箱 —— 那是「這是誰的帳號」最沒有歧義的答案。
-     沒有帳號功能時退回車牌。 */
-  var sub = '';
-  if ((window.__auth || {}).on && isRegistered()){
-    var a = account(), s = session();
-    sub = (s.user && s.user.email) || a.email || '';
-  }
-  if (!sub) sub = meVal('plate');
+  /* 副標顯示車牌 */
+  var sub = meVal('plate');
   $('prof-sub').textContent = sub;
   $('prof-sub').hidden = !sub;
 
-  var tag = $('prof-tag'), r = (window.__auth || {}).on ? myRole() : '';
-  tag.hidden = !r;
-  if (r) tag.innerHTML = ico(r === 'agent' ? 'id' : 'person') + ROLES[r];
 }
 
 /* ── 頭貼 ──
@@ -5033,7 +3890,7 @@ function openMe(){
                 '<button class="btn-outline2" id="me-av" style="min-height:44px;font-size:15px">' +
                   (avatarSrc() ? '更換頭貼' : '上傳頭貼') + '</button>' +
                 (avatarSrc()
-                  ? '<button class="auth-link" id="me-av-del" style="margin-top:8px;color:var(--red)">移除頭貼</button>'
+                  ? '<button class="av-del" id="me-av-del">移除頭貼</button>'
                   : '') +
               '</div>' +
             '</div>' +
