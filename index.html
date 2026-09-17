@@ -352,6 +352,12 @@ body.is-offline .chip-off{display:flex}
 .tow-row .ic .i{width:24px;height:24px}
 .tow-row .t{flex:1;font-size:16.5px;font-weight:600}
 .tow-row .ar{color:var(--chev);font-size:19px}
+.help-link{
+  display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;margin-top:10px;
+  font-size:14.5px;color:var(--ink-2);text-decoration:none;
+}
+.help-link b{color:var(--brand);font-weight:600}
+.help-link .i{width:17px;height:17px;color:var(--brand)}
 .btn-line{
   display:flex;align-items:center;justify-content:center;gap:9px;
   width:100%;min-height:56px;margin-top:12px;
@@ -1208,6 +1214,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 .brandfoot{padding:26px 4px 8px;text-align:center}
 .brandfoot .b{font-size:16px;font-weight:700;color:var(--ink-2);letter-spacing:.08em}
 .brandfoot p{font-size:12.5px;color:var(--muted);line-height:1.7;margin:10px 0 0}
+.brandfoot a{color:inherit;display:inline-flex;align-items:center;min-height:44px;min-width:44px;vertical-align:middle;margin:-14px 0}
 
 /* ═══════════ 引導 sheet ═══════════ */
 /* ── 確認對話框 ──
@@ -1564,6 +1571,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
           <span class="n" id="tl-prog"></span>
           <button class="btn-reset" id="tl-reset">重設</button>
         </div>
+        <a class="help-link" hidden><svg class="i"><use href="#ic-chat"/></svg>還是不知道怎麼做嗎？<b>歡迎聯絡我們</b></a>
       </div>
     </div>
   </section>
@@ -1612,6 +1620,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
           <span class="n" id="cl-prog"></span>
           <button class="btn-reset" id="cl-reset">重設</button>
         </div>
+        <a class="help-link" hidden><svg class="i"><use href="#ic-chat"/></svg>還是不知道怎麼做嗎？<b>歡迎聯絡我們</b></a>
       </div>
     </div>
   </section>
@@ -1663,6 +1672,11 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
       </div>
 
       <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-alert"/></svg>要注意的期限</p>
+        <div class="card" id="comp-deadlines"></div>
+      </div>
+
+      <div class="blk">
         <p class="sec-label"><svg class="i"><use href="#ic-doc"/></svg>調解有三條路</p>
         <div class="card" id="comp-paths"></div>
       </div>
@@ -1683,6 +1697,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
         </button>
       </div>
 
+      <a class="help-link" hidden><svg class="i"><use href="#ic-chat"/></svg>還是不知道怎麼做嗎？<b>歡迎聯絡我們</b></a>
       <p class="legal-foot">以上為一般性資訊整理，不構成法律意見。個案認定請諮詢律師。若擔心費用，可洽<strong>法律扶助基金會</strong>申請扶助。</p>
     </div>
   </section>
@@ -2966,22 +2981,35 @@ window.addEventListener('offline', syncNet);
    部署設定
    ========================================================= */
 var CONFIG = {
-  towTel: ''   // 道路救援電話。留空則「現場」分頁不顯示該按鈕
+  towTel: '',  // 道路救援電話。留空則「現場」分頁不顯示該按鈕
+
+  /* 「還是不知道怎麼做嗎？歡迎聯絡我們」連到這裡（LINE 官方帳號）。
+     現場、出險、求償三頁的清單下方各一行；留空則不顯示。 */
+  contactUrl: 'https://line.me/R/ti/p/@947sdzrz?ts=07101555&oat_content=url'
 };
 
-/* 文案中提到業務員的地方統一走這裡。
-   指的是使用者自己保單上的那位業務員，跟 App 內的「身分」設定無關 ——
-   Guardy 不知道、也不會去問你的業務員是誰。 */
-function who(){ return '你的保險業務員'; }
+/* 文案中「有問題找誰」統一走這裡。v58 起 App 由我們直接發給客戶，
+   客戶一律聯絡我們（LINE 官方帳號，見 CONFIG.contactUrl），不再指向各自的業務員。 */
+function who(){ return '我們'; }
 
 (function applyConfig(){
   var tow = $('tow');
   if (CONFIG.towTel){ tow.href = 'tel:' + CONFIG.towTel; tow.hidden = false; }
   else tow.hidden = true;
 
+  Array.prototype.forEach.call(document.querySelectorAll('.help-link'), function(a){
+    if (!CONFIG.contactUrl) return;
+    a.href = CONFIG.contactUrl;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.hidden = false;
+  });
+
   $('brandfoot').innerHTML =
     '<div class="b">Guardy</div>' +
-    '<p>本 App 提供一般性事故處理資訊，<br>實際權益依保單條款與主管機關規定為準。</p>';
+    '<p>本 App 提供一般性事故處理資訊，<br>實際權益依保單條款與主管機關規定為準。</p>' +
+    /* Nominatim 的使用政策要求標示資料來源 */
+    '<p>地址資料 © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</p>';
 })();
 
 /* =========================================================
@@ -3287,17 +3315,25 @@ var TL_LEGACY = ['hazard', 'photo', 'police', 'nosettle', 'insurer'];   /* 舊�
 
 function sceneSteps(g){
   g = g || {};
-  var asked = !!g.injured, moved = g.movable === 'yes', L = [];
+  /* 能不能移車是法規問題，不只是車況問題（道路交通事故處理辦法 §3）：
+     只有「無人傷亡且車輛尚能行駛」才能標繪後移置。有人受傷時原則上不得移動，
+     雙方都同意才例外；「不確定有沒有人受傷」一律照有人受傷處理。 */
+  var asked = !!g.injured,
+      canDrive = g.movable === 'yes',
+      moved = canDrive && g.injured === 'no',
+      hurtButDrivable = canDrive && !moved,
+      L = [];
 
   if (g.injured === 'yes'){
     L.push({ id:'119', ic:'cross', t:'撥 119，先處理傷者', d:'不要移動明顯受傷的人，等待救護人員。',
              act:{ t:'撥打 119', tel:'119', danger:true } });
   }
   L.push({ id:'hazard', ic:'alert', t:'開雙黃燈、放三角警示架',
-           d:'一般道路後方 30 公尺、高速公路 100 公尺。' +
+           d:'一般道路放在車後 30–100 公尺（車速越快放越遠），高速公路約 100 公尺。' +
              (asked && !moved ? '人員退到路肩或護欄外，不要站在車道上或車輛後方。' : '先確保自己不會被追撞。') });
   L.push({ id:'photo', ic:'camera', t: moved ? '先拍照，再把車移到路邊' : '拍照存證',
-           d:'車輛移動前先拍：全景、碰撞點、車損、車牌、證件、地面痕跡、行車記錄器。',
+           d:(moved ? '移車前先把車輛位置與地面痕跡拍下來，這就是法規要求的「標繪」。' : '') +
+             '要拍：全景、碰撞點、車損、車牌、證件、地面痕跡、行車記錄器。',
            act:{ t:'打開拍照清單', go:'photo' } });
   if (g.reported === 'yes'){
     L.push({ id:'police', ic:'siren', t:'向員警索取登記聯單',
@@ -3309,6 +3345,9 @@ function sceneSteps(g){
   }
   L.push(moved
     ? { id:'nosettle', ic:'ban', t:'不私下和解、不簽任何文件', d:'金額與肇責都還沒釐清，先不承諾任何事。' }
+    : hurtButDrivable
+    ? { id:'nosettle', ic:'ban', t:'不私下和解、先不要移車',
+        d:'有人受傷時，車能開也不能自行移走。雙方都同意才可以先拍照標繪再移到路邊，否則等警方到場處理。也不要簽任何文件。' }
     : { id:'nosettle', ic:'ban', t:'不私下和解、不隨意移車', d:'除非警方指示。現場一旦破壞就回不來了，也不要簽任何文件。' });
   L.push({ id:'insurer', ic:'phone', t:'五日內通知保險公司出險', d:'越早通知，理賠越順。',
            act:{ t:'查出險專線', go:'claim' } });
@@ -3317,7 +3356,7 @@ function sceneSteps(g){
     L.push({ id:'medical', ic:'cross', t:'就醫並索取「診斷證明書」',
              d:'即使當下覺得還好，也建議當天就醫留紀錄。掛號費、藥費、復健收據正本都要留。' });
     L.push({ id:'cali', ic:'id', t:'了解強制險傷害給付',
-             d:'強制汽車責任保險不論肇責都有醫療給付，細節可問' + who() + '。' });
+             d:'強制汽車責任保險對受害人採無過失制，不論肇責都能申請醫療給付（單一車輛自撞的駕駛人本人除外）。細節可問' + who() + '。' });
   } else if (g.injured === 'maybe'){
     L.push({ id:'medical', ic:'cross', t:'讓不舒服的人先就醫',
              d:'頭頸與內傷不一定當下有症狀。留下診斷證明與醫療收據，之後申請都靠這些。' });
@@ -3327,7 +3366,7 @@ function sceneSteps(g){
   }
   if (asked){
     L.push({ id:'analysis', ic:'list', t:'向警方申請「初步分析研判表」',
-             d:'申請時間、地點與方式請洽現場處理單位或交通隊。' });
+             d:'事故 30 日後才能申請；現場圖與現場照片則是 7 日後。向處理的警察機關申請，有人受傷的案件也能在警政署網站線上申請。' });
     L.push({ id:'repair', ic:'car', t:'保留修車估價單與收據', d:'理賠求償時要用。' });
   }
   return L;
@@ -3833,17 +3872,22 @@ renderPH();
    出險電話
    ========================================================= */
 /* note 欄位留給各公司的補充說明，沒有就留空字串 */
+/* 號碼查證於 2026-09-17，對照汽車交通事故特別補償基金「各產險公司電話」與各家官網。 */
 var INSURERS = [
   { n:'富邦產險',     tel:'0800-009-888', note:'' },
   { n:'國泰產險',     tel:'0800-212-880', note:'' },
-  { n:'和泰產險',     tel:'0800-077-568', note:'' },
+  { n:'和泰產險',     tel:'0800-077-568', note:'理賠報案專線。平日 08:30–17:30 以外由委外人員接聽，一樣可以報案。' },
   { n:'新安東京海上', tel:'0800-050-119', note:'' },
   { n:'明台產險',     tel:'0800-078-888', note:'' },
-  { n:'兆豐保險',     tel:'0800-053-588', note:'' },
-  { n:'南山產物',     tel:'0800-00-5678', note:'' },
+  { n:'兆豐產險',     tel:'0800-053-588', note:'' },
+  { n:'南山產物',     tel:'0800-005-678', note:'道路救援／理賠服務專線。' },
   { n:'新光產險',     tel:'0800-789-999', note:'' },
   { n:'臺灣產物',     tel:'0809-068-888', note:'' },
-  { n:'中國信託產險', tel:'0800-075-777', note:'' }
+  { n:'中國信託產險', tel:'0800-075-777', note:'' },
+  { n:'泰安產險',     tel:'0800-012-080', note:'' },
+  { n:'第一產險',     tel:'0800-288-068', note:'' },
+  { n:'旺旺友聯產險', tel:'0800-024-024', note:'' },
+  { n:'華南產險',     tel:'0800-010-850', note:'' }
 ];
 
 /* 撥打出險專線前先備齊，接線員一定會問 */
@@ -4099,24 +4143,46 @@ var COMP_FACTORS = [
   '雙方的過失比例'
 ];
 
+/* 期限放在調解之前講：錯過了，後面三條路再怎麼走都少了籌碼。 */
+var COMP_DEADLINES = [
+  {
+    t:'刑事告訴：6 個月',
+    tag:'最常錯過',
+    d:'車禍造成受傷屬於過失傷害，是告訴乃論。受害人知道肇事者是誰之後，要在 6 個月內提出告訴，過了就不能再告。',
+    m:'刑事訴訟法第 237 條。和解談不攏、期限又快到時，可以先提告再繼續談。'
+  },
+  {
+    t:'民事求償：2 年',
+    tag:'時效',
+    d:'從知道有損害、也知道賠償義務人是誰起算 2 年；不論知不知道，事故發生滿 10 年也不能再請求。',
+    m:'民法第 197 條。'
+  },
+  {
+    t:'肇事鑑定：6 個月',
+    tag:'肇責爭議',
+    d:'對肇責有爭議，可以向車輛行車事故鑑定會申請鑑定，要在事故發生後 6 個月內提出。',
+    m:'車輛行車事故鑑定及覆議作業辦法。'
+  }
+];
+
 var COMP_PATHS = [
   {
     t:'鄉鎮市區調解委員會',
     tag:'免費', free:true,
-    d:'向事故發生地或對方住所地的公所申請。委員會安排雙方到場，由調解委員居中協調。',
-    m:'調解成立後經法院核定的效力【待查證：與確定判決同一效力之依據條文】'
+    d:'向公所的調解委員會申請，由調解委員居中協調。雙方住同一區就在該區；否則民事部分找對方住所地，有人受傷的刑事部分也可以找事故發生地；雙方同意的話不受限制。',
+    m:'調解成立並經法院核定後，與民事確定判決有同一效力，對方不付錢可以直接聲請強制執行（鄉鎮市調解條例第 27 條）。'
   },
   {
     t:'法院調解',
-    tag:'須繳費',
-    d:'起訴前向法院聲請調解。部分民事案件在起訴前必須先經法院調解。',
-    m:'【待查證：強制調解事件的範圍與費用】'
+    tag:'10 萬以下免費', free:true,
+    d:'交通事故屬於起訴前必須先經法院調解的事件（民事訴訟法第 403 條）。調解成立與確定判決效力相同。',
+    m:'請求金額未滿 10 萬元免費；10 萬至未滿 100 萬元 1,000 元；100 萬至未滿 500 萬元 2,000 元（民事訴訟法第 77-20 條）。調解不成立後 30 日內起訴，已繳的費用可以抵裁判費。'
   },
   {
     t:'直接提起民事訴訟',
     tag:'耗時',
-    d:'調解不成立，或對方完全不願協商時的途徑。需要準備完整證據並可能委任律師。',
-    m:'請求權時效【待查證：民法侵權行為損害賠償請求權的時效規定】'
+    d:'調解不成立，或對方完全不願協商時的途徑。需要準備完整證據，並可能委任律師。',
+    m:'有提出刑事告訴的話，可以在刑事程序中提起「刑事附帶民事訴訟」，不用繳裁判費。'
   }
 ];
 
@@ -4354,9 +4420,15 @@ function renderComp(){
     ul.appendChild(li);
   });
 
-  var paths = $('comp-paths');
+  renderPaths($('comp-deadlines'), COMP_DEADLINES);
+  renderPaths($('comp-paths'), COMP_PATHS);
+
+  renderDocs();
+}
+
+function renderPaths(paths, list){
   paths.innerHTML = '';
-  COMP_PATHS.forEach(function(p){
+  list.forEach(function(p){
     var el = document.createElement('div');
     el.className = 'path';
     var h = document.createElement('div'); h.className = 'h';
@@ -4375,8 +4447,6 @@ function renderComp(){
     }
     paths.appendChild(el);
   });
-
-  renderDocs();
 }
 
 function renderDocs(){
@@ -5060,19 +5130,47 @@ var isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
                    window.navigator.standalone === true;
 var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
+/* App 的連結多半是透過 LINE 傳給客戶的。LINE、FB、IG 的內建瀏覽器不能加入主畫面，
+   離線快取與儲存也不可靠 —— 在裡面「用」這個 App 等於沒裝。
+   LINE 認得 openExternalBrowser=1，帶上它重新載入就會跳到系統瀏覽器；
+   已經帶了還停在 LINE 裡（舊版 LINE 不支援），就改成教使用者手動開。 */
+var inApp = /\bLine\/|FBAN|FBAV|Instagram|MicroMessenger/i.test(navigator.userAgent);
+var isLine = /\bLine\//i.test(navigator.userAgent);
+if (isLine && !/[?&]openExternalBrowser=1/.test(location.search)){
+  location.replace(location.pathname + (location.search ? location.search + '&' : '?') +
+                   'openExternalBrowser=1' + location.hash);
+}
+
+/* 「以後再說」只擋 7 天。iPhone 對沒加入主畫面的網站，7 天沒開就可能清掉
+   照片與資料，所以不能讓人按一次就永遠不再提醒。 */
+var INSTALL_SNOOZE = 7 * 24 * 60 * 60 * 1000;
+
 window.addEventListener('beforeinstallprompt', function(e){
   e.preventDefault(); deferredPrompt = e; showInstall(false);
 });
 
 function showInstall(force){
   if (isStandalone){ if (force) toast('已經在主畫面上了'); return; }
-  if (!force){
-    try{ if (localStorage.getItem(LS.install)) return; }catch(e){}
+  if (!force && !inApp){
+    try{
+      var t = +localStorage.getItem(LS.install);
+      if (t && Date.now() - t < INSTALL_SNOOZE) return;
+    }catch(e){}
   }
-  var steps = $('install-steps'), goBtn = $('install-go');
-  if (isIOS){
+  var steps = $('install-steps'), goBtn = $('install-go'),
+      title = $('install').querySelector('.t'), desc = $('install').querySelector('.d');
+  title.textContent = '把它加到主畫面';
+  desc.textContent = '車禍現場往往沒有網路。加到主畫面後，即使離線也能開啟。';
+  if (inApp){
+    title.textContent = '請改用瀏覽器開啟';
+    desc.textContent = '在 LINE／Facebook 裡面開啟無法加入主畫面，離線時也打不開。';
     steps.className = 'steps';
-    steps.innerHTML = '1. 點下方工具列的「分享」↗<br>2. 往下滑，選擇「加入主畫面」<br>3. 右上角點「加入」';
+    steps.innerHTML = '1. 點右上角的「⋯」或「︙」<br>2. 選擇「用預設瀏覽器開啟」或「在瀏覽器中開啟」<br>3. 在瀏覽器裡再加入主畫面';
+    goBtn.style.display = 'none';
+  } else if (isIOS){
+    desc.textContent = '車禍現場往往沒有網路。加到主畫面後才能離線開啟；沒加的話，iPhone 可能在一段時間沒開之後清掉你存的照片與資料。';
+    steps.className = 'steps';
+    steps.innerHTML = '1. 點「分享」↗（Safari 在下方工具列，Chrome 在網址列右側）<br>2. 往下滑，選擇「加入主畫面」<br>3. 右上角點「加入」';
     goBtn.style.display = 'none';
   } else if (deferredPrompt){
     steps.innerHTML = ''; steps.className = '';
@@ -5096,7 +5194,7 @@ $('install-go').addEventListener('click', function(){
 });
 $('install-no').addEventListener('click', function(){
   $('install').classList.remove('open');
-  try{ localStorage.setItem(LS.install, '1'); }catch(e){}
+  try{ localStorage.setItem(LS.install, String(Date.now())); }catch(e){}
 });
 
 setTimeout(function(){
@@ -5106,7 +5204,27 @@ setTimeout(function(){
 /* Service Worker */
 if ('serviceWorker' in navigator){
   window.addEventListener('load', function(){
-    navigator.serviceWorker.register('sw.js').catch(function(){});
+    navigator.serviceWorker.register('sw.js').then(function(reg){
+      /* 加到主畫面的 App 常常好幾天不會真的重新載入，只是從背景切回來。
+         切回前景時主動檢查一次，法規或專線改了才送得到客戶手上。 */
+      document.addEventListener('visibilitychange', function(){
+        if (document.visibilityState === 'visible') reg.update().catch(function(){});
+      });
+    }).catch(function(){});
+  });
+
+  /* 新版 SW 接手（sw.js 有 skipWaiting + clients.claim）。第一次安裝也會觸發，
+     所以只在原本就有 controller 時才算「更新」。畫面在背景就直接重載；
+     使用者正在看就不打斷 —— 資料都即時存在本機，下次切回來再重載。 */
+  var hadController = !!navigator.serviceWorker.controller, pendingReload = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function(){
+    if (!hadController || pendingReload) return;
+    pendingReload = true;
+    if (document.visibilityState === 'hidden') location.reload();
+    else toast('已更新到新版，下次開啟時生效');
+  });
+  document.addEventListener('visibilitychange', function(){
+    if (pendingReload && document.visibilityState === 'hidden') location.reload();
   });
 }
 
