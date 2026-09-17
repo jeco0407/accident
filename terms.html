@@ -4,18 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>服務條款 — Guardy</title>
-<meta name="theme-color" content="#FAF8F4">
+<meta name="theme-color" content="#FAF3E1">
 <meta name="description" content="Guardy 車禍緊急助手的服務條款。">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
 :root{
-  --bg:#FAF8F4; --card:#FFFFFF; --ink:#1C1A17; --ink-2:#4A443C; --muted:#6E665D;
-  --line:#E5DED2; --inset:#EEF5F3; --brand:#237F79;
+  --bg:#FAF3E1; --card:#FFFCF4; --ink:#2A251E; --ink-2:#4E4538; --muted:#6B604F;
+  --line:#E8DCC0; --inset:#F1E3C2; --brand:#2F5A53;
 }
 :root[data-theme="dark"]{
-  --bg:#16130F; --card:#1F1B15; --ink:#F2EDE4; --ink-2:#C8C0B4; --muted:#9D9386;
-  --line:#332C23; --inset:#12302E; --brand:#5CC7BF;
+  --bg:#1A1813; --card:#24211A; --ink:#F3ECDD; --ink-2:#CDBFA8; --muted:#A39784;
+  --line:#3A3326; --inset:#2E281C; --brand:#8CC2B6;
 }
 *{box-sizing:border-box}
 body{
@@ -50,7 +50,7 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-si
     var dark = p === 'dark' || (p === 'auto' && mq.matches);
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
     var m = document.querySelector('meta[name="theme-color"]');
-    if (m) m.setAttribute('content', dark ? '#16130F' : '#FAF8F4');
+    if (m) m.setAttribute('content', dark ? '#1A1813' : '#FAF3E1');
   }
   mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply);
   apply();

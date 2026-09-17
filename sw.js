@@ -2,7 +2,7 @@
    策略：app shell 一律 cache-first，確保車禍現場沒有網路時也能開啟。
    改版時把 VERSION 加一，舊快取會在 activate 時清掉。 */
 
-var VERSION = 'aa-v59';
+var VERSION = 'aa-v60';
 var SHELL = [
   './',
   './index.html',
@@ -15,7 +15,8 @@ var SHELL = [
   './icons/icon-maskable-512.png',
   './icons/apple-touch-icon.png',
   './icons/favicon-96.png',
-  './icons/mark.png'
+  './icons/mark.png',
+  './icons/hero.jpg'          /* 現場頁插圖，78KB。離線也要看得到 */
 ];
 
 self.addEventListener('install', function(e){

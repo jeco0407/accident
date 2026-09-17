@@ -20,3 +20,6 @@ logo/
 # Python 編譯快取
 __pycache__/
 *.pyc
+
+# 品牌插圖原檔（600KB）。部署用的是壓縮過的 icons/hero.jpg
+hero/
