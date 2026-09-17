@@ -260,6 +260,8 @@ iOS 的 standalone PWA 常常擋掉 `window.open`，「開啟地圖」會沒反�
 - 所有文字色重新量過，最低是 `--muted` 在頁首色塊上 4.84:1；`a11y.py` 淺深兩色全部通過。
 - `privacy.html`、`terms.html`、`manifest.json` 的 theme-color 一起換。
 
+插圖一開始做成標語下方的圓角卡片，使用者要的是跟原本 SVG 一樣**滿版鋪在頁首、文字疊在圖上**，隨即改掉（v61）：`.hero-bg` 絕對定位 `inset:0`，降透明度，再從左側蓋底色漸層保住標題對比。
+
 插圖原檔 1376×768／600KB，裁掉下緣一點（保留三角警示架）、縮到 1040 寬、JPEG 80，78KB，放進 SW 快取。
 
 **還沒換的：** logo 與 App 圖示（`icons/` 裡的 PNG、`favicon.ico`）仍是舊的綠松色。
