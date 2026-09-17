@@ -1535,6 +1535,20 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 </div>
 
 <!-- 加入主畫面 -->
+<!-- 拍完照後問要不要存到手機相簿。網頁沒辦法在背景直接寫進相簿，
+     一定要使用者再按一下（iOS 走分享選單的「儲存影像」，Android 走下載）。
+     沿用「加入主畫面」那條橫幅的樣式 -->
+<div class="install" id="save-album" role="dialog" aria-labelledby="save-album-t">
+  <div class="install-in">
+    <p class="t" id="save-album-t">存一份到手機相簿？</p>
+    <p class="d" id="save-album-d">App 裡的照片會隨清除瀏覽器資料消失，相簿裡多一份比較保險。</p>
+    <div class="row">
+      <button class="go" id="save-album-go">存到相簿</button>
+      <button class="no" id="save-album-no">不用</button>
+    </div>
+  </div>
+</div>
+
 <div class="install" id="install">
   <div class="install-in">
     <p class="t">把它加到主畫面</p>
@@ -2640,8 +2654,73 @@ $('picker').addEventListener('change', function(){
   .then(function(){
     renderPH();
     toast('已加入 ' + files.length + ' 張照片');
+    offerSaveToAlbum(files);
   })
   .catch(function(){ toast('照片儲存失敗，可能是空間不足'); });
+});
+
+/* ── 存到手機相簿 ──
+   用相機拍的照片只進得了 App，不會自己出現在相簿。網頁沒有寫入相簿的權限，
+   能做的是拍完馬上問一次，讓使用者自己按：這一下同時也是 share() 需要的使用者手勢。
+
+   只問「剛拍的」：lastModified 在兩分鐘內。從相簿挑的舊照片本來就在相簿裡，
+   再問一次只是噪音。存的是相機原檔，不是 App 裡縮過的那份。 */
+var albumQueue = [];
+
+function offerSaveToAlbum(files){
+  var now = Date.now();
+  var fresh = files.filter(function(f){
+    return /^image\//.test(f.type) && f.lastModified && now - f.lastModified < 120000;
+  });
+  if (!fresh.length) return;
+  albumQueue = fresh;
+  $('save-album-t').textContent = fresh.length > 1
+    ? '把這 ' + fresh.length + ' 張存到手機相簿？' : '存一份到手機相簿？';
+  $('install').classList.remove('open');      /* 兩條橫幅疊在同一個位置，不能同時開 */
+  $('save-album').classList.add('open');
+}
+
+function albumName(i){
+  var d = new Date(), z = function(n){ return (n < 10 ? '0' : '') + n; };
+  return '事故照片-' + d.getFullYear() + z(d.getMonth() + 1) + z(d.getDate()) + '-' +
+         z(d.getHours()) + z(d.getMinutes()) + z(d.getSeconds()) + '-' + (i + 1) + '.jpg';
+}
+
+$('save-album-no').addEventListener('click', function(){
+  albumQueue = [];
+  $('save-album').classList.remove('open');
+});
+
+$('save-album-go').addEventListener('click', function(){
+  var list = albumQueue;
+  albumQueue = [];
+  $('save-album').classList.remove('open');
+  if (!list.length) return;
+
+  var files = list.map(function(f, i){
+    return new File([f], albumName(i), { type: f.type || 'image/jpeg' });
+  });
+
+  /* iOS：分享選單裡的「儲存 N 張影像」是唯一進得了相簿的路。
+     Android 的分享選單通常沒有「存到相簿」，下載反而會直接出現在相簿的 Download。 */
+  /* iPadOS 的 Safari 自稱是 Mac，用觸控點數認回來 */
+  var apple = isIOS || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (apple && navigator.canShare && navigator.canShare({ files:files })){
+    navigator.share({ files:files }).then(function(){
+      toast('請確認已選「儲存影像」');
+    }).catch(function(){});
+    return;
+  }
+  files.forEach(function(f, i){
+    setTimeout(function(){
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(f);
+      a.download = f.name;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
+    }, i * 350);                               /* 連點太快，Chrome 會只下載第一個 */
+  });
+  toast(files.length > 1 ? '已存 ' + files.length + ' 張到手機的下載資料夾' : '已存到手機的下載資料夾');
 });
 
 /* ── 檢視器 ── */
@@ -4031,7 +4110,7 @@ $('install-no').addEventListener('click', function(){
 });
 
 setTimeout(function(){
-  if (!$('install').classList.contains('open')) showInstall(false);
+  if (!$('install').classList.contains('open') && !$('save-album').classList.contains('open')) showInstall(false);
 }, 3500);
 
 /* Service Worker */
