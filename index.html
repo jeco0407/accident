@@ -420,20 +420,17 @@ body.is-offline .chip-off{display:flex}
 .ph .t{flex:1;min-width:0;display:block;font-size:16.5px;font-weight:600;line-height:1.4}
 .ph .s{display:block;font-size:13.5px;color:var(--muted);font-weight:400;margin-top:3px;line-height:1.45}
 .ph.done .t{color:var(--green-ink)}
-/* 視覺維持 24px 的小方框，用偽元素把可點區域擴張到 44px。
-   不能改 padding —— 外框會跟著撐大，方框就變形了。 */
-.ph .box{
-  position:relative;
-  flex:0 0 24px;height:24px;border-radius:7px;border:1.5px solid var(--line);
-  display:flex;align-items:center;justify-content:center;transition:.25s ease;
+.ph.done .ic svg{width:20px;height:20px}
+.ph.done .ic path{stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;fill:none}
+/* 行車記錄器那一列：沒有照片可拍，改成一顆文字鍵 */
+.ph .mark{
+  flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;min-height:44px;padding:0 12px;
+  border-radius:12px;border:1px solid var(--line);
+  font-size:14px;font-weight:600;color:var(--ink-2);white-space:nowrap;
 }
-/* inset:-10px 撐出來是 45×42 —— 高度差 2px 過不了 44。
-   改成明寫高度，就不會隨著方框本身的尺寸浮動。 */
-.ph .box::after{content:'';position:absolute;left:-10px;right:-10px;
-  top:50%;transform:translateY(-50%);height:44px}
-.ph.done .box{background:var(--green-ink);border-color:var(--green-ink)}
-.ph .box svg{width:13px;height:13px}
-.ph .box path{stroke:var(--on-green);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.ph .mark svg{width:14px;height:14px}
+.ph .mark path{stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.ph.done .mark{border-color:var(--green-line);color:var(--green-ink)}
 
 /* ═══════════ 電話 ═══════════ */
 .ph{cursor:pointer}
@@ -1010,12 +1007,12 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
           <a class="emg-card emg-110" href="tel:110">
             <span class="ic"><svg class="i"><use href="#ic-siren"/></svg></span>
             <span class="num">110</span><span class="lb">報警</span>
-            <span class="tip">點擊後手機會再確認撥打</span>
+            <span class="tip">會先確認才撥出</span>
           </a>
           <a class="emg-card emg-119" href="tel:119">
             <span class="ic"><svg class="i"><use href="#ic-cross"/></svg></span>
             <span class="num">119</span><span class="lb">有人受傷</span>
-            <span class="tip">點擊後手機會再確認撥打</span>
+            <span class="tip">會先確認才撥出</span>
           </a>
         </div>
         <!-- 沒有查證過的號碼就不顯示這一列（CONFIG.towTel 留空即隱藏） -->
@@ -2058,7 +2055,8 @@ var PHOTOS = [
   { ic:'plate', t:'對方車牌', s:'車牌要清晰可辨識' },
   { ic:'id',    t:'對方駕照與行照', s:'徵得同意後拍攝' },
   { ic:'wave',  t:'煞車痕與散落物', s:'地面痕跡、碎片位置，會影響肇責認定' },
-  { ic:'video', t:'行車記錄器備份', s:'當場存檔，避免循環錄影覆蓋' }
+  /* 影片拍不進來，只能手動標記 */
+  { ic:'video', t:'行車記錄器備份', s:'當場存檔，避免循環錄影覆蓋', manual:true }
 ];
 
 /* ── 照片儲存：IndexedDB（照片是 Blob，localStorage 放不下） ── */
@@ -2220,30 +2218,34 @@ function renderPH(){
     }
 
     row.innerHTML =
-      '<span class="ic">' + ico(p.ic) + '</span>' +
+      '<span class="ic">' + (done ? CHECK : ico(p.ic)) + '</span>' +
       '<span class="body">' +
         '<span class="t">' + p.t + '<span class="s">' + p.s + '</span></span>' +
         thumbs +
       '</span>' +
-      '<button class="shoot" aria-label="拍照">' + ico('camera') + '</button>' +
-      '<button class="box" aria-label="標記完成" aria-pressed="' + (done ? 'true' : 'false') + '">' + CHECK + '</button>';
+      (p.manual
+        ? '<button class="mark" aria-pressed="' + (done ? 'true' : 'false') + '">' +
+            (done ? CHECK + '已備份' : '標記已備份') + '</button>'
+        : '<button class="shoot" aria-label="拍照">' + ico('camera') + '</button>');
 
-    row.querySelector('.shoot').addEventListener('click', function(e){
-      e.stopPropagation(); shoot(i);
-    });
-    row.querySelector('.box').addEventListener('click', function(e){
-      e.stopPropagation();
+    /* 一列只有一個按鈕：拍了照就算完成，不用另外打勾。
+       舊版手動打的勾（st[i]）照樣算數，按「重設」會清掉 */
+    function toggle(){
       var cur = load(LS.ph);
-      cur[i] = !(st[i] || shots.length > 0);
+      cur[i] = !done;
       save(LS.ph, cur);
       renderPH();
+    }
+    row.querySelector(p.manual ? '.mark' : '.shoot').addEventListener('click', function(e){
+      e.stopPropagation();
+      if (p.manual) toggle(); else shoot(i);
     });
     row.querySelectorAll('.thumbs img').forEach(function(im){
       im.addEventListener('click', function(e){
         e.stopPropagation(); openViewer(+im.dataset.id);
       });
     });
-    row.addEventListener('click', function(){ shoot(i); });
+    row.addEventListener('click', function(){ if (p.manual) toggle(); else shoot(i); });
 
     box.appendChild(row);
   });
