@@ -535,15 +535,23 @@ body.is-offline .chip-off{display:flex}
 }
 .fineprint{font-size:13.5px;color:var(--muted);line-height:1.6;margin:14px 0 0}
 
-/* ── 關於我們：「設定」頁最上方的自我介紹 ── */
-.about{padding:18px}
+/* ── 關於我們：「設定」頁最上方的自我介紹 ──
+   設定頁整頁是平鋪的清單，不包卡片：分區只靠小標題與留白，
+   跟手機內建設定、LINE 設定的讀法一樣。 */
+#v-me .about{padding:16px}
 .about-top{display:flex;align-items:center;gap:12px}
 .about-top img{flex:0 0 52px;width:52px;height:52px;display:block}
-.about-top .nm{font-size:18px;font-weight:700;letter-spacing:-.01em;margin:0}
-.about p.tx{font-size:14.5px;color:var(--ink-2);line-height:1.7;margin:12px 0 0}
+.about-top .nm{flex:1;min-width:0;white-space:nowrap;font-size:18px;font-weight:700;letter-spacing:-.01em;margin:0}
+.about-line{
+  display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;
+  border-radius:999px;background:var(--solid-bg);color:var(--solid-fg);
+  font-size:15px;font-weight:600;text-decoration:none;white-space:nowrap;
+}
+.about-line[hidden]{display:none}
+.about-line .i{width:17px;height:17px}
+.about-line:active{opacity:.85}
+.about p.tx{font-size:14.5px;color:var(--ink-2);line-height:1.75;margin:14px 0 0}
 .about p.tx + p.tx{margin-top:6px}
-.about .btn-primary{margin-top:16px;min-height:48px;font-size:16px;text-decoration:none}
-.about .btn-primary .i{width:19px;height:19px}
 
 .row-btn{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:16px 18px;min-height:60px}
 .row-btn + .row-btn{border-top:1px solid var(--line-soft)}
@@ -555,79 +563,72 @@ body.is-offline .chip-off{display:flex}
 .row-btn.warn .t,.row-btn.warn .ic{color:var(--red)}
 a.row-btn{color:inherit;text-decoration:none}
 
+/* 設定頁：每一項各自一個淡框，框與框之間留空隙 —— 不用粗陰影、
+   不把整組包成一張大卡，只要看得出一項一項分開就好 */
+#v-me .row-btn, #v-me .about, #v-me .case-card, #v-me .case-empty, #v-me .seg{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+}
+#v-me .row-btn{padding:0 16px;min-height:56px;gap:14px}
+#v-me .row-btn + .row-btn{border-top:1px solid var(--line);margin-top:8px}
+#v-me .row-btn .ic{color:var(--ink-2)}
+#v-me .row-btn .t{font-size:16.5px}
+
 /* ── 事故案件 ──
-   一件一張卡。目前這件用底色與動作按鈕標示，其他件只有「切換到這件」——
-   切換時按鈕整組換位置，變化就發生在手指按下去的地方。 */
-.case-card{padding:16px;margin-bottom:10px}
-.case-card.is-cur{background:var(--head-bg);border-color:var(--head-line)}
+   一件一段：標題、摘要，底下一排文字按鈕。目前這件多了「分享照片」
+   與「結案」，其他件只有「切換到這件」。刪除放最右、紅字 ——
+   不可逆的動作不該跟常用動作擠在一起。 */
+.case-card{padding:14px 14px 4px}
+.case-card + .case-card{margin-top:8px}
 
 .cc-top{display:flex;align-items:center;gap:14px}
-.cc-ic{
-  flex:0 0 44px;height:44px;border-radius:var(--r-sm);
-  background:var(--inset);color:var(--brand);
-  display:flex;align-items:center;justify-content:center;
-}
-.case-card.is-cur .cc-ic{background:var(--card)}
-.cc-ic .i{width:22px;height:22px}
+.cc-ic{flex:0 0 40px;height:40px;border-radius:12px;
+  background:var(--bg);color:var(--brand);
+  display:flex;align-items:center;justify-content:center}
+.case-card.is-cur .cc-ic{background:var(--solid-bg);color:var(--solid-fg)}
+.cc-ic .i{width:21px;height:21px}
 .cc-txt{flex:1;min-width:0}
 .cc-title{
-  display:flex;align-items:center;gap:9px;flex-wrap:wrap;
-  font-size:17.5px;font-weight:700;letter-spacing:-.01em;line-height:1.3;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  font-size:17px;font-weight:700;letter-spacing:-.01em;line-height:1.3;
 }
 .cc-tag{
-  font-size:12.5px;font-weight:700;letter-spacing:.02em;
-  padding:3px 9px;border-radius:999px;
+  font-size:12px;font-weight:700;letter-spacing:.02em;
+  padding:2px 8px;border-radius:999px;
   background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-line);
 }
 .cc-tag.done{background:var(--inset);color:var(--muted);border-color:var(--line)}
-.cc-meta{display:block;font-size:13.5px;color:var(--muted);line-height:1.5;margin-top:3px}
+.cc-meta{display:block;font-size:13.5px;color:var(--muted);line-height:1.5;margin-top:2px}
 
-.cc-acts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.cc-acts{display:flex;align-items:center;gap:4px;margin:4px -6px 0 44px}
 .cc-acts button{
-  min-height:44px;border-radius:var(--r-sm);
-  background:var(--card);border:1px solid var(--line);
-  font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--ink);
+  display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 10px;
+  font-size:15px;font-weight:600;color:var(--brand);border-radius:10px;
 }
-.case-card.is-cur .cc-acts button{border-color:var(--head-line)}
-.cc-acts button:active{transform:scale(.98)}
-.cc-acts button.wide{grid-column:1 / -1}
+.cc-acts button .i{width:17px;height:17px}
+.cc-acts button:active{background:var(--inset)}
+.cc-acts .cc-del{margin-left:auto;color:var(--red);font-weight:500;font-size:14px}
 
-.cc-note{font-size:13px;color:var(--muted);line-height:1.6;margin:12px 2px 0}
-/* 刪除獨立一列、靠右、字小 —— 不可逆的動作不該跟常用動作長得一樣大 */
-.cc-foot{display:flex;justify-content:flex-end;margin:2px -6px -10px 0}
-.cc-del{color:var(--red);font-size:13.5px;font-weight:500;
-  min-height:44px;padding:0 6px;display:flex;align-items:center}
+.cc-note{font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 10px 54px}
 
-.case-new{
-  display:flex;align-items:center;gap:14px;width:100%;
-  padding:14px 16px;min-height:52px;
-  background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
-  box-shadow:var(--shadow);text-align:left;
-}
-.case-new .plus{font-size:20px;font-weight:600;color:var(--ink-2);width:24px;text-align:center}
-.case-new .t{flex:1;font-size:16px;font-weight:600}
-.case-new .ar{color:var(--chev);font-size:19px}
-.case-new:active{transform:scale(.995)}
+#v-me .case-new{margin-top:8px;padding:0 14px}
+#v-me .case-new .ic{font-size:22px;font-weight:500;width:40px;justify-content:center;color:var(--brand)}
+#v-me .case-new .t{color:var(--brand);font-weight:600}
 
-.set-foot{font-size:13px;color:var(--muted);line-height:1.7;margin:10px 4px 0}
-
+.set-foot{font-size:13px;color:var(--muted);line-height:1.7;margin:6px 2px 0}
 
 /* 空白狀態：App 內部仍然握著一個案件，但那是實作需求，不該讓使用者
    在列表裡看到一列「未記錄地點」—— 那看起來就像剛才根本沒刪掉。 */
-.case-empty{padding:26px 20px;text-align:center}
-.case-empty .t{font-size:16px;font-weight:500;color:var(--ink-2)}
-.case-empty .s{font-size:13.5px;color:var(--muted);line-height:1.65;margin-top:8px}
+.case-empty{padding:16px}
+.case-empty .t{font-size:16px;font-weight:600;color:var(--ink-2)}
+.case-empty .s{font-size:13.5px;color:var(--muted);line-height:1.65;margin-top:4px}
 
-.seg{display:flex;gap:7px;padding:14px 16px}
+.seg{display:flex;gap:4px;padding:4px}
 .seg button{
-  flex:1;min-height:46px;border-radius:11px;
-  border:1px solid var(--line);background:var(--bg);
+  flex:1;min-height:44px;border-radius:11px;
   font-size:15px;font-weight:600;color:var(--muted);
-  transition:background .2s ease, color .2s ease, border-color .2s ease;
+  transition:background .2s ease, color .2s ease;
 }
-.seg button[aria-pressed="true"]{
-  background:var(--solid-bg);color:var(--solid-fg);border-color:var(--solid-bg);
-}
+.seg button[aria-pressed="true"]{background:var(--solid-bg);color:var(--solid-fg)}
 /* ── 求償 ── */
 .comp-g{
   padding:13px 18px 5px;font-size:13px;font-weight:600;
@@ -1169,16 +1170,14 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
       </div>
 
       <!-- 關於我們。聯絡鍵連到 CONFIG.contactUrl，由 applyConfig() 填 -->
-      <div class="blk">
-        <div class="card about">
-          <div class="about-top">
-            <img src="icons/about.png" alt="保險好鄰居的頭像" width="52" height="52" decoding="async">
-            <p class="nm">保險好鄰居</p>
-          </div>
-          <p class="tx">車禍當下，多數人第一次遇到都會慌：該先打給誰、要拍哪些照片、能不能移車？我把這些整理成 Guardy，讓你在現場一步一步照著做。</p>
-          <p class="tx">遇到不確定的地方，隨時用 LINE 找我。你先顧好自己的安全，其他的我陪你一起處理。</p>
-          <a class="btn-primary about-line" hidden><svg class="i"><use href="#ic-chat"/></svg>用 LINE 找我</a>
+      <div class="blk about">
+        <div class="about-top">
+          <img src="icons/about.png" alt="保險好鄰居的頭像" width="52" height="52" decoding="async">
+          <p class="nm">保險好鄰居</p>
+          <a class="about-line" hidden><svg class="i"><use href="#ic-chat"/></svg>用 LINE 找我</a>
         </div>
+        <p class="tx">車禍當下，多數人第一次遇到都會慌：該先打給誰、要拍哪些照片、能不能移車？我把這些整理成 Guardy，讓你在現場一步一步照著做。</p>
+        <p class="tx">遇到不確定的地方，隨時用 LINE 找我。你先顧好自己的安全，其他的我陪你一起處理。</p>
       </div>
 
       <div class="blk">
@@ -1188,42 +1187,37 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 
       <div class="blk">
         <p class="sec-label">照片與進度</p>
-        <div class="card">
-          <button class="row-btn warn" id="btn-del-photos">
-            <span class="ic"><svg class="i"><use href="#ic-camera"/></svg></span>
-            <span class="t">刪除本案件的照片</span><span class="ar">›</span>
-          </button>
-          <button class="row-btn warn" id="btn-reset-all">
-            <span class="ic"><svg class="i"><use href="#ic-ban"/></svg></span>
-            <span class="t">清除本案件的進度</span><span class="ar">›</span>
-          </button>
-        </div>
+        <button class="row-btn warn" id="btn-del-photos">
+          <span class="ic"><svg class="i"><use href="#ic-camera"/></svg></span>
+          <span class="t">刪除本案件的照片</span><span class="ar">›</span>
+        </button>
+        <button class="row-btn warn" id="btn-reset-all">
+          <span class="ic"><svg class="i"><use href="#ic-ban"/></svg></span>
+          <span class="t">清除本案件的進度</span><span class="ar">›</span>
+        </button>
         <p class="set-foot" id="storage-info"></p>
       </div>
 
       <div class="blk">
         <p class="sec-label">外觀</p>
-        <div class="card">
-          <div class="seg" id="seg-theme">
-            <button data-v="auto">跟隨系統</button>
-            <button data-v="light">淺色</button>
-            <button data-v="dark">深色</button>
-          </div>
+        <div class="seg" id="seg-theme">
+          <button data-v="auto">跟隨系統</button>
+          <button data-v="light">淺色</button>
+          <button data-v="dark">深色</button>
         </div>
       </div>
 
       <div class="blk">
         <p class="sec-label">關於</p>
-        <div class="card">
-          <a class="row-btn" href="terms.html" id="row-terms">
-            <span class="ic"><svg class="i"><use href="#ic-doc"/></svg></span>
-            <span class="t">服務條款</span><span class="ar">›</span>
-          </a>
-          <a class="row-btn" href="privacy.html">
-            <span class="ic"><svg class="i"><use href="#ic-id"/></svg></span>
-            <span class="t">隱私權政策</span><span class="ar">›</span>
-          </a>
-        </div>
+        <a class="row-btn" href="terms.html" id="row-terms">
+          <span class="ic"><svg class="i"><use href="#ic-doc"/></svg></span>
+          <span class="t">服務條款</span><span class="ar">›</span>
+        </a>
+        <a class="row-btn" href="privacy.html">
+          <span class="ic"><svg class="i"><use href="#ic-id"/></svg></span>
+          <span class="t">隱私權政策</span><span class="ar">›</span>
+        </a>
+      </div>
 
       <div class="brandfoot" id="brandfoot"></div>
     </div>
@@ -3039,8 +3033,8 @@ function caseIsEmpty(id){
 }
 
 var NEW_CARD =
-  '<button class="case-new" data-act="new">' +
-    '<span class="plus">＋</span><span class="t">開始新案件</span><span class="ar">›</span>' +
+  '<button class="row-btn case-new" data-act="new">' +
+    '<span class="ic">＋</span><span class="t">開始新案件</span><span class="ar">›</span>' +
   '</button>';
 
 function caseMeta(id){
@@ -3069,7 +3063,7 @@ function renderCases(){
 
   if (hideCur){
     var onlyOne = cases.list.length === 1;
-    h += '<div class="card case-empty">' +
+    h += '<div class="case-empty">' +
            '<div class="t">' + (onlyOne ? '目前沒有事故紀錄' : '目前沒有進行中的紀錄') + '</div>' +
            '<div class="s">在「現場」取得位置，或到「存證」拍第一張照片，<br>' +
              '這裡就會自動出現一件。</div>' +
@@ -3081,7 +3075,7 @@ function renderCases(){
     var isCur = x.id === cases.cur;
     if (isCur && hideCur) continue;   /* 上面那張空白狀態就是它 */
 
-    h += '<div class="card case-card' + (isCur ? ' is-cur' : '') + '">' +
+    h += '<div class="case-card' + (isCur ? ' is-cur' : '') + '">' +
            '<div class="cc-top">' +
              '<span class="cc-ic">' + ico('folder') + '</span>' +
              '<span class="cc-txt">' +
@@ -3091,23 +3085,17 @@ function renderCases(){
                '</span>' +
                '<span class="cc-meta">' + caseMeta(x.id) + '</span>' +
              '</span>' +
-           '</div>';
-
-    if (isCur){
-      h += '<div class="cc-acts">' +
-             '<button data-act="share">分享照片</button>' +
-             (x.closed
-               ? '<button data-act="reopen">重新開啟</button>'
-               : '<button data-act="close">結案</button>') +
            '</div>' +
-           '<p class="cc-note">理賠常拖好幾個月。結案後紀錄仍會留著，隨時可以回來看。</p>';
-    } else {
-      h += '<div class="cc-acts">' +
-             '<button class="wide" data-go="' + x.id + '">切換到這件</button>' +
-           '</div>';
-    }
-
-    h += '<div class="cc-foot"><button class="cc-del" data-del="' + x.id + '">刪除這件</button></div>' +
+           '<div class="cc-acts">' +
+             (isCur
+               ? '<button data-act="share">' + ico('share') + '分享照片</button>' +
+                 (x.closed
+                   ? '<button data-act="reopen">' + ico('arrow') + '重新開啟</button>'
+                   : '<button data-act="close">' + ico('check') + '結案</button>')
+               : '<button data-go="' + x.id + '">' + ico('arrow') + '切換到這件</button>') +
+             '<button class="cc-del" data-del="' + x.id + '">刪除</button>' +
+           '</div>' +
+           (isCur ? '<p class="cc-note">理賠常拖好幾個月。結案後紀錄仍會留著，隨時可以回來看。</p>' : '') +
          '</div>';
   }
 
