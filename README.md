@@ -63,7 +63,7 @@ v58 起**不上架商店**，直接發網址。
 
 **v59 起移除了歡迎、註冊、登入、身分四屏，以及整段帳號與雲端同步的程式。** App 打開就是現場頁，所有資料只存在手機裡。
 
-以前用 `?auth=1` 預覽過的瀏覽器，本機還留著 `aa.authpreview.v1` 等 key，現在沒有任何程式會讀它們，不必清。帳號制的設計與 Supabase schema 留在 [ARCHITECTURE.md](ARCHITECTURE.md) 與 `supabase/` 當紀錄。
+以前用 `?auth=1` 預覽過的瀏覽器，本機還留著 `aa.authpreview.v1` 等 key，現在沒有任何程式會讀它們，不必清。帳號制的設計留在 [ARCHITECTURE.md](ARCHITECTURE.md) 當紀錄；SQL 檔已在 v79 刪除，需要時從 git 歷史取回。
 
 ## 事故案件
 
@@ -167,7 +167,6 @@ Google Play 也有類似條款，但對 TWA 的容忍度高很多，因為 TWA �
 index.html      主程式，CSS 與 JS 全部內嵌
 privacy.html    隱私權政策（商店上架必要）
 terms.html      服務條款
-supabase/       已停用（v59 移除帳號）。帳號制的 schema 與 RLS，留作紀錄
 manifest.json   PWA manifest
 sw.js           service worker，cache-first 快取 app shell
 vercel.json     快取標頭設定

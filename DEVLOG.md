@@ -251,6 +251,12 @@ iOS 的 standalone PWA 常常擋掉 `window.open`，「開啟地圖」會沒反�
 
 版號指的是 `sw.js` 裡的 `VERSION`。**改任何檔案都必須把它加一**，否則 cache-first 的舊快取不會被清掉，已安裝的使用者會永遠停在舊版 —— 這是唯一一個漏掉就會出事的步驟。
 
+### v79 — 清掉沒用的檔案
+
+刪除 `supabase/`（v59 移除帳號後留作紀錄的三個 SQL，要看從 git 歷史取回）、沒有被 manifest 引用的 `screenshots/05-me.png`、`06-scene-dark.png`。
+
+另外補上 v77 換 Logo 時漏掉的根目錄 `favicon.ico`（瀏覽器分頁圖示），改用新 Logo 的 `icons/icon-512.png` 縮成 16／32／48。service worker 版本換成 `aa-v79`，舊的圖示快取才會被換掉。
+
 ### v78 — 只拍照也算一件事故；「分享照片」改成「匯出案件紀錄」
 
 - **修正**：判斷案件是不是空的（`caseIsEmpty`）只看案件的 localStorage，但照片存在 IndexedDB。結果「沒取得位置、只在存證拍了照」的事故被當成空的，設定頁不顯示。現在目前這件看 `PHOTO_CACHE`，其他件看 `photoCounts`。

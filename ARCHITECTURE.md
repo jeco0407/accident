@@ -189,7 +189,7 @@ create policy "agent self update" on agents for update using (auth.uid() = id);
 
 原本這一條寫的是「業務員看不到客戶的事故內容」。v43 取消綁定之後，它變得更絕對：Guardy 沒有任何後台，`incidents` 與 `profiles` 的政策從頭到尾只認一件事 —— `auth.uid() = 本人`。
 
-**`profiles.role` 絕不可以出現在任何政策裡。** 那個欄位是使用者自己勾的、沒有驗證，一旦寫成 `using (role = 'agent')`，等於把整張表開放給所有願意點兩下的人。`supabase/003_role.sql` 因此刻意不建立也不修改任何政策，檔案末尾附了一句驗證查詢，跑完應該回傳 0 列。
+**`profiles.role` 絕不可以出現在任何政策裡。** 那個欄位是使用者自己勾的、沒有驗證，一旦寫成 `using (role = 'agent')`，等於把整張表開放給所有願意點兩下的人。`supabase/（已刪除，見 git 歷史）003_role.sql` 因此刻意不建立也不修改任何政策，檔案末尾附了一句驗證查詢，跑完應該回傳 0 列。
 
 要讓業務員或任何人知道細節，走**使用者主動分享**（現有的「複製」「分享」按鈕），不要走後台查詢。
 
