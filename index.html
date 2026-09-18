@@ -742,6 +742,16 @@ a.row-btn{color:inherit;text-decoration:none}
 .cdoc tr.sum td{padding:14px 0 0;border:0;border-top:2px solid #16130F;
   font-size:16px;font-weight:700;color:#16130F}
 .cdoc .sign{display:flex;gap:24px;margin-top:34px}
+/* 事故紀錄：勾選清單與照片 */
+.cdoc .chk{display:flex;gap:10px;font-size:13.5px;padding:3px 0;color:#16130F}
+.cdoc .chk .m{flex:0 0 1.2em;font-weight:700;color:#1F5F45}
+.cdoc .chk.no{color:#6E665D}
+.cdoc .chk.no .m{color:#6E665D}
+.cdoc .chk .n{margin-left:auto;color:#5B554C;font-variant-numeric:tabular-nums}
+.crec-ph{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.crec-ph figure{margin:0}
+.crec-ph img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;border:1px solid #E5DED2;background:#F4EFE6}
+.crec-ph figcaption{font-size:11px;color:#5B554C;margin-top:3px;line-height:1.35}
 .cdoc .sign div{flex:1;font-size:12.5px;color:#5B554C;
   border-top:1px solid #16130F;padding-top:6px}
 
@@ -750,10 +760,11 @@ a.row-btn{color:inherit;text-decoration:none}
 @media print{
   html,body{height:auto!important;overflow:visible!important;background:#fff!important}
   body > *{display:none!important}
-  body > #cdoc-sheet{display:block!important;position:static!important;
+  body > .sheet.printable.open{display:block!important;position:static!important;
     inset:auto!important;padding:0!important;background:#fff!important;animation:none!important}
-  #cdoc-sheet .sheet-top,#cdoc-sheet .cdoc-print-hide{display:none!important}
-  #cdoc-sheet .sheet-scroll{overflow:visible!important;display:block!important}
+  .sheet.printable .sheet-top,.sheet.printable .cdoc-print-hide{display:none!important}
+  .sheet.printable .sheet-scroll{overflow:visible!important;display:block!important}
+  .crec-ph figure{break-inside:avoid}
   .cdoc{max-width:none;margin:0;padding:0;box-shadow:none}
   .cdoc .warn{background:#fff;border-color:#B9AFA1;color:#3A342C}
   @page{margin:16mm}
@@ -1291,7 +1302,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 
 <!-- 損害賠償請求明細。列印時 body 底下只有這一個會留著，
      所以它必須是 body 的直接子元素，不能包在 .views 裡面 -->
-<div class="sheet" id="cdoc-sheet" role="dialog" aria-modal="true" aria-label="損害賠償請求明細">
+<div class="sheet printable" id="cdoc-sheet" role="dialog" aria-modal="true" aria-label="損害賠償請求明細">
   <div class="sheet-top">
     <span class="sheet-title">請求明細</span>
     <button class="sheet-close" id="cdoc-close">關閉</button>
@@ -1304,6 +1315,28 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
         <button id="cdoc-copy"><span class="i-w"><svg class="i"><use href="#ic-copy"/></svg></span>複製文字</button>
       </div>
       <p class="note-soft">「列印」會開啟系統的列印視窗，在那裡可以選擇「儲存為 PDF」。</p>
+    </div>
+  </div>
+</div>
+
+<!-- 事故紀錄：把這件事故 App 裡記下的東西整理成一份，可以存成 PDF、複製文字、分享照片。
+     跟請求明細一樣必須是 body 的直接子元素，列印時才只印這一張 -->
+<div class="sheet printable" id="crec-sheet" role="dialog" aria-modal="true" aria-label="事故紀錄">
+  <div class="sheet-top">
+    <span class="sheet-title">事故紀錄</span>
+    <button class="sheet-close" id="crec-close">關閉</button>
+  </div>
+  <div class="sheet-scroll">
+    <div class="cdoc" id="crec-body"></div>
+    <div class="cdoc-print-hide" style="max-width:520px;margin:0 auto;padding:0 22px 28px">
+      <div class="cdoc-actions">
+        <button id="crec-print"><span class="i-w"><svg class="i"><use href="#ic-doc"/></svg></span>列印／存成 PDF</button>
+        <button id="crec-copy"><span class="i-w"><svg class="i"><use href="#ic-copy"/></svg></span>複製文字</button>
+      </div>
+      <div class="cdoc-actions">
+        <button id="crec-share"><span class="i-w"><svg class="i"><use href="#ic-share"/></svg></span><span id="crec-share-t">分享照片</span></button>
+      </div>
+      <p class="note-soft">「列印」會開啟系統的列印視窗，在那裡可以選擇「儲存為 PDF」，照片會一起印進去。</p>
     </div>
   </div>
 </div>
@@ -2433,7 +2466,7 @@ function renderStorage(){
   var mb = (bytes / 1048576).toFixed(1);
   /* 「只存在手機裡」頁尾已經講了，這裡只報數字 */
   el.textContent = '目前這件事故有照片 ' + n + ' 張，約 ' + mb + ' MB。' +
-    (n ? '建議用事故卡上的「分享照片」再備份一份到相簿。' : '');
+    (n ? '建議用事故卡上的「匯出案件紀錄」→「分享照片」再備份一份到相簿。' : '');
 }
 
 $('ph-reset').addEventListener('click', function(){
@@ -2533,6 +2566,7 @@ document.addEventListener('keydown', function(e){
   if (e.key !== 'Escape') return;
   /* 確認對話框疊在最上層，Esc 應該只關掉它，不要一路關掉底下的東西 */
   if ($('ask').classList.contains('open')){ askClose(false); return; }
+  if ($('crec-sheet').classList.contains('open')) closeCrec();
   if ($('other-sheet').classList.contains('open')){ $('other-sheet').classList.remove('open'); renderOther(); }
   if ($('viewer').classList.contains('open')) closeViewer();
 });
@@ -2779,6 +2813,132 @@ $('cdoc-copy').addEventListener('click', function(){
   copyText(cdocText(), '明細已複製');
 });
 
+/* =========================================================
+   事故紀錄（設定頁事故卡上的「匯出案件紀錄」）
+   只整理目前這件 —— PHOTO_CACHE 與 load() 本來就只裝目前案件
+   ========================================================= */
+var crecUrls = [];
+function crecFree(){ crecUrls.forEach(function(u){ URL.revokeObjectURL(u); }); crecUrls = []; }
+
+function crecWhen(){
+  var site = state.site, c = caseById(cases.cur);
+  var t = (site && site.at) || (c && c.ts);
+  return t ? new Date(t).toLocaleString('zh-TW', { hour12:false }) : '';
+}
+function crecPlace(){
+  var site = state.site;
+  return site ? (site.addr || (hasCoords(site) ? fmtLL(site) : '')) : '';
+}
+
+function renderCrec(){
+  var ot = otherData(), site = state.site, tl = tlState(load(LS.tl)), cl = load(LS.claim),
+      ph = load(LS.ph), docs = load(LS.compdoc), rows = cdocRows();
+  function kv(k, v){
+    var has = (v || '').toString().trim();
+    return '<div class="kv"><span class="k">' + esc(k) + '</span>' +
+           '<span class="v' + (has ? '' : ' none') + '">' + esc(has || '未記錄') + '</span></div>';
+  }
+  function chk(done, t, n){
+    return '<div class="chk' + (done ? '' : ' no') + '"><span class="m">' + (done ? '✓' : '—') + '</span>' +
+           '<span>' + esc(t) + '</span>' + (n != null ? '<span class="n">' + esc(n) + '</span>' : '') + '</div>';
+  }
+
+  crecFree();
+  var h = '<h2>交通事故紀錄</h2><p class="made">匯出日期：' + cdocDate() + '</p>';
+
+  h += '<section><p class="sec-t">事故</p>' + kv('時間', crecWhen()) + kv('地點', crecPlace());
+  if (hasCoords(site)) h += kv('座標', fmtLL(site)) +
+    kv('地圖', 'https://www.google.com/maps?q=' + site.lat + ',' + site.lon);
+  h += '</section>';
+
+  h += '<section><p class="sec-t">對方資料</p>';
+  OTHER_FIELDS.forEach(function(f){ h += kv(f.t, ot[f.k]); });
+  h += '</section>';
+
+  h += '<section><p class="sec-t">現場處理</p>';
+  sceneSteps().forEach(function(s){ h += chk(tl[s.id], s.t); });
+  h += '</section>';
+
+  /* 照片：清單每一項的張數，下面再把所有照片排出來 */
+  h += '<section><p class="sec-t">拍照存證（共 ' + PHOTO_CACHE.length + ' 張）</p>';
+  var figs = '';
+  PHOTOS.forEach(function(p, i){
+    var shots = photosOf(i);
+    h += chk(shots.length > 0 || !!ph[i], p.t,
+             p.manual ? (ph[i] ? '已備份' : '') : shots.length + ' 張');
+    shots.forEach(function(r, k){
+      var u = URL.createObjectURL(recBlob(r)); crecUrls.push(u);
+      figs += '<figure><img src="' + u + '" alt=""><figcaption>' + esc(p.t) +
+              (shots.length > 1 ? ' ' + (k + 1) : '') + '</figcaption></figure>';
+    });
+  });
+  if (figs) h += '<div class="crec-ph">' + figs + '</div>';
+  h += '</section>';
+
+  h += '<section><p class="sec-t">通知保險公司</p>';
+  CLAIM_STEPS.forEach(function(s){ h += chk(!!cl[s.id], s.t); });
+  h += '</section>';
+
+  h += '<section><p class="sec-t">損失金額（有單據的）</p>';
+  if (rows.length){
+    var total = rows.reduce(function(a, r){ return a + r.v; }, 0);
+    rows.forEach(function(r){ h += kv(r.t, money(r.v)); });
+    h += kv('合計', money(total));
+  } else h += kv('金額', '');
+  h += '</section>';
+
+  h += '<section><p class="sec-t">調解準備文件</p>';
+  COMP_DOCS.forEach(function(x, i){ h += chk(!!docs[i], x); });
+  h += '</section>';
+
+  h += '<p class="warn">本紀錄由 Guardy 依使用者在 App 中記下的內容整理，僅供個人留存與提供保險公司、調解單位參考。</p>';
+  $('crec-body').innerHTML = h;
+  $('crec-share-t').textContent = PHOTO_CACHE.length ? '分享照片（' + PHOTO_CACHE.length + ' 張）' : '分享照片';
+}
+
+/* 純文字版：貼到 LINE 給業務員或保險公司 */
+function crecText(){
+  var ot = otherData(), site = state.site, tl = tlState(load(LS.tl)), cl = load(LS.claim),
+      ph = load(LS.ph), rows = cdocRows();
+  var L = ['交通事故紀錄', '匯出日期：' + cdocDate(), ''];
+  L.push('時間：' + (crecWhen() || '未記錄'));
+  L.push('地點：' + (crecPlace() || '未記錄'));
+  if (hasCoords(site)) L.push('地圖：https://www.google.com/maps?q=' + site.lat + ',' + site.lon);
+
+  var theirs = OTHER_FIELDS.map(function(f){ return (ot[f.k] || '').trim() ? f.t + ' ' + ot[f.k].trim() : ''; }).filter(Boolean);
+  L.push('', '【對方資料】' + (theirs.length ? theirs.join('／') : '未記錄'));
+
+  L.push('', '【現場處理】');
+  sceneSteps().forEach(function(s){ L.push((tl[s.id] ? '✓ ' : '— ') + s.t); });
+
+  L.push('', '【拍照存證】共 ' + PHOTO_CACHE.length + ' 張');
+  PHOTOS.forEach(function(p, i){
+    var n = photosOf(i).length;
+    L.push(((n || ph[i]) ? '✓ ' : '— ') + p.t + (p.manual ? (ph[i] ? '（已備份）' : '') : '（' + n + ' 張）'));
+  });
+
+  L.push('', '【通知保險公司】');
+  CLAIM_STEPS.forEach(function(s){ L.push((cl[s.id] ? '✓ ' : '— ') + s.t); });
+
+  if (rows.length){
+    L.push('', '【損失金額】');
+    rows.forEach(function(r){ L.push('  ' + r.t + '　' + money(r.v)); });
+    L.push('  合計　' + money(rows.reduce(function(a, r){ return a + r.v; }, 0)));
+  }
+  return L.join('\n');
+}
+
+function openCrec(){
+  renderCrec();
+  $('crec-sheet').classList.add('open');
+  $('crec-sheet').querySelector('.sheet-scroll').scrollTop = 0;
+}
+function closeCrec(){ $('crec-sheet').classList.remove('open'); crecFree(); }
+$('crec-close').addEventListener('click', closeCrec);
+$('crec-print').addEventListener('click', function(){ window.print(); });
+$('crec-copy').addEventListener('click', function(){ copyText(crecText(), '紀錄已複製'); });
+$('crec-share').addEventListener('click', function(){ sharePhotos(PHOTO_CACHE); });
+
 function renderComp(){
   var d = compData(), box = $('comp-form');
   box.innerHTML = '';
@@ -2997,6 +3157,10 @@ function switchCase(id){
 /* 這個案件有沒有任何內容。判斷用的是「所有欄位都空」，不是「沒有 key」——
    清除進度會留下一堆空物件（`{}`），那跟從沒填過是同一回事。 */
 function caseIsEmpty(id){
+  /* 照片存在 IndexedDB，不在案件的 localStorage 裡 —— 只拍了照、沒取得位置的案件
+     原本會被當成空的而不顯示。目前這件看 PHOTO_CACHE，其他件看非同步查來的張數 */
+  var shots = (id === cases.cur) ? PHOTO_CACHE.length : (photoCounts[id] || 0);
+  if (shots > 0) return false;
   var d = (id === cases.cur) ? caseData : rawLoad(caseKey(id)), k, v;
   for (k in d){
     if (!Object.prototype.hasOwnProperty.call(d, k)) continue;
@@ -3064,7 +3228,7 @@ function renderCases(){
            '</div>' +
            '<div class="cc-acts">' +
              (isCur
-               ? '<button data-act="share">' + ico('share') + '分享照片</button>' +
+               ? '<button data-act="export">' + ico('doc') + '匯出案件紀錄</button>' +
                  (x.closed
                    ? '<button data-act="reopen">' + ico('arrow') + '重新開啟</button>'
                    : '<button data-act="close">' + ico('check') + '結案</button>')
@@ -3094,11 +3258,7 @@ $('case-box').addEventListener('click', function(e){
 
   if (!act) return;
   var a = act.dataset.act, c = caseById(cases.cur);
-  if (a === 'share'){
-    /* 只分享目前這件的照片 —— PHOTO_CACHE 本來就只裝目前案件 */
-    sharePhotos(PHOTO_CACHE);
-    return;
-  }
+  if (a === 'export'){ openCrec(); return; }
   if (a === 'close'){
     /* 底層仍然會開一件新的（App 隨時要握著一個案件），但那件是空的、
        畫面上不顯示，所以問句與提示都不再提它 —— 講一件使用者看不到的

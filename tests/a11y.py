@@ -271,6 +271,10 @@ async def main():
                  "document.querySelectorAll('.tab')[3].click();"
                  "setTimeout(function(){document.getElementById('cdoc-open').click()},250)",
                  "document.getElementById('cdoc-close').click()"),
+                ("事故紀錄 #crec-sheet", "#crec-sheet",
+                 "document.querySelectorAll('.tab')[4].click();"
+                 "setTimeout(function(){var b=document.querySelector('[data-act=export]');b&&b.click()},300)",
+                 "document.getElementById('crec-close').click()"),
                 ("確認對話框 #ask", "#ask",
                  "document.querySelectorAll('.tab')[4].click();"
                  "setTimeout(function(){var b=document.querySelector('[data-del]');b&&b.click()},300)",
