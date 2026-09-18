@@ -254,7 +254,7 @@ async def main():
             print("\n── 五個分頁 ──")
             await ev("document.getElementById('loc-btn').click()")
             await asyncio.sleep(3)
-            for i, name in enumerate(['現場', '存證', '出險', '求償', '個人']):
+            for i, name in enumerate(['現場', '存證', '出險', '求償', '設定']):
                 await ev("document.querySelectorAll('.tab')[%d].click()" % i)
                 await asyncio.sleep(.7)
                 await audit(name, ".view.on")
@@ -263,9 +263,6 @@ async def main():
             print("\n── 各個 sheet ──")
             steps = [
                 # (標籤, 根, 開啟, 關閉)
-                ("設定 #set-sheet", "#set-sheet",
-                 "document.querySelector('.btn-settings').click()",
-                 "document.getElementById('set-close').click()"),
                 ("對方資料 #other-sheet", "#other-sheet",
                  "document.querySelectorAll('.tab')[0].click();"
                  "setTimeout(function(){document.getElementById('other-open').click()},250)",
@@ -278,10 +275,6 @@ async def main():
                  "document.querySelectorAll('.tab')[3].click();"
                  "setTimeout(function(){document.getElementById('cdoc-open').click()},250)",
                  "document.getElementById('cdoc-close').click()"),
-                ("個人資料 #me-sheet", "#me-sheet",
-                 "document.querySelectorAll('.tab')[4].click();"
-                 "setTimeout(function(){document.getElementById('prof-edit').click()},250)",
-                 "document.getElementById('me-close').click()"),
                 ("確認對話框 #ask", "#ask",
                  "document.querySelectorAll('.tab')[4].click();"
                  "setTimeout(function(){var b=document.querySelector('[data-del]');b&&b.click()},300)",
@@ -294,16 +287,7 @@ async def main():
                 await ev(cl)
                 await asyncio.sleep(.5)
 
-            print("\n── 需要真的檔案的兩屏 ──")
-            await ev("document.querySelectorAll('.tab')[4].click()")
-            await asyncio.sleep(.5)
-            if await upload("#av-picker"):
-                await audit("裁切頭貼 #crop", "#crop")
-                await ev("var b=document.getElementById('crop-cancel'); b && b.click()")
-                await asyncio.sleep(.5)
-            else:
-                report.append(("裁切頭貼 #crop", "-", "無法開啟", "找不到 #av-picker"))
-
+            print("\n── 需要真的檔案的一屏 ──")
             await ev("document.querySelectorAll('.tab')[1].click()")
             await asyncio.sleep(.6)
             # picker 的 change 處理器會檢查 pickSlot，沒有先按「拍照」就直接 return

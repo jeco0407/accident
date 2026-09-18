@@ -23,3 +23,6 @@ __pycache__/
 
 # 品牌插圖原檔（600KB）。部署用的是壓縮過的 icons/hero.jpg
 hero/
+
+# 自我介紹頭像原檔。部署用的是縮過的 icons/about.png
+about/

@@ -137,6 +137,13 @@ async def main():
             check("使用者輸入有跳脫，沒有變成真的 <img>",
                   "<img src=x" not in html and "&lt;img src=x" in html)
             check("有簽名欄", "請求人簽名" in txt)
+            # v65 起 App 不存使用者自己的資料：請求人欄是印出來手寫的底線，
+            # 舊版留下的 aa.me.v1 不但不讀，開啟時還會被清掉
+            check("請求人欄是四條空白底線",
+                  await ev("document.querySelectorAll('#cdoc-body .kv .v.blank').length") == 4)
+            check("舊的個人資料沒有被帶進表裡", ME["name"] not in txt)
+            check("舊的個人資料已從手機清掉",
+                  await ev("localStorage.getItem('aa.me.v1')") is None)
 
             print("\n=== 列印樣式 ===")
             await send("Emulation.setEmulatedMedia", {"media": "print"})

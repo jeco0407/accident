@@ -170,19 +170,8 @@ body.is-offline .chip-off{display:flex}
 :root[data-theme="dark"]{--hero-fade:rgba(26,24,19,.92);--hero-fade-mid:rgba(26,24,19,.55)}
 :root[data-theme="dark"] .hero-bg{opacity:.4;filter:saturate(.85)}
 
-/* 品牌列右側的設定鍵 */
 .head-row{display:flex;align-items:center;gap:12px}
 .head-row h1{flex:1;min-width:0}
-/* 設定視窗的內容從標題列下方開始，需要一點呼吸空間 */
-#set-sheet .sheet-inner{padding-top:18px}
-
-.head-btn{
-  margin-left:auto;width:44px;height:44px;margin-right:-10px;
-  display:flex;align-items:center;justify-content:center;
-  color:var(--ink-2);border-radius:50%;
-}
-.head-btn .i{width:22px;height:22px}
-.head-btn:active{background:var(--inset)}
 
 /* 卡片內的圓形圖示徽章 */
 .badge-ic{
@@ -546,99 +535,14 @@ body.is-offline .chip-off{display:flex}
 }
 .fineprint{font-size:13.5px;color:var(--muted);line-height:1.6;margin:14px 0 0}
 
-/* ── 個人卡片 ── */
-.prof{display:flex;align-items:center;gap:16px;padding:20px 18px}
-/* 頭貼本身就是「更換頭貼」的按鈕。另外放一顆小鉛筆，
-   點擊區只有二十幾 px，在晃動的手上根本按不到。 */
-.prof-av{
-  position:relative;flex:0 0 76px;width:76px;height:76px;border-radius:50%;
-  background:var(--head-bg);overflow:visible;
-  /* padding:0 是必要的，不是多寫的。全域的 button 重置漏了 padding，
-     瀏覽器預設的 1px 6px 會把裡面的圖擠成 64×74 的長方形，
-     object-fit:cover 再裁一次，底色就從左右兩側露出來。 */
-  padding:0;
-}
-.prof-av img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
-.prof-av .ini{
-  display:flex;align-items:center;justify-content:center;width:100%;height:100%;
-  border-radius:50%;background:var(--head-bg);color:var(--brand);
-  font-size:30px;font-weight:600;letter-spacing:.02em;
-}
-.prof-av .ini .i{width:34px;height:34px}
-.prof-av .cam{
-  position:absolute;right:-2px;bottom:-2px;width:27px;height:27px;border-radius:50%;
-  background:var(--solid-bg);color:var(--solid-fg);
-  border:2.5px solid var(--card);
-  display:flex;align-items:center;justify-content:center;
-}
-.prof-av .cam .i{width:14px;height:14px}
-.prof-t{flex:1;min-width:0}
-.prof-t .nm{font-size:20px;font-weight:700;letter-spacing:-.01em;margin:0;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.prof-t .nm.none{color:var(--muted);font-weight:600;font-size:18px}
-.prof-t .sub{font-size:13.5px;color:var(--muted);margin:5px 0 0;line-height:1.5;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* 編輯鍵單獨一列、整條可按。跟頭貼擠在同一列的話，兩個目標都會太小 */
-.prof-edit{
-  display:flex;align-items:center;justify-content:center;gap:7px;
-  width:100%;min-height:50px;border-top:1px solid var(--line-soft);
-  font-size:15.5px;font-weight:600;color:var(--brand);
-}
-.prof-edit .i{width:17px;height:17px}
-
-/* ── 頭貼裁切 ──
-   z-index 180：要蓋過 sheet（100）與 viewer（150），
-   但留在 ask（200）與 toast 之下。 */
-.crop{
-  position:fixed;inset:0;z-index:180;display:none;
-  flex-direction:column;background:#141110;
-  padding-top:env(safe-area-inset-top);
-  padding-bottom:env(safe-area-inset-bottom);
-}
-.crop.open{display:flex}
-.crop-top{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:6px 8px;flex:0 0 auto;
-}
-.crop-top button{min-height:48px;padding:0 14px;font-size:16.5px;color:rgba(255,255,255,.8)}
-.crop-top #crop-ok{font-weight:700;color:var(--brand-lite)}
-.crop-top .t{font-size:16px;font-weight:600;color:#fff}
-.crop-stage{flex:1;display:flex;align-items:center;justify-content:center;min-height:0}
-.crop-box{
-  position:relative;overflow:hidden;background:#000;
-  touch-action:none;             /* 自己處理拖曳與雙指，別讓瀏覽器搶去捲動 */
-  cursor:grab;
-}
-.crop-box:active{cursor:grabbing}
-.crop-box img{
-  position:absolute;left:50%;top:50%;
-  max-width:none;max-height:none;   /* 別讓其他規則把它縮回去 */
-  user-select:none;-webkit-user-drag:none;pointer-events:none;
-}
-/* 圓形取景框：用一圈超大的 box-shadow 把圓形以外壓暗，
-   比疊四個方塊乾淨，而且縮放時不會有接縫。 */
-.crop-mask{
-  position:absolute;inset:0;border-radius:50%;
-  box-shadow:0 0 0 9999px rgba(20,17,16,.62);
-  border:2px solid rgba(255,255,255,.85);
-  pointer-events:none;
-}
-.crop-ctl{flex:0 0 auto;padding:18px 24px 26px}
-.crop-ctl input[type=range]{
-  width:100%;height:44px;                 /* 44 是可觸控高度，不是視覺高度 */
-  -webkit-appearance:none;appearance:none;background:transparent;
-}
-.crop-ctl input[type=range]::-webkit-slider-runnable-track{
-  height:4px;border-radius:2px;background:rgba(255,255,255,.3)}
-.crop-ctl input[type=range]::-webkit-slider-thumb{
-  -webkit-appearance:none;width:26px;height:26px;border-radius:50%;
-  background:#fff;margin-top:-11px;box-shadow:0 1px 4px rgba(0,0,0,.4)}
-.crop-ctl input[type=range]::-moz-range-track{
-  height:4px;border-radius:2px;background:rgba(255,255,255,.3)}
-.crop-ctl input[type=range]::-moz-range-thumb{
-  width:26px;height:26px;border:0;border-radius:50%;background:#fff}
-.crop-hint{font-size:13px;color:rgba(255,255,255,.6);text-align:center;
-  margin:4px 0 0;line-height:1.6}
+/* ── 關於我們：「設定」頁最上方的自我介紹 ── */
+.about{padding:20px 18px 18px}
+.about-top{display:flex;align-items:center;gap:14px}
+.about-top img{flex:0 0 64px;width:64px;height:64px;display:block}
+.about-top .nm{font-size:19px;font-weight:700;letter-spacing:-.01em;margin:0}
+.about p.tx{font-size:15.5px;color:var(--ink-2);line-height:1.75;margin:16px 0 0}
+.about .btn-primary{margin-top:18px;min-height:52px;font-size:17px;text-decoration:none}
+.about .btn-primary .i{width:20px;height:20px}
 
 .row-btn{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:16px 18px;min-height:60px}
 .row-btn + .row-btn{border-top:1px solid var(--line-soft)}
@@ -705,14 +609,6 @@ a.row-btn{color:inherit;text-decoration:none}
 .case-new:active{transform:scale(.995)}
 
 .set-foot{font-size:13px;color:var(--muted);line-height:1.7;margin:14px 4px 0}
-.btn-outline2{
-  display:flex;align-items:center;justify-content:center;
-  width:100%;min-height:54px;border-radius:999px;background:transparent;
-  font-size:15px;font-weight:700;transition:transform .12s ease;
-}
-.btn-outline2:active{transform:scale(.98)}
-.av-del{min-height:44px;padding:0 4px;margin-top:8px;display:flex;align-items:center;
-  font-size:12.5px;font-weight:700;color:var(--red)}
 
 
 /* 空白狀態：App 內部仍然握著一個案件，但那是實作需求，不該讓使用者
@@ -813,6 +709,8 @@ a.row-btn{color:inherit;text-decoration:none}
 .cdoc .kv .k{flex:0 0 84px;color:#5B554C}
 .cdoc .kv .v{flex:1;min-width:0;word-break:break-all;color:#16130F}
 .cdoc .kv .v.none{color:#6E665D}   /* 不用更淺的灰 —— 這是文字，門檻 4.5:1 */
+/* 請求人欄（v65 起 App 不再存使用者資料）：印出來手寫的底線 */
+.cdoc .kv .v.blank{border-bottom:1px solid #16130F;min-height:1.5em}
 
 .cdoc table{width:100%;border-collapse:collapse;font-size:13.5px}
 .cdoc th{text-align:left;font-weight:700;color:#5B554C;font-size:12px;
@@ -1060,9 +958,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
         <div class="brand">
           <img src="icons/mark.png" alt="" width="24" height="24">
           <span>GUARDY</span>
-          <button class="head-btn btn-settings" aria-label="設定">
-            <svg class="i"><use href="#ic-gear"/></svg>
-          </button>
         </div>
         <h1>事故現場</h1>
         <p class="greet">別慌，我陪你一步一步處理。</p>
@@ -1142,7 +1037,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <section class="view" id="v-photo" role="tabpanel" aria-label="拍照">
     <div class="view-in">
       <div class="page-head">
-        <div class="head-row"><h1>拍照存證</h1><button class="head-btn btn-settings" aria-label="設定"><svg class="i"><use href="#ic-gear"/></svg></button></div>
+        <div class="head-row"><h1>拍照存證</h1></div>
         <p class="greet">對方可能會先離開，資料先問到手；車輛移動前先拍照。</p>
       </div>
 
@@ -1166,7 +1061,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <section class="view" id="v-claim" role="tabpanel" aria-label="出險">
     <div class="view-in">
       <div class="page-head">
-        <div class="head-row"><h1>通知保險公司</h1><button class="head-btn btn-settings" aria-label="設定"><svg class="i"><use href="#ic-gear"/></svg></button></div>
+        <div class="head-row"><h1>通知保險公司</h1></div>
         <p class="greet">五日內通知，越早越順。</p>
       </div>
 
@@ -1192,7 +1087,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <section class="view" id="v-comp" role="tabpanel" aria-label="求償">
     <div class="view-in">
       <div class="page-head">
-        <div class="head-row"><h1>調解與求償</h1><button class="head-btn btn-settings" aria-label="設定"><svg class="i"><use href="#ic-gear"/></svg></button></div>
+        <div class="head-row"><h1>調解與求償</h1></div>
         <p class="greet">不用今天填完，填多少就存多少。</p>
       </div>
 
@@ -1264,40 +1159,51 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
     </div>
   </section>
 
-  <section class="view" id="v-me" role="tabpanel" aria-label="個人">
+  <section class="view" id="v-me" role="tabpanel" aria-label="設定">
     <div class="view-in">
       <div class="page-head">
         <div class="head-row">
-          <h1>個人</h1>
-          <button class="head-btn btn-settings" aria-label="設定">
-            <svg class="i"><use href="#ic-gear"/></svg>
-          </button>
+          <h1>設定</h1>
         </div>
       </div>
 
+      <!-- 關於我們。聯絡鍵連到 CONFIG.contactUrl，由 applyConfig() 填 -->
       <div class="blk">
-        <div class="card">
-          <div class="prof">
-            <button class="prof-av" id="prof-av" aria-label="更換頭貼">
-              <img id="prof-img" alt="" hidden>
-              <span class="ini" id="prof-ini"><svg class="i"><use href="#ic-person"/></svg></span>
-              <span class="cam"><svg class="i"><use href="#ic-camera"/></svg></span>
-            </button>
-            <div class="prof-t">
-              <p class="nm none" id="prof-name">還沒設定名字</p>
-              <p class="sub" id="prof-sub"></p>
-            </div>
+        <div class="card about">
+          <div class="about-top">
+            <img src="icons/about.png" alt="保險好鄰居的頭像" width="64" height="64" decoding="async">
+            <p class="nm">保險好鄰居</p>
           </div>
-          <button class="prof-edit" id="prof-edit">
-            <svg class="i"><use href="#ic-id"/></svg>編輯個人資料
-          </button>
+          <p class="tx">車禍當下，多數人第一次遇到都會慌：該先打給誰、要拍哪些照片、能不能移車？我把這些整理成 Guardy，讓你在現場一步一步照著做。</p>
+          <p class="tx">遇到不確定的地方，隨時用 LINE 找我。你先顧好自己的安全，其他的我陪你一起處理。</p>
+          <a class="btn-primary about-line" hidden><svg class="i"><use href="#ic-chat"/></svg>用 LINE 找我</a>
         </div>
-        <p class="fineprint">頭貼與個人資料都只存在這支手機裡，不會上傳。</p>
       </div>
 
       <div class="blk">
         <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg>事故案件</p>
         <div id="case-box"></div>
+      </div>
+
+      <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-camera"/></svg>這件事故</p>
+        <div class="card">
+          <button class="row-btn" id="btn-share-all">
+            <span class="ic"><svg class="i"><use href="#ic-share"/></svg></span>
+            <span class="t">分享本案件的照片</span><span class="ar">›</span>
+          </button>
+          <button class="row-btn warn" id="btn-del-photos">
+            <span class="ic"><svg class="i"><use href="#ic-camera"/></svg></span>
+            <span class="t">刪除本案件的照片</span><span class="ar">›</span>
+          </button>
+          <button class="row-btn warn" id="btn-reset-all">
+            <span class="ic"><svg class="i"><use href="#ic-ban"/></svg></span>
+            <span class="t">清除本案件的進度</span><span class="ar">›</span>
+          </button>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <p class="storage" id="storage-info"></p>
+        </div>
       </div>
 
       <div class="blk">
@@ -1310,6 +1216,20 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
           </div>
         </div>
       </div>
+
+      <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-shield"/></svg>關於</p>
+        <div class="card">
+          <a class="row-btn" href="terms.html" id="row-terms">
+            <span class="ic"><svg class="i"><use href="#ic-doc"/></svg></span>
+            <span class="t">服務條款</span><span class="ar">›</span>
+          </a>
+          <a class="row-btn" href="privacy.html">
+            <span class="ic"><svg class="i"><use href="#ic-id"/></svg></span>
+            <span class="t">隱私權政策</span><span class="ar">›</span>
+          </a>
+        </div>
+        <p class="set-foot" id="privacy-line">事故資料與照片只存在這支手機裡，不會上傳任何地方。</p>
 
       <div class="brandfoot" id="brandfoot"></div>
     </div>
@@ -1333,7 +1253,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
       <svg class="i"><use href="#ic-scale"/></svg><span>求償</span>
     </button>
     <button class="tab" role="tab" data-v="me" aria-selected="false">
-      <svg class="i"><use href="#ic-person"/></svg><span>個人</span>
+      <svg class="i"><use href="#ic-gear"/></svg><span>設定</span>
     </button>
   </div>
 </nav>
@@ -1360,38 +1280,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
     <button class="sheet-close" id="other-close">完成</button>
   </div>
   <div class="sheet-scroll"><div class="sheet-inner" id="other-form"></div></div>
-</div>
-
-<!-- 頭貼。不加 capture —— 大部分人是從相簿挑一張現成的，
-     強制開相機只會多一步 -->
-<input type="file" id="av-picker" accept="image/*" hidden>
-
-<!-- 頭貼裁切 -->
-<div class="crop" id="crop" role="dialog" aria-modal="true" aria-label="調整頭貼">
-  <div class="crop-top">
-    <button id="crop-cancel">取消</button>
-    <span class="t">調整頭貼</span>
-    <button id="crop-ok">完成</button>
-  </div>
-  <div class="crop-stage">
-    <div class="crop-box" id="crop-box">
-      <img id="crop-img" alt="">
-      <div class="crop-mask"></div>
-    </div>
-  </div>
-  <div class="crop-ctl">
-    <input type="range" id="crop-zoom" min="100" max="300" value="100" aria-label="縮放">
-    <p class="crop-hint">拖曳移動位置，用滑桿或兩指縮放。</p>
-  </div>
-</div>
-
-<!-- 個人資料 -->
-<div class="sheet" id="me-sheet" role="dialog" aria-modal="true" aria-label="個人資料">
-  <div class="sheet-top">
-    <span class="sheet-title">個人資料</span>
-    <button class="sheet-close" id="me-close">完成</button>
-  </div>
-  <div class="sheet-scroll"><div class="sheet-inner" id="me-form"></div></div>
 </div>
 
 <!-- 保險公司詳情 -->
@@ -1450,63 +1338,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 </div>
 
 
-<!-- 設定：獨立視窗。從「現場」頁首的齒輪進來，不佔分頁列的位置 -->
-<div class="sheet" id="set-sheet" role="dialog" aria-modal="true" aria-label="設定">
-  <div class="sheet-top">
-    <span class="sheet-title">設定</span>
-    <button class="sheet-close" id="set-close">完成</button>
-  </div>
-  <div class="sheet-scroll">
-    <div class="sheet-inner">
-      <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-camera"/></svg>這件事故</p>
-        <div class="card">
-          <button class="row-btn" id="btn-share-all">
-            <span class="ic"><svg class="i"><use href="#ic-share"/></svg></span>
-            <span class="t">分享本案件的照片</span><span class="ar">›</span>
-          </button>
-          <button class="row-btn warn" id="btn-del-photos">
-            <span class="ic"><svg class="i"><use href="#ic-camera"/></svg></span>
-            <span class="t">刪除本案件的照片</span><span class="ar">›</span>
-          </button>
-          <button class="row-btn warn" id="btn-reset-all">
-            <span class="ic"><svg class="i"><use href="#ic-ban"/></svg></span>
-            <span class="t">清除本案件的進度</span><span class="ar">›</span>
-          </button>
-        </div>
-        <div class="card" style="margin-top:12px">
-          <p class="storage" id="storage-info"></p>
-        </div>
-      </div>
-
-      <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg>應用程式</p>
-        <div class="card">
-          <button class="row-btn" id="btn-install">
-            <span class="ic"><svg class="i"><use href="#ic-share"/></svg></span>
-            <span class="t">加入主畫面</span><span class="ar">›</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-shield"/></svg>關於</p>
-        <div class="card">
-          <a class="row-btn" href="terms.html" id="row-terms">
-            <span class="ic"><svg class="i"><use href="#ic-doc"/></svg></span>
-            <span class="t">服務條款</span><span class="ar">›</span>
-          </a>
-          <a class="row-btn" href="privacy.html">
-            <span class="ic"><svg class="i"><use href="#ic-id"/></svg></span>
-            <span class="t">隱私權政策</span><span class="ar">›</span>
-          </a>
-        </div>
-        <p class="set-foot" id="privacy-line">事故資料與照片只存在這支手機裡，不會上傳任何地方。</p>
-      </div>
-    </div>
-  </div>
-</div>
-
 <div class="ask" id="ask" role="dialog" aria-modal="true" aria-labelledby="ask-t">
   <div class="ask-box">
     <div class="ask-t" id="ask-t"></div>
@@ -1549,11 +1380,11 @@ var LS_CASES = 'aa.cases.v1', CASE_PREFIX = 'aa.case.';
    個人資料與頭貼是「這個人」的東西，不是「這次事故」的 ——
    放進案件包的話，開新案件就會清空，而車牌跟保單號碼不會因為
    換一次車禍就變了。 */
-var LS_ME = 'aa.me.v1', LS_AVATAR = 'aa.avatar.v1';
+/* v65 移除「我的資料」與頭貼。舊版存下的姓名、車牌、保單號碼、緊急聯絡人與頭貼
+   已經沒有任何畫面讀得到，留在手機裡只是無主的個資，開啟時清掉。 */
+try{ localStorage.removeItem('aa.me.v1'); localStorage.removeItem('aa.avatar.v1'); }catch(e){}
 var GLOBAL_KEYS = {};
 GLOBAL_KEYS[LS.install] = 1;
-GLOBAL_KEYS[LS_ME] = 1;
-GLOBAL_KEYS[LS_AVATAR] = 1;
 
 /* 舊版把資料散在這幾個 key，第一次開新版時要收攏成一個案件 */
 var LEGACY_KEYS = [LS.tl, LS.ph, LS.todo, LS.claim, LS.other, LS.site, LS.comp, LS.compdoc];
@@ -1662,7 +1493,7 @@ function toast(msg){
    分頁切換（hash 路由，Android 返回鍵可用）
    ========================================================= */
 /* 有效的分頁名稱。標題只留作註解 —— 頂欄移除後畫面上不再顯示 */
-var VIEWS = { scene:'現場', photo:'存證', claim:'出險', comp:'求償', me:'個人' };
+var VIEWS = { scene:'現場', photo:'存證', claim:'出險', comp:'求償', me:'設定' };
 var current = null;
 
 function go(name, push){
@@ -1675,26 +1506,17 @@ function go(name, push){
     t.setAttribute('aria-selected', t.dataset.v === name ? 'true' : 'false');
   });
   if (push !== false && location.hash !== '#' + name) location.hash = name;
-  /* 案件標題與「是不是空的」都是從其他分頁填出來的，進「個人」時重畫一次，
+  /* 案件標題與「是不是空的」都是從其他分頁填出來的，進「設定」時重畫一次，
      不必在每個寫入點都記得通知這裡。renderCases 定義在後面，靠 hoisting。 */
   if (name === 'me' && typeof renderCases === 'function'){
     renderCases();
     refreshPhotoCounts(renderCases);   /* 張數是非同步的，回來再補畫一次 */
-    renderMe();
+    /* 照片容量是即時的，每次進來都重算。開機直接打開 #me 時照片還沒載入
+       （PHOTO_CACHE 宣告在後面），跳過 —— 載入完成後會自己算一次 */
+    if (Array.isArray(PHOTO_CACHE)) renderStorage();
   }
 }
 
-/* 頁首的齒輪：開設定視窗。做成 sheet 而不是第六個分頁 ——
-   分頁列的位置要留給事故現場用得到的東西。 */
-function openSettings(){
-  renderStorage();                       /* 容量是即時的，每次開都重算 */
-  $('set-sheet').classList.add('open');
-}
-/* 五個分頁的頁首各有一顆，用 class 綁 —— 再多一頁也不必回來改這裡 */
-document.querySelectorAll('.btn-settings').forEach(function(b){
-  b.addEventListener('click', openSettings);
-});
-$('set-close').addEventListener('click', function(){ $('set-sheet').classList.remove('open'); });
 
 document.querySelectorAll('.tab').forEach(function(t){
   t.addEventListener('click', function(){
@@ -1747,7 +1569,7 @@ function who(){ return '我們'; }
   if (CONFIG.towTel){ tow.href = 'tel:' + CONFIG.towTel; tow.hidden = false; }
   else tow.hidden = true;
 
-  Array.prototype.forEach.call(document.querySelectorAll('.help-link'), function(a){
+  Array.prototype.forEach.call(document.querySelectorAll('.help-link, .about-line'), function(a){
     if (!CONFIG.contactUrl) return;
     a.href = CONFIG.contactUrl;
     a.target = '_blank';
@@ -2742,11 +2564,8 @@ document.addEventListener('keydown', function(e){
   if (e.key !== 'Escape') return;
   /* 確認對話框疊在最上層，Esc 應該只關掉它，不要一路關掉底下的東西 */
   if ($('ask').classList.contains('open')){ askClose(false); return; }
-  if ($('set-sheet').classList.contains('open')){ $('set-sheet').classList.remove('open'); return; }
   if ($('ins-sheet').classList.contains('open')) $('ins-sheet').classList.remove('open');
   if ($('other-sheet').classList.contains('open')){ $('other-sheet').classList.remove('open'); renderOther(); }
-  if ($('crop').classList.contains('open')){ closeCrop(); return; }
-  if ($('me-sheet').classList.contains('open')){ $('me-sheet').classList.remove('open'); renderMe(); }
   if ($('viewer').classList.contains('open')) closeViewer();
 });
 
@@ -2900,7 +2719,7 @@ function cdocRows(){
 }
 
 function renderCdoc(){
-  var rows = cdocRows(), me = meData(), ot = otherData(), site = state.site;
+  var rows = cdocRows(), ot = otherData(), site = state.site;
   var total = rows.reduce(function(a, r){ return a + r.v; }, 0);
 
   function kv(k, v){
@@ -2921,9 +2740,10 @@ function renderCdoc(){
   h += '</section>';
 
   /* 兩造。用「請求人／相對人」而不是「我／對方」—— 這張紙會給第三個人看 */
+  /* 請求人：App 不存使用者自己的資料，留底線印出來手寫 */
+  function blank(k){ return '<div class="kv"><span class="k">' + k + '</span><span class="v blank"></span></div>'; }
   h += '<section><p class="sec-t">請求人</p>' +
-       kv('姓名', me.name) + kv('車牌', me.plate) +
-       kv('保險公司', me.ins) + kv('保單號碼', me.policy) + '</section>';
+       blank('姓名') + blank('車牌') + blank('保險公司') + blank('保單號碼') + '</section>';
 
   h += '<section><p class="sec-t">相對人</p>' +
        kv('姓名', ot.name) + kv('車牌', ot.plate) +
@@ -2955,7 +2775,7 @@ function renderCdoc(){
 
 /* 純文字版：給 LINE 給業務員用。跟紙本同一份內容，只是排版換成等寬的行。 */
 function cdocText(){
-  var rows = cdocRows(), me = meData(), ot = otherData(), site = state.site;
+  var rows = cdocRows(), ot = otherData(), site = state.site;
   var total = rows.reduce(function(a, r){ return a + r.v; }, 0);
   var L = ['交通事故損害賠償請求明細', '製表日期：' + cdocDate(), ''];
 
@@ -2963,10 +2783,8 @@ function cdocText(){
   var loc = site ? (site.addr || (hasCoords(site) ? fmtLL(site) : '')) : '';
   if (loc) L.push('地點：' + loc);
 
-  var mine = [me.name, me.plate, me.ins, me.policy].filter(Boolean);
-  if (mine.length) L.push('', '【請求人】' + mine.join('／'));
   var theirs = [ot.name, ot.plate, ot.tel, ot.insurer].filter(Boolean);
-  if (theirs.length) L.push('【相對人】' + theirs.join('／'));
+  if (theirs.length) L.push('', '【相對人】' + theirs.join('／'));
 
   L.push('', '【請求項目】');
   var g = '';
@@ -3418,298 +3236,6 @@ function sweepOrphanPhotos(){
 renderCases();
 
 /* =========================================================
-   個人資料
-   ---------------------------------------------------------
-   每個欄位都要能回答「事故當下用得到嗎」。答不出來的就不收 ——
-   v43 才因為這個理由拿掉註冊表單的手機號碼。
-
-   這裡全部只存在本機，連開了帳號也不同步。理由不是做不到，是
-   這些欄位（車牌、保單號碼、緊急聯絡人）一旦上雲，「照片不上傳」
-   那條承諾的說服力就會被稀釋成「有些東西不上傳」。
-   ========================================================= */
-var ME_FIELDS = [
-  { k:'name',    t:'姓名',         ph:'給對方與警察的稱呼' },
-  { k:'plate',   t:'我的車牌',     ph:'ABC-1234', cls:'plate' },
-  { k:'ins',     t:'我的保險公司', ph:'例如：富邦產險' },
-  { k:'policy',  t:'保單號碼',     ph:'打出險專線時會被問到' },
-  { k:'ecName',  t:'緊急聯絡人',   ph:'受傷時希望通知誰' },
-  { k:'ecTel',   t:'聯絡人電話',   ph:'0912345678', type:'tel' }
-];
-
-function meData(){ return load(LS_ME); }
-function meVal(k){ return (meData()[k] || '').trim(); }
-function avatarSrc(){ return (rawLoad(LS_AVATAR) || {}).src || ''; }
-
-function renderMe(){
-  var d = meData(), src = avatarSrc(), name = (d.name || '').trim();
-
-  /* 頭貼 */
-  var img = $('prof-img'), ini = $('prof-ini');
-  if (src){ img.src = src; img.hidden = false; ini.hidden = true; }
-  else {
-    img.removeAttribute('src'); img.hidden = true; ini.hidden = false;
-    /* 沒有頭貼時退回名字的第一個字，沒有名字才退回小人圖示 */
-    ini.innerHTML = name ? esc(name.slice(0, 1)) : ico('person');
-  }
-
-  var nm = $('prof-name');
-  nm.textContent = name || '還沒設定名字';
-  nm.classList.toggle('none', !name);
-
-  /* 副標顯示車牌 */
-  var sub = meVal('plate');
-  $('prof-sub').textContent = sub;
-  $('prof-sub').hidden = !sub;
-
-}
-
-/* ── 頭貼 ──
-   256px 見方就夠了 —— 這張圖唯一的用途是頁面上 76px 的圓框。
-   存進 localStorage 而不是 IndexedDB：只有一張、又小，而且同步讀得到，
-   進頁面時不會先閃一個佔位再換成照片。 */
-/* 把畫布存成頭貼。單獨拉出來是因為存檔失敗要讓使用者看到 ——
-   rawSave() 會把例外吞掉，那在這裡是錯的：他會以為換好了，
-   下次開啟卻是空的。 */
-function saveAvatarCanvas(cv){
-  var url = cv.toDataURL('image/jpeg', 0.82);
-  try{ localStorage.setItem(LS_AVATAR, JSON.stringify({ src: url, at: Date.now() })); }
-  catch(e){ throw new Error('quota'); }
-  renderMe();
-  toast('頭貼已更新');
-}
-
-/* ── 裁切 ──
-   自動置中裁切在人臉上幾乎一定是錯的（頭通常偏上），所以上傳後
-   一律先進這一屏，讓使用者自己決定框在哪裡。
-
-   狀態只有三個數字：scale 與位移 tx／ty。所有互動 —— 拖曳、雙指、
-   滑桿 —— 都只是改這三個數字，然後 apply() 一次把畫面與夾限算完。
-   分開處理各自的邊界是這種介面最容易出錯的地方。 */
-var cropImg = null, cropBase = 1, cropScale = 1, cropTX = 0, cropTY = 0, cropSide = 0;
-var cropPts = {}, cropPrev = null;
-
-function cropClamp(){
-  if (cropScale < 1) cropScale = 1;
-  if (cropScale > 3) cropScale = 3;
-  /* 圖片永遠要蓋滿取景框，不能拖出黑邊 */
-  var w = cropImg.naturalWidth * cropBase * cropScale;
-  var h = cropImg.naturalHeight * cropBase * cropScale;
-  var mx = Math.max(0, (w - cropSide) / 2), my = Math.max(0, (h - cropSide) / 2);
-  if (cropTX >  mx) cropTX =  mx;
-  if (cropTX < -mx) cropTX = -mx;
-  if (cropTY >  my) cropTY =  my;
-  if (cropTY < -my) cropTY = -my;
-}
-function cropApply(){
-  cropClamp();
-  var w = cropImg.naturalWidth * cropBase, h = cropImg.naturalHeight * cropBase;
-  cropImg.style.width  = w + 'px';
-  cropImg.style.height = h + 'px';
-  cropImg.style.marginLeft = (-w / 2) + 'px';
-  cropImg.style.marginTop  = (-h / 2) + 'px';
-  /* translate 在 scale 之前寫 = 先縮放（以中心為原點）再位移，
-     所以 tx／ty 的單位就是螢幕像素，夾限算起來才直觀。 */
-  cropImg.style.transform =
-    'translate(' + cropTX + 'px,' + cropTY + 'px) scale(' + cropScale + ')';
-  $('crop-zoom').value = Math.round(cropScale * 100);
-}
-
-function openCrop(file){
-  return decode(file).then(function(src){
-    /* decode() 可能回 ImageBitmap，但這裡要放進 <img> 顯示，統一走 object URL */
-    if (src.close) src.close();
-    return new Promise(function(res, rej){
-      var url = URL.createObjectURL(file);
-      var im = $('crop-img');
-      im.onload = function(){
-        URL.revokeObjectURL(url);
-        cropImg = im;
-        /* **先把整屏打開再量。** 還是 display:none 的時候，
-           .crop-stage 的高度是 0，取景框會永遠掉到下面那個 200 的下限。 */
-        $('crop').classList.add('open');
-        /* 取景框：正方形，塞得下就用 88vw，最大 340 */
-        var stage = $('crop-box').parentElement.getBoundingClientRect();
-        cropSide = Math.max(200, Math.min(340, Math.min(window.innerWidth * 0.88, stage.height - 24)));
-        $('crop-box').style.width = $('crop-box').style.height = cropSide + 'px';
-        /* base = 剛好蓋滿取景框的倍率。以短邊為準，長邊才會有得拖。 */
-        cropBase = cropSide / Math.min(im.naturalWidth, im.naturalHeight);
-        cropScale = 1; cropTX = 0; cropTY = 0;
-        cropApply();
-        res();
-      };
-      im.onerror = function(){ URL.revokeObjectURL(url); rej(new Error('decode')); };
-      im.src = url;
-    });
-  });
-}
-function closeCrop(){
-  $('crop').classList.remove('open');
-  $('crop-img').removeAttribute('src');
-  cropImg = null; cropPts = {}; cropPrev = null;
-}
-
-/* 把取景框裡看到的東西畫成 256×256。
-   螢幕座標 → 原圖座標：k = base × scale，取景框中心對到原圖中心加上位移。 */
-function cropToCanvas(){
-  var k = cropBase * cropScale;
-  var sw = cropSide / k;
-  var sx = cropImg.naturalWidth  / 2 - (cropSide / 2 + cropTX) / k;
-  var sy = cropImg.naturalHeight / 2 - (cropSide / 2 + cropTY) / k;
-  var cv = document.createElement('canvas');
-  cv.width = cv.height = 256;
-  cv.getContext('2d').drawImage(cropImg, sx, sy, sw, sw, 0, 0, 256, 256);
-  return cv;
-}
-
-(function cropGestures(){
-  var box = $('crop-box');
-  function ids(){ return Object.keys(cropPts); }
-  function centroid(){
-    var k = ids(), x = 0, y = 0;
-    k.forEach(function(i){ x += cropPts[i].x; y += cropPts[i].y; });
-    return { x: x / k.length, y: y / k.length };
-  }
-  function spread(){
-    var k = ids();
-    if (k.length < 2) return 0;
-    var a = cropPts[k[0]], b = cropPts[k[1]];
-    return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
-  }
-  box.addEventListener('pointerdown', function(e){
-    if (!cropImg) return;
-    box.setPointerCapture(e.pointerId);
-    cropPts[e.pointerId] = { x:e.clientX, y:e.clientY };
-    cropPrev = { c: centroid(), d: spread() };
-  });
-  box.addEventListener('pointermove', function(e){
-    if (!cropImg || !cropPts[e.pointerId]) return;
-    cropPts[e.pointerId] = { x:e.clientX, y:e.clientY };
-    var c = centroid(), d = spread();
-    cropTX += c.x - cropPrev.c.x;
-    cropTY += c.y - cropPrev.c.y;
-    /* 雙指才縮放。門檻 0 會讓手指剛放上去的那一幀跳一下 */
-    if (cropPrev.d > 10 && d > 10) cropScale *= d / cropPrev.d;
-    cropPrev = { c:c, d:d };
-    cropApply();
-  });
-  function up(e){
-    delete cropPts[e.pointerId];
-    cropPrev = ids().length ? { c: centroid(), d: spread() } : null;
-  }
-  box.addEventListener('pointerup', up);
-  box.addEventListener('pointercancel', up);
-})();
-
-$('crop-zoom').addEventListener('input', function(){
-  if (!cropImg) return;
-  cropScale = (+this.value) / 100;
-  cropApply();
-});
-$('crop-cancel').addEventListener('click', closeCrop);
-$('crop-ok').addEventListener('click', function(){
-  if (!cropImg) return;
-  var cv;
-  try{ cv = cropToCanvas(); }
-  catch(e){ toast('裁切失敗，請再試一次'); closeCrop(); return; }
-  try{ saveAvatarCanvas(cv); }
-  catch(e2){
-    toast(e2 && e2.message === 'quota'
-      ? '儲存空間不足，請先清掉一些照片' : '存不進去，請再試一次');
-  }
-  closeCrop();
-  if ($('me-sheet').classList.contains('open')) openMe();   /* 重畫編輯屏裡的預覽 */
-});
-
-$('prof-av').addEventListener('click', function(){ $('av-picker').click(); });
-$('av-picker').addEventListener('change', function(){
-  var f = this.files && this.files[0];
-  this.value = '';                       /* 讓同一個檔案可以再選一次 */
-  if (!f) return;
-  openCrop(f).catch(function(){ toast('這張圖片讀不進來，換一張試試'); });
-});
-
-function removeAvatar(){
-  try{ localStorage.removeItem(LS_AVATAR); }catch(e){}
-  renderMe();
-  toast('頭貼已移除');
-}
-
-/* ── 編輯 ── */
-function openMe(){
-  var d = meData();
-  var html = '<div class="qhead" style="padding:26px 0 20px">' +
-    '<p class="k">個人</p><h2>我的資料</h2>' +
-    '<p class="sub">事故當下要唸給對方、警察或保險公司聽的東西。' +
-    '會自動儲存，全部只存在這支手機裡，不會上傳。</p></div>';
-
-  html += '<div class="card" style="padding:20px 18px;margin-bottom:18px">' +
-            '<div class="prof" style="padding:0">' +
-              '<span class="prof-av" style="cursor:default">' +
-                (avatarSrc()
-                  ? '<img src="' + esc(avatarSrc()) + '" alt="">'
-                  : '<span class="ini">' + ico('person') + '</span>') +
-              '</span>' +
-              '<div class="prof-t">' +
-                '<button class="btn-outline2" id="me-av" style="min-height:44px;font-size:15px">' +
-                  (avatarSrc() ? '更換頭貼' : '上傳頭貼') + '</button>' +
-                (avatarSrc()
-                  ? '<button class="av-del" id="me-av-del">移除頭貼</button>'
-                  : '') +
-              '</div>' +
-            '</div>' +
-          '</div>';
-
-  html += '<div class="card">';
-  ME_FIELDS.forEach(function(f){
-    var v = esc(d[f.k] || '');
-    html += '<div class="f"><label for="mf-' + f.k + '">' + f.t + '</label>' +
-            '<input id="mf-' + f.k + '" type="' + (f.type || 'text') + '"' +
-            (f.cls ? ' class="' + f.cls + '"' : '') +
-            ' value="' + v + '" placeholder="' + f.ph + '" autocomplete="off">' +
-            '</div>';
-  });
-  html += '</div><p class="saved" id="mf-saved">已儲存</p>' +
-          '<button class="sheet-back" id="mf-clear" style="color:var(--red)">清除我的資料</button>';
-
-  $('me-form').innerHTML = html;
-  $('me-sheet').classList.add('open');
-  $('me-sheet').querySelector('.sheet-scroll').scrollTop = 0;
-
-  $('me-av').addEventListener('click', function(){ $('av-picker').click(); });
-  if ($('me-av-del')) $('me-av-del').addEventListener('click', function(){
-    ask('移除頭貼？', '', '移除', function(){ removeAvatar(); openMe(); });
-  });
-
-  var saveT;
-  ME_FIELDS.forEach(function(f){
-    $('mf-' + f.k).addEventListener('input', function(){
-      var cur = meData();
-      cur[f.k] = this.value;
-      save(LS_ME, cur);
-      clearTimeout(saveT);
-      $('mf-saved').classList.add('on');
-      saveT = setTimeout(function(){ $('mf-saved').classList.remove('on'); }, 1400);
-    });
-  });
-
-  $('mf-clear').addEventListener('click', function(){
-    ask('清除我的資料？', '頭貼會保留。', '清除', function(){
-      save(LS_ME, {});
-      $('me-sheet').classList.remove('open');
-      renderMe();
-      toast('我的資料已清除');
-    });
-  });
-}
-
-$('prof-edit').addEventListener('click', openMe);
-$('me-close').addEventListener('click', function(){
-  $('me-sheet').classList.remove('open');
-  renderMe();
-});
-renderMe();
-
-/* =========================================================
    設定
    ========================================================= */
 $('btn-reset-all').addEventListener('click', function(){
@@ -3803,7 +3329,6 @@ function showInstall(force){
   $('install').classList.add('open');
 }
 
-$('btn-install').addEventListener('click', function(){ showInstall(true); });
 $('install-go').addEventListener('click', function(){
   if (!deferredPrompt) return;
   deferredPrompt.prompt();
