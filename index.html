@@ -484,11 +484,30 @@ body.is-offline .chip-off{display:flex}
   font-size:14.5px;color:var(--muted);line-height:1.6;
 }
 .storage .i{width:20px;height:20px;flex:none}
-.ins{display:flex;align-items:center;gap:12px;padding:15px 18px;min-height:58px;width:100%;text-align:left}
-.ins + .ins{border-top:1px solid var(--line-soft)}
-.ins .t{flex:1;font-size:16.5px;font-weight:500}
-.ins .p{font-size:15.5px;color:var(--muted);font-variant-numeric:tabular-nums}
-.note{padding:14px 18px;font-size:13.5px;color:var(--muted);line-height:1.6;background:var(--line-soft)}
+/* 保險公司：下拉選單選好之後，底下才出現撥號鍵 */
+.ins-pick{position:relative;display:block;padding:14px 16px 0}
+.ins-pick select{
+  width:100%;min-height:52px;padding:0 44px 0 16px;
+  -webkit-appearance:none;appearance:none;
+  background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:12px;
+  font:inherit;font-size:16.5px;font-weight:500;
+}
+.ins-pick select:invalid{color:var(--muted)}
+.ins-pick .ar{position:absolute;right:32px;bottom:16px;pointer-events:none;
+  color:var(--chev);font-size:19px;line-height:1;transform:rotate(90deg)}
+.ins-call{
+  display:flex;align-items:center;gap:12px;margin:12px 16px 0;padding:0 18px;min-height:60px;
+  border-radius:12px;background:var(--solid-bg);color:var(--solid-fg);text-decoration:none;
+}
+.ins-call[hidden]{display:none}
+.ins-call:active{opacity:.88}
+.ins-call .i{width:21px;height:21px}
+.ins-call .t{flex:1;min-width:0;font-size:16px;font-weight:600}
+.ins-call .p{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+#ins-body .note{margin-top:14px}
+.note{display:block;margin:0;padding:14px 18px;font-size:13.5px;color:var(--muted);line-height:1.6;background:var(--line-soft)}
+a.note{display:flex;align-items:center;min-height:48px;text-decoration:none;font-size:14.5px}
+a.note b{color:var(--brand);font-weight:600;margin-left:2px}
 
 /* ═══════════ 個人 ═══════════ */
 .f{padding:15px 18px}
@@ -827,23 +846,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 .dot{flex:1;height:4px;border-radius:2px;background:var(--line);transition:background .3s ease}
 .dot.on{background:var(--brand)}
 .sheet-title{flex:1;font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ins .ar{color:var(--chev);font-size:19px;margin-left:2px}
-.call{
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  width:100%;min-height:72px;border-radius:var(--r-lg);margin-bottom:10px;
-  background:var(--red-bg);border:1px solid var(--red-line);color:var(--red);
-}
-.call:active{transform:scale(.985)}
-.call .i{width:26px;height:26px}
-.call .num{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.01em}
-.prep{display:flex;gap:12px;align-items:flex-start;padding:14px 18px}
-.prep + .prep{border-top:1px solid var(--line-soft)}
-.prep .dot{
-  flex:0 0 7px;height:7px;border-radius:50%;background:var(--brand);
-  margin-top:9px;opacity:.55;
-}
-.prep .t{flex:1;font-size:16px;line-height:1.5}
-.prep .s{display:block;font-size:13.5px;color:var(--muted);margin-top:3px;line-height:1.5}
 /* 所有 sheet 共用的關閉鍵。原本 40×38，低於 44 的觸控門檻 ——
    右上角本來就難按，這裡差幾像素是實際會按不到的 */
 .sheet-close{
@@ -1268,15 +1270,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
     <button class="sheet-close" id="other-close">完成</button>
   </div>
   <div class="sheet-scroll"><div class="sheet-inner" id="other-form"></div></div>
-</div>
-
-<!-- 保險公司詳情 -->
-<div class="sheet" id="ins-sheet" role="dialog" aria-modal="true" aria-label="出險資訊">
-  <div class="sheet-top">
-    <span class="sheet-title" id="ins-title"></span>
-    <button class="sheet-close" id="ins-close">關閉</button>
-  </div>
-  <div class="sheet-scroll"><div class="sheet-inner" id="ins-detail"></div></div>
 </div>
 
 <!-- 損害賠償請求明細。列印時 body 底下只有這一個會留著，
@@ -2436,32 +2429,22 @@ renderPH();
 /* =========================================================
    出險電話
    ========================================================= */
-/* note 欄位留給各公司的補充說明，沒有就留空字串 */
 /* 號碼查證於 2026-09-17，對照汽車交通事故特別補償基金「各產險公司電話」與各家官網。 */
 var INSURERS = [
-  { n:'富邦產險',     tel:'0800-009-888', note:'' },
-  { n:'國泰產險',     tel:'0800-212-880', note:'' },
-  { n:'和泰產險',     tel:'0800-077-568', note:'理賠報案專線。平日 08:30–17:30 以外由委外人員接聽，一樣可以報案。' },
-  { n:'新安東京海上', tel:'0800-050-119', note:'' },
-  { n:'明台產險',     tel:'0800-078-888', note:'' },
-  { n:'兆豐產險',     tel:'0800-053-588', note:'' },
-  { n:'南山產物',     tel:'0800-005-678', note:'道路救援／理賠服務專線。' },
-  { n:'新光產險',     tel:'0800-789-999', note:'' },
-  { n:'臺灣產物',     tel:'0809-068-888', note:'' },
-  { n:'中國信託產險', tel:'0800-075-777', note:'' },
-  { n:'泰安產險',     tel:'0800-012-080', note:'' },
-  { n:'第一產險',     tel:'0800-288-068', note:'' },
-  { n:'旺旺友聯產險', tel:'0800-024-024', note:'' },
-  { n:'華南產險',     tel:'0800-010-850', note:'' }
-];
-
-/* 撥打出險專線前先備齊，接線員一定會問 */
-var PREP = [
-  { t:'保單號碼或車牌號碼', s:'找不到保單就直接報車牌，一樣查得到。' },
-  { t:'事故發生的時間與地點', s:'路口、路段門牌越精確越好。' },
-  { k:'other', t:'對方的車牌與聯絡方式', s:'有拿到就一起報，沒有也先出險。' },
-  { t:'警方案件編號', s:'在「交通事故當事人登記聯單」上。' },
-  { t:'現場照片', s:'理賠人員可能請你用 LINE 或簡訊傳過去。' }
+  { n:'富邦產險',     tel:'0800-009-888' },
+  { n:'國泰產險',     tel:'0800-212-880' },
+  { n:'和泰產險',     tel:'0800-077-568' },
+  { n:'新安東京海上', tel:'0800-050-119' },
+  { n:'明台產險',     tel:'0800-078-888' },
+  { n:'兆豐產險',     tel:'0800-053-588' },
+  { n:'南山產物',     tel:'0800-005-678' },
+  { n:'新光產險',     tel:'0800-789-999' },
+  { n:'臺灣產物',     tel:'0809-068-888' },
+  { n:'中國信託產險', tel:'0800-075-777' },
+  { n:'泰安產險',     tel:'0800-012-080' },
+  { n:'第一產險',     tel:'0800-288-068' },
+  { n:'旺旺友聯產險', tel:'0800-024-024' },
+  { n:'華南產險',     tel:'0800-010-850' }
 ];
 
 /* 各家產險的作業大同小異，這裡只寫共通流程，不臆測個別公司的細節 */
@@ -2478,64 +2461,36 @@ var CLAIM_STEPS = [
 
 (function renderINS(){
   var box = $('ins-body');
-  INSURERS.forEach(function(ins, i){
-    var b = document.createElement('button');
-    b.className = 'ins';
-    b.innerHTML = '<span class="t">' + ins.n + '</span>' +
-                  '<span class="p">' + ins.tel + '</span>' +
-                  '<span class="ar">›</span>';
-    b.addEventListener('click', function(){ openIns(i); });
-    box.appendChild(b);
+  /* 十幾家攤成清單太長，改成下拉選單：選了才出現那一家的撥號鍵。
+     用原生 <select>，手機上會跳出系統的滾輪／清單，比自己畫的好按 */
+  var opts = '<option value="" disabled selected>選擇你的保險公司</option>';
+  INSURERS.forEach(function(ins, i){ opts += '<option value="' + i + '">' + ins.n + '</option>'; });
+  box.innerHTML =
+    '<label class="ins-pick">' +
+      '<select id="ins-sel" required aria-label="選擇保險公司">' + opts + '</select><span class="ar">›</span>' +
+    '</label>' +
+    '<a class="ins-call" id="ins-call" hidden>' + ico('phone') +
+      '<span class="t">撥打出險專線</span><span class="p"></span></a>';
+
+  $('ins-sel').addEventListener('change', function(){
+    var ins = INSURERS[this.value], a = $('ins-call');
+    a.href = 'tel:' + ins.tel.replace(/-/g, '');
+    a.setAttribute('aria-label', '撥打' + ins.n + '出險專線 ' + ins.tel);
+    a.querySelector('.p').textContent = ins.tel;
+    a.hidden = false;
   });
-  var note = document.createElement('p');
+
+  /* 聯絡連結跟其他頁的「歡迎聯絡我們」一樣，由 CONFIG.contactUrl 決定 */
+  var note = document.createElement(CONFIG.contactUrl ? 'a' : 'p');
   note.className = 'note';
-  note.textContent = '找不到你的保險公司？請撥打保單上的客服電話，或直接聯絡' + who() + '協助報案。';
+  if (CONFIG.contactUrl){
+    note.href = CONFIG.contactUrl;
+    note.target = '_blank';
+    note.rel = 'noopener';
+  }
+  note.innerHTML = '不清楚嗎，<b>歡迎聯繫我們</b>';
   box.appendChild(note);
 })();
-
-function openIns(i){
-  var ins = INSURERS[i];
-  $('ins-title').textContent = ins.n;
-
-  var html =
-    '<div class="qhead" style="padding-bottom:20px">' +
-      '<p class="k">出險專線</p>' +
-      '<h2>' + ins.n + '</h2>' +
-    '</div>' +
-    '<a class="call" href="tel:' + ins.tel.replace(/-/g, '') + '">' +
-      ico('phone') + '<span class="num">' + ins.tel + '</span>' +
-    '</a>' +
-    '<p class="emg-hint" style="margin:0 0 30px">點擊後手機會再確認撥打</p>';
-
-  html += '<p class="sec-label">' + ico('list') + '撥打前先準備</p><div class="card" style="margin-bottom:30px">';
-  var od = otherData();
-  PREP.forEach(function(p){
-    var extra = '';
-    if (p.k === 'other' && (od.plate || '').trim()){
-      extra = '<span class="s" style="color:var(--green-ink);font-weight:600">已記錄：' +
-              od.plate.trim() + ((od.tel || '').trim() ? '　' + od.tel.trim() : '') + '</span>';
-    }
-    html += '<div class="prep"><span class="dot"></span>' +
-            '<span class="t">' + p.t + '<span class="s">' + p.s + '</span>' + extra + '</span></div>';
-  });
-  html += '</div>';
-
-  html += '<p class="sec-label">' + ico('check') + '接下來會發生什麼</p><div class="card" style="margin-bottom:22px">';
-  CLAIM_STEPS.forEach(function(s, n){
-    html += '<div class="prep"><span class="dot"></span>' +
-            '<span class="t">' + (n + 1) + '. ' + s.t + '<span class="s">' + s.d + '</span></span></div>';
-  });
-  html += '</div>';
-
-  if (ins.note) html += '<p class="note" style="border-radius:var(--r-md);margin-bottom:14px">' + ins.note + '</p>';
-
-  html += '<p class="fineprint">各家產險的作業細節可能略有不同，實際流程以理賠人員說明為準。</p>';
-
-  $('ins-detail').innerHTML = html;
-  $('ins-sheet').classList.add('open');
-  $('ins-sheet').querySelector('.sheet-scroll').scrollTop = 0;
-}
-$('ins-close').addEventListener('click', function(){ $('ins-sheet').classList.remove('open'); });
 
 /* ── 出險流程勾選 ── */
 function renderCL(){
@@ -2556,7 +2511,6 @@ document.addEventListener('keydown', function(e){
   if (e.key !== 'Escape') return;
   /* 確認對話框疊在最上層，Esc 應該只關掉它，不要一路關掉底下的東西 */
   if ($('ask').classList.contains('open')){ askClose(false); return; }
-  if ($('ins-sheet').classList.contains('open')) $('ins-sheet').classList.remove('open');
   if ($('other-sheet').classList.contains('open')){ $('other-sheet').classList.remove('open'); renderOther(); }
   if ($('viewer').classList.contains('open')) closeViewer();
 });

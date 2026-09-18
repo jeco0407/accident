@@ -267,10 +267,6 @@ async def main():
                  "document.querySelectorAll('.tab')[0].click();"
                  "setTimeout(function(){document.getElementById('other-open').click()},250)",
                  "document.getElementById('other-close') && document.getElementById('other-close').click()"),
-                ("出險詳情 #ins-sheet", "#ins-sheet",
-                 "document.querySelectorAll('.tab')[2].click();"
-                 "setTimeout(function(){document.querySelector('.ins').click()},250)",
-                 "document.getElementById('ins-close').click()"),
                 ("請求明細 #cdoc-sheet", "#cdoc-sheet",
                  "document.querySelectorAll('.tab')[3].click();"
                  "setTimeout(function(){document.getElementById('cdoc-open').click()},250)",
