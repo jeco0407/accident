@@ -536,13 +536,14 @@ body.is-offline .chip-off{display:flex}
 .fineprint{font-size:13.5px;color:var(--muted);line-height:1.6;margin:14px 0 0}
 
 /* ── 關於我們：「設定」頁最上方的自我介紹 ── */
-.about{padding:20px 18px 18px}
-.about-top{display:flex;align-items:center;gap:14px}
-.about-top img{flex:0 0 64px;width:64px;height:64px;display:block}
-.about-top .nm{font-size:19px;font-weight:700;letter-spacing:-.01em;margin:0}
-.about p.tx{font-size:15.5px;color:var(--ink-2);line-height:1.75;margin:16px 0 0}
-.about .btn-primary{margin-top:18px;min-height:52px;font-size:17px;text-decoration:none}
-.about .btn-primary .i{width:20px;height:20px}
+.about{padding:18px}
+.about-top{display:flex;align-items:center;gap:12px}
+.about-top img{flex:0 0 52px;width:52px;height:52px;display:block}
+.about-top .nm{font-size:18px;font-weight:700;letter-spacing:-.01em;margin:0}
+.about p.tx{font-size:14.5px;color:var(--ink-2);line-height:1.7;margin:12px 0 0}
+.about p.tx + p.tx{margin-top:6px}
+.about .btn-primary{margin-top:16px;min-height:48px;font-size:16px;text-decoration:none}
+.about .btn-primary .i{width:19px;height:19px}
 
 .row-btn{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:16px 18px;min-height:60px}
 .row-btn + .row-btn{border-top:1px solid var(--line-soft)}
@@ -557,21 +558,21 @@ a.row-btn{color:inherit;text-decoration:none}
 /* ── 事故案件 ──
    一件一張卡。目前這件用底色與動作按鈕標示，其他件只有「切換到這件」——
    切換時按鈕整組換位置，變化就發生在手指按下去的地方。 */
-.case-card{padding:18px;margin-bottom:12px}
+.case-card{padding:16px;margin-bottom:10px}
 .case-card.is-cur{background:var(--head-bg);border-color:var(--head-line)}
 
 .cc-top{display:flex;align-items:center;gap:14px}
 .cc-ic{
-  flex:0 0 56px;height:56px;border-radius:var(--r-md);
+  flex:0 0 44px;height:44px;border-radius:var(--r-sm);
   background:var(--inset);color:var(--brand);
   display:flex;align-items:center;justify-content:center;
 }
 .case-card.is-cur .cc-ic{background:var(--card)}
-.cc-ic .i{width:26px;height:26px}
+.cc-ic .i{width:22px;height:22px}
 .cc-txt{flex:1;min-width:0}
 .cc-title{
   display:flex;align-items:center;gap:9px;flex-wrap:wrap;
-  font-size:19px;font-weight:700;letter-spacing:-.01em;line-height:1.3;
+  font-size:17.5px;font-weight:700;letter-spacing:-.01em;line-height:1.3;
 }
 .cc-tag{
   font-size:12.5px;font-weight:700;letter-spacing:.02em;
@@ -579,36 +580,36 @@ a.row-btn{color:inherit;text-decoration:none}
   background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-line);
 }
 .cc-tag.done{background:var(--inset);color:var(--muted);border-color:var(--line)}
-.cc-meta{display:block;font-size:14px;color:var(--muted);line-height:1.5;margin-top:7px}
+.cc-meta{display:block;font-size:13.5px;color:var(--muted);line-height:1.5;margin-top:3px}
 
-.cc-acts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.cc-acts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
 .cc-acts button{
-  min-height:52px;border-radius:var(--r-md);
-  background:var(--card);border:1.5px solid var(--line);
-  font-size:16px;font-weight:600;letter-spacing:-.01em;color:var(--ink);
+  min-height:44px;border-radius:var(--r-sm);
+  background:var(--card);border:1px solid var(--line);
+  font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--ink);
 }
 .case-card.is-cur .cc-acts button{border-color:var(--head-line)}
 .cc-acts button:active{transform:scale(.98)}
 .cc-acts button.wide{grid-column:1 / -1}
 
-.cc-note{font-size:13.5px;color:var(--muted);line-height:1.65;margin:14px 2px 0}
+.cc-note{font-size:13px;color:var(--muted);line-height:1.6;margin:12px 2px 0}
 /* 刪除獨立一列、靠右、字小 —— 不可逆的動作不該跟常用動作長得一樣大 */
-.cc-foot{display:flex;justify-content:flex-end;margin-top:6px}
+.cc-foot{display:flex;justify-content:flex-end;margin:2px -6px -10px 0}
 .cc-del{color:var(--red);font-size:13.5px;font-weight:500;
   min-height:44px;padding:0 6px;display:flex;align-items:center}
 
 .case-new{
   display:flex;align-items:center;gap:14px;width:100%;
-  padding:18px;min-height:60px;
+  padding:14px 16px;min-height:52px;
   background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
   box-shadow:var(--shadow);text-align:left;
 }
 .case-new .plus{font-size:20px;font-weight:600;color:var(--ink-2);width:24px;text-align:center}
-.case-new .t{flex:1;font-size:17px;font-weight:600}
+.case-new .t{flex:1;font-size:16px;font-weight:600}
 .case-new .ar{color:var(--chev);font-size:19px}
 .case-new:active{transform:scale(.995)}
 
-.set-foot{font-size:13px;color:var(--muted);line-height:1.7;margin:14px 4px 0}
+.set-foot{font-size:13px;color:var(--muted);line-height:1.7;margin:10px 4px 0}
 
 
 /* 空白狀態：App 內部仍然握著一個案件，但那是實作需求，不該讓使用者
@@ -1171,7 +1172,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
       <div class="blk">
         <div class="card about">
           <div class="about-top">
-            <img src="icons/about.png" alt="保險好鄰居的頭像" width="64" height="64" decoding="async">
+            <img src="icons/about.png" alt="保險好鄰居的頭像" width="52" height="52" decoding="async">
             <p class="nm">保險好鄰居</p>
           </div>
           <p class="tx">車禍當下，多數人第一次遇到都會慌：該先打給誰、要拍哪些照片、能不能移車？我把這些整理成 Guardy，讓你在現場一步一步照著做。</p>
@@ -1181,17 +1182,13 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
       </div>
 
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg>事故案件</p>
+        <p class="sec-label">事故案件</p>
         <div id="case-box"></div>
       </div>
 
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-camera"/></svg>這件事故</p>
+        <p class="sec-label">照片與進度</p>
         <div class="card">
-          <button class="row-btn" id="btn-share-all">
-            <span class="ic"><svg class="i"><use href="#ic-share"/></svg></span>
-            <span class="t">分享本案件的照片</span><span class="ar">›</span>
-          </button>
           <button class="row-btn warn" id="btn-del-photos">
             <span class="ic"><svg class="i"><use href="#ic-camera"/></svg></span>
             <span class="t">刪除本案件的照片</span><span class="ar">›</span>
@@ -1201,13 +1198,11 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
             <span class="t">清除本案件的進度</span><span class="ar">›</span>
           </button>
         </div>
-        <div class="card" style="margin-top:12px">
-          <p class="storage" id="storage-info"></p>
-        </div>
+        <p class="set-foot" id="storage-info"></p>
       </div>
 
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg>外觀</p>
+        <p class="sec-label">外觀</p>
         <div class="card">
           <div class="seg" id="seg-theme">
             <button data-v="auto">跟隨系統</button>
@@ -1218,7 +1213,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
       </div>
 
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-shield"/></svg>關於</p>
+        <p class="sec-label">關於</p>
         <div class="card">
           <a class="row-btn" href="terms.html" id="row-terms">
             <span class="ic"><svg class="i"><use href="#ic-doc"/></svg></span>
@@ -1229,7 +1224,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
             <span class="t">隱私權政策</span><span class="ar">›</span>
           </a>
         </div>
-        <p class="set-foot" id="privacy-line">事故資料與照片只存在這支手機裡，不會上傳任何地方。</p>
 
       <div class="brandfoot" id="brandfoot"></div>
     </div>
@@ -1494,6 +1488,7 @@ function toast(msg){
    ========================================================= */
 /* 有效的分頁名稱。標題只留作註解 —— 頂欄移除後畫面上不再顯示 */
 var VIEWS = { scene:'現場', photo:'存證', claim:'出險', comp:'求償', me:'設定' };
+var appReady = false;   /* 開機流程跑完才設成 true，見 go() */
 var current = null;
 
 function go(name, push){
@@ -1507,13 +1502,16 @@ function go(name, push){
   });
   if (push !== false && location.hash !== '#' + name) location.hash = name;
   /* 案件標題與「是不是空的」都是從其他分頁填出來的，進「設定」時重畫一次，
-     不必在每個寫入點都記得通知這裡。renderCases 定義在後面，靠 hoisting。 */
-  if (name === 'me' && typeof renderCases === 'function'){
+     不必在每個寫入點都記得通知這裡；照片容量也是即時的，一起重算。
+
+     開機直接打開 #me（例如停在設定頁按重新整理）時，這裡比 photoCounts、
+     PHOTO_CACHE 的初始化還早跑 —— 函式靠 hoisting 叫得到，變數卻還是 undefined，
+     renderCases() 一炸，整段開機腳本就停在這裡，後面的東西全部沒畫。
+     所以用 appReady 擋：開機流程跑完最後會自己畫一次。 */
+  if (name === 'me' && appReady){
     renderCases();
     refreshPhotoCounts(renderCases);   /* 張數是非同步的，回來再補畫一次 */
-    /* 照片容量是即時的，每次進來都重算。開機直接打開 #me 時照片還沒載入
-       （PHOTO_CACHE 宣告在後面），跳過 —— 載入完成後會自己算一次 */
-    if (Array.isArray(PHOTO_CACHE)) renderStorage();
+    renderStorage();
   }
 }
 
@@ -1579,7 +1577,8 @@ function who(){ return '我們'; }
 
   $('brandfoot').innerHTML =
     '<div class="b">Guardy</div>' +
-    '<p>本 App 提供一般性事故處理資訊，<br>實際權益依保單條款與主管機關規定為準。</p>' +
+    '<p>事故資料與照片只存在這支手機裡，不會上傳。<br>' +
+    '本 App 提供一般性事故處理資訊，實際權益依保單條款與主管機關規定為準。</p>' +
     /* Nominatim 的使用政策要求標示資料來源 */
     '<p>地址資料 © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</p>';
 })();
@@ -2423,15 +2422,14 @@ function renderStorage(){
   var n = PHOTO_CACHE.length;
   var bytes = PHOTO_CACHE.reduce(function(s, p){ return s + recSize(p); }, 0);
   var mb = (bytes / 1048576).toFixed(1);
-  el.innerHTML = ico('camera') +
-    '<span>照片 ' + n + ' 張・約 ' + mb + ' MB，存在這支手機裡，不會上傳。' +
-    (n ? '建議拍完用「分享」再備份一份到相簿。' : '') + '</span>';
+  /* 「只存在手機裡」頁尾已經講了，這裡只報數字 */
+  el.textContent = '目前這件事故有照片 ' + n + ' 張，約 ' + mb + ' MB。' +
+    (n ? '建議用事故卡上的「分享照片」再備份一份到相簿。' : '');
 }
 
 $('ph-reset').addEventListener('click', function(){
   save(LS.ph, {}); renderPH(); toast('勾選狀態已重設（照片保留）');
 });
-$('btn-share-all').addEventListener('click', function(){ sharePhotos(PHOTO_CACHE); });
 $('btn-del-photos').addEventListener('click', function(){
   if (!PHOTO_CACHE.length){ toast('目前沒有照片'); return; }
   photosClearCase(curCaseId()).then(loadPhotos).then(function(){
@@ -3374,6 +3372,10 @@ if ('serviceWorker' in navigator){
 }
 
 syncNet();
+
+/* 開機流程到此跑完：之後切到「設定」才能安心重畫案件與容量（見 go()）。
+   開機時就停在「設定」的話，案件列表上面已經畫過，照片容量等 loadPhotos 回來會畫。 */
+appReady = true;
 
 })();
 </script>
