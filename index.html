@@ -34,10 +34,11 @@
   --brand-lite:#C9A05F;                      /* 赭黃土色，插圖用，不承載文字 */
   --head-bg:#F1E3C2;  --head-line:#E6D3AA;   /* 頁首色塊 */
 
-  --r-lg:22px;
-  --r-md:16px;
+  --r-lg:16px;
+  --r-md:14px;
   --r-sm:12px;
-  --shadow:0 1px 2px rgba(60,45,20,.05), 0 8px 24px -12px rgba(60,45,20,.14);
+  /* v76 起卡片不打陰影，只靠淡框分開（跟設定頁同一個語彙） */
+  --shadow:none;
   --shadow-up:0 -8px 30px -18px rgba(60,45,20,.38);
 
   /* 語意 token：深色模式只要覆寫這些，元件不必動 */
@@ -73,7 +74,7 @@
   --brand-lite:#D2AA6A;
   --head-bg:#2E281C;  --head-line:#3D3524;
 
-  --shadow:0 1px 2px rgba(0,0,0,.32), 0 8px 24px -12px rgba(0,0,0,.55);
+  --shadow:none;
   --shadow-up:0 -8px 30px -18px rgba(0,0,0,.7);
 
   --solid-bg:#8CC2B6;  --solid-fg:#0F2621;
@@ -359,7 +360,7 @@ body.is-offline .chip-off{display:flex}
    下排放說明與「直接去做」的按鈕。按鈕不能包按鈕，所以拆成兩層。 */
 .tl-item{
   background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
-  box-shadow:var(--shadow);margin-bottom:10px;
+  box-shadow:var(--shadow);margin-bottom:8px;
   transition:background .35s ease, border-color .35s ease;
 }
 .tl-item.done{background:var(--green-bg);border-color:var(--green-line)}
