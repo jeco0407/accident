@@ -758,6 +758,19 @@ a.row-btn{color:inherit;text-decoration:none}
   @page{margin:16mm}
 }
 .card-pad{padding:20px}
+/* 求償頁的收合說明 */
+.fold + .fold{margin-top:10px}
+.fold summary{display:flex;align-items:center;gap:14px;padding:14px 16px;min-height:64px;cursor:pointer;list-style:none}
+.fold summary::-webkit-details-marker{display:none}
+.fold summary .ic{flex:0 0 40px;height:40px;border-radius:12px;background:var(--line-soft);color:var(--ink-2);
+  display:flex;align-items:center;justify-content:center}
+.fold summary .ic .i{width:20px;height:20px}
+.fold summary .tx{flex:1;min-width:0}
+.fold summary b{display:block;font-size:16.5px;font-weight:600}
+.fold summary .tx span{display:block;font-size:13.5px;color:var(--muted);margin-top:2px;line-height:1.45}
+.fold summary .ar{color:var(--chev);font-size:19px;transition:transform .2s ease}
+.fold[open] summary .ar{transform:rotate(90deg)}
+.fold[open] summary{border-bottom:1px solid var(--line-soft)}
 .card-pad .lead{font-size:19px;font-weight:700;letter-spacing:-.01em;margin:0 0 8px}
 .card-pad .body{font-size:15px;color:var(--ink-2);line-height:1.75;margin:0 0 14px}
 .card-pad .sub-h{font-size:13.5px;font-weight:600;color:var(--brand);letter-spacing:.06em;margin:0 0 8px}
@@ -1116,27 +1129,33 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
         <p class="note-soft">只填你<strong>拿得出單據</strong>的金額。這份小計的力量，在於每一筆都有收據、估價單或薪資證明可以攤在桌上。</p>
       </div>
 
+      <!-- 長篇說明收起來，先看標題與一句重點；要細看再點開。
+           期限的重點數字直接寫在摘要上，收著也看得到 -->
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-scale"/></svg>精神慰撫金</p>
-        <div class="card card-pad">
-          <p class="lead">你受的苦是真的，只是它沒有價目表。</p>
-          <p class="body">法院是就個案衡量的，同樣的傷勢判下來可以差上好幾倍。所以這裡不會給你一個「大概多少」—— 那種數字是猜的，而拿著猜來的數字上調解桌，開太高談不攏、開太低自己吃虧。</p>
-          <p class="sub-h">法院會看這些</p>
-          <ul class="bullets" id="comp-factors"></ul>
-          <p class="body">比較踏實的做法，是<strong>去查類似案件的實際判決</strong>。真實判決在調解桌上是能攤開來講的東西，比自己開一個數字有力得多。</p>
-          <a class="btn-outline" id="btn-judicial" href="https://judgment.judicial.gov.tw/FJUD/default.aspx" target="_blank" rel="noopener">查詢類似案件的判決</a>
-          <p class="hint-sm">關鍵字可以用「車禍 慰撫金」加上你的傷勢名稱。需要網路連線。</p>
-        </div>
-      </div>
-
-      <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-alert"/></svg>要注意的期限</p>
-        <div class="card" id="comp-deadlines"></div>
-      </div>
-
-      <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-doc"/></svg>調解有三條路</p>
-        <div class="card" id="comp-paths"></div>
+        <p class="sec-label"><svg class="i"><use href="#ic-scale"/></svg>你可能想知道</p>
+        <details class="fold card">
+          <summary><span class="ic"><svg class="i"><use href="#ic-alert"/></svg></span>
+            <span class="tx"><b>要注意的期限</b><span>提告、鑑定 6 個月內，求償 2 年內</span></span><span class="ar">›</span></summary>
+          <div id="comp-deadlines"></div>
+        </details>
+        <details class="fold card">
+          <summary><span class="ic"><svg class="i"><use href="#ic-doc"/></svg></span>
+            <span class="tx"><b>調解有三條路</b><span>區公所調解、法院調解、直接提告</span></span><span class="ar">›</span></summary>
+          <div id="comp-paths"></div>
+        </details>
+        <details class="fold card">
+          <summary><span class="ic"><svg class="i"><use href="#ic-scale"/></svg></span>
+            <span class="tx"><b>精神慰撫金</b><span>沒有價目表，怎麼抓比較踏實</span></span><span class="ar">›</span></summary>
+          <div class="card-pad">
+            <p class="lead">你受的苦是真的，只是它沒有價目表。</p>
+            <p class="body">法院是就個案衡量的，同樣的傷勢判下來可以差上好幾倍。所以這裡不會給你一個「大概多少」—— 那種數字是猜的，而拿著猜來的數字上調解桌，開太高談不攏、開太低自己吃虧。</p>
+            <p class="sub-h">法院會看這些</p>
+            <ul class="bullets" id="comp-factors"></ul>
+            <p class="body">比較踏實的做法，是<strong>去查類似案件的實際判決</strong>。真實判決在調解桌上是能攤開來講的東西，比自己開一個數字有力得多。</p>
+            <a class="btn-outline" id="btn-judicial" href="https://judgment.judicial.gov.tw/FJUD/default.aspx" target="_blank" rel="noopener">查詢類似案件的判決</a>
+            <p class="hint-sm">關鍵字可以用「車禍 慰撫金」加上你的傷勢名稱。需要網路連線。</p>
+          </div>
+        </details>
       </div>
 
       <div class="blk">
