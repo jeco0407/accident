@@ -24,6 +24,9 @@ python3 -m http.server 8899
 | `a11y.py` | 無障礙稽核：五個分頁與各覆蓋層的對比度與觸控面積，實際量測而非目測；另外確認登入畫面沒有復活 |
 | `test_cdoc.py` | 求償明細的匯出 |
 | `test_close.py` | 結案流程 |
+| `test_i18n.py` | 英文版：模擬英文手機，逐頁掃畫面上有沒有漏翻的中文；匯出文件中英並列；語言切換 |
+
+其他腳本都假設畫面是中文。App 會照手機語言自動切換，所以要在**系統語言是中文**的電腦上跑（headless Chrome 在 macOS 上不吃 `--lang`）；`test_i18n.py` 自己在頁面載入前把 `navigator.languages` 改成英文。
 
 需要 `websockets`：`pip3 install websockets`。
 

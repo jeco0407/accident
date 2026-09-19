@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Terms of Service — Guardy</title>
+<meta name="theme-color" content="#FAF3E1">
+<meta name="description" content="Terms of service for Guardy, the car accident helper.">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root{
+  --bg:#FAF3E1; --card:#FFFCF4; --ink:#2A251E; --ink-2:#4E4538; --muted:#6B604F;
+  --line:#E8DCC0; --inset:#F1E3C2; --brand:#2F5A53;
+}
+:root[data-theme="dark"]{
+  --bg:#1A1813; --card:#24211A; --ink:#F3ECDD; --ink-2:#CDBFA8; --muted:#A39784;
+  --line:#3A3326; --inset:#2E281C; --brand:#8CC2B6;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  line-height:1.75; -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:680px;margin:0 auto;padding:32px 20px calc(48px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+header img{width:28px;height:28px;display:block}
+header .b{font-size:17px;font-weight:700;letter-spacing:.04em}
+h1{font-size:26px;line-height:1.35;letter-spacing:-.02em;margin:0 0 6px}
+.updated{font-size:14px;color:var(--muted);margin:0 0 28px}
+h2{font-size:17px;letter-spacing:-.01em;margin:32px 0 10px}
+p,li{font-size:16px;color:var(--ink-2);margin:0 0 12px}
+ul{padding-left:20px;margin:0 0 12px}
+li{margin:0 0 6px}
+strong{color:var(--ink);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:0 0 8px}
+.card p:last-child{margin-bottom:0}
+.note{background:var(--inset);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:0 0 24px}
+a{color:var(--brand)}
+.back{display:inline-block;margin-top:36px;font-size:16px;font-weight:600;color:var(--brand);text-decoration:none}
+footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted)}
+.lang{margin:0 0 4px;text-align:right;font-size:14px}
+.lang a{color:var(--brand);font-weight:600}
+</style>
+<script>
+(function(){
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  function apply(){
+    var p = 'auto';
+    try{ p = localStorage.getItem('aa.theme.v1') || 'auto'; }catch(e){}
+    var dark = p === 'dark' || (p === 'auto' && mq.matches);
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', dark ? '#1A1813' : '#FAF3E1');
+  }
+  mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply);
+  apply();
+})();
+</script>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <img src="icons/mark.png" alt="">
+  <span class="b">GUARDY</span>
+</header>
+
+<p class="lang"><a href="terms.html" lang="zh-Hant-TW">中文</a></p>
+
+<h1>Terms of Service</h1>
+<p class="updated">Last updated: September 18, 2026</p>
+
+<h2>1. What Guardy is</h2>
+<p>Guardy is provided by 保險好鄰居 (“we”). It’s a tool that helps you handle a car accident scene: location, on-scene steps, a photo checklist, insurers’ claim hotlines, and general guidance on mediation and compensation.</p>
+<p>By using Guardy, you agree to these terms.</p>
+
+<h2>2. What Guardy is not</h2>
+<div class="card">
+  <p><strong>Not an emergency service.</strong> If you need the police or an ambulance, call 110 or 119 directly. Guardy only helps you make that call faster; it doesn’t report anything to anyone on your behalf.</p>
+  <p><strong>Not legal advice.</strong> Information in the app about fault, mediation and compensation is general and doesn’t replace a lawyer.</p>
+  <p><strong>Not a promise of insurance payment.</strong> What’s covered and how much is decided by your policy and your insurer. The app’s calculations only organize items you have documents for.</p>
+  <p><strong>Not an insurance company.</strong> Guardy doesn’t represent, and isn’t commissioned by, any insurer. The claim hotlines in the app are publicly available numbers, listed for your convenience.</p>
+</div>
+
+<h2>3. Help through LINE</h2>
+<p>You can contact us on LINE through the link in the app. We’ll do our best to answer your questions and, at your request, help you organize information and understand the process.</p>
+<ul>
+  <li><strong>This is help and advice, not representation.</strong> Unless agreed otherwise in writing, you (or someone you appoint) must still notify the insurer, file claims and settle with the other party.</li>
+  <li><strong>No guaranteed outcome.</strong> Our suggestions are based on what you tell us; we don’t guarantee claim approval, amounts or mediation results.</li>
+  <li><strong>No fixed response time.</strong> LINE is not an emergency channel. At the scene, call 110 or 119 for the police or an ambulance, and your insurer’s hotline to report a claim.</li>
+</ul>
+<p>How we handle what you send us on LINE is explained in the <a href="privacy-en.html">Privacy Policy</a>.</p>
+
+<h2>4. Your responsibilities</h2>
+<ul>
+  <li>Decisions and actions at the scene are your own. The app offers reference steps, not instructions.</li>
+  <li>You’re responsible for checking what you enter (the other car’s plate, amounts, etc.). Review any exported statement before using it.</li>
+  <li><strong>Photos are stored only on your phone.</strong> Clearing browser data, changing phones or damage to your phone will lose them. Back up important photos to your photo library.</li>
+</ul>
+
+<h2>5. Data</h2>
+<div class="card">
+  <p><strong>Guardy needs no sign-up, and all data stays on your phone.</strong> We have no server storing your accident records or photos, so we can’t back them up or recover them.</p>
+  <p>See the <a href="privacy-en.html">Privacy Policy</a> for details.</p>
+</div>
+
+<h2>6. Availability</h2>
+<p>Guardy’s core features are designed to work offline, but we can’t guarantee uninterrupted service or that it works on every device. Location accuracy depends on your device and surroundings.</p>
+<p>We do our best to keep insurer hotlines and legal information accurate, but they may change at any time. Official announcements take precedence.</p>
+
+<h2>7. Limitation of liability</h2>
+<p>To the extent permitted by law, we aren’t liable for losses arising from using or being unable to use Guardy, including but not limited to lost data, claim outcomes below expectations, or consequences of acting on the app’s content.</p>
+<p>This doesn’t exclude any liability that can’t be excluded by law.</p>
+
+<h2>8. Fees</h2>
+<p>Guardy is currently free. If paid features are introduced, we’ll tell you clearly before charging anything.</p>
+
+<h2>9. Changes to these terms</h2>
+<p>When these terms change, we’ll update the date at the top. Significant changes will also be shown in the app.</p>
+
+<h2>10. Contact</h2>
+<p>For questions about these terms, contact us through our <a href="https://line.me/R/ti/p/@947sdzrz?ts=07101555&amp;oat_content=url" target="_blank" rel="noopener">LINE Official Account</a> or at <a href="mailto:getnabor@gmail.com">getnabor@gmail.com</a>.</p>
+
+<h2>11. Governing law</h2>
+<p>These terms are governed by the laws of the Republic of China (Taiwan).</p>
+<p>This English version is a translation for convenience. If it differs from the <a href="terms.html" lang="zh-Hant-TW">Chinese version</a>, the Chinese version prevails.</p>
+
+<a class="back" href="index.html">← Back to Guardy</a>
+
+<footer>
+  Guardy — Car Accident Helper
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Privacy Policy — Guardy</title>
+<meta name="theme-color" content="#FAF3E1">
+<meta name="description" content="Privacy policy for Guardy, the car accident helper. All your data stays on your phone and is never uploaded.">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root{
+  --bg:#FAF3E1; --card:#FFFCF4; --ink:#2A251E; --ink-2:#4E4538; --muted:#6B604F;
+  --line:#E8DCC0; --inset:#F1E3C2; --brand:#2F5A53;
+}
+:root[data-theme="dark"]{
+  --bg:#1A1813; --card:#24211A; --ink:#F3ECDD; --ink-2:#CDBFA8; --muted:#A39784;
+  --line:#3A3326; --inset:#2E281C; --brand:#8CC2B6;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  line-height:1.75; -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:680px;margin:0 auto;padding:32px 20px calc(48px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+header img{width:28px;height:28px;display:block}
+header .b{font-size:17px;font-weight:700;letter-spacing:.04em}
+h1{font-size:26px;line-height:1.35;letter-spacing:-.02em;margin:0 0 6px}
+.updated{font-size:14px;color:var(--muted);margin:0 0 28px}
+h2{font-size:17px;letter-spacing:-.01em;margin:32px 0 10px}
+p,li{font-size:16px;color:var(--ink-2);margin:0 0 12px}
+ul{padding-left:20px;margin:0 0 12px}
+li{margin:0 0 6px}
+strong{color:var(--ink);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:0 0 8px}
+.card p:last-child{margin-bottom:0}
+.note{background:var(--inset);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:0 0 24px}
+.note p:last-child{margin-bottom:0}
+h3{color:var(--ink);font-weight:600}
+a{color:var(--brand)}
+.back{display:inline-block;margin-top:36px;font-size:16px;font-weight:600;color:var(--brand);text-decoration:none}
+footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted)}
+.lang{margin:0 0 4px;text-align:right;font-size:14px}
+.lang a{color:var(--brand);font-weight:600}
+</style>
+<script>
+(function(){
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  function apply(){
+    var p = 'auto';
+    try{ p = localStorage.getItem('aa.theme.v1') || 'auto'; }catch(e){}
+    var dark = p === 'dark' || (p === 'auto' && mq.matches);
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', dark ? '#1A1813' : '#FAF3E1');
+  }
+  mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply);
+  apply();
+})();
+</script>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <img src="icons/mark.png" alt="" width="28" height="28">
+  <span class="b">Guardy</span>
+</header>
+
+<p class="lang"><a href="privacy.html" lang="zh-Hant-TW">中文</a></p>
+
+<h1>Privacy Policy</h1>
+<p class="updated">Last updated: September 19, 2026</p>
+
+<p>Guardy is provided by 保險好鄰居 (“we”). Everything you record in Guardy <strong>stays on your phone</strong>. We can’t access it, and we don’t do any analytics, advertising or behavior tracking. We only receive content you choose to send us when you contact us on LINE. Details below.</p>
+
+<h2>Your data stays on your phone</h2>
+<p>Guardy needs no sign-up and has no server that stores your data. All of the following is kept on your device only:</p>
+<ul>
+  <li>The accident location (coordinates, address) and time</li>
+  <li>Accident photos</li>
+  <li>The other driver’s details: plate, name, phone, insurer</li>
+  <li>The amounts you enter for compensation</li>
+  <li>Checklist progress and case status</li>
+  <li>Appearance and language settings</li>
+</ul>
+<p>Because of this, <strong>if you clear your browser data, change phones, or your phone is damaged, this data is lost, and we can’t recover it.</strong></p>
+<p>After you take photos, the app asks whether to save them to your photo library. Photos you choose to save go into your phone’s library and are then handled by your phone’s settings (for example, syncing to iCloud or Google Photos), outside Guardy’s control.</p>
+<p>To share accident details with someone, use the in-app “Copy” or “Share” and send them yourself.</p>
+
+<h2>What we don’t collect</h2>
+<p>There are no analytics, advertising or third-party tracking tools. <strong>We don’t record your location history</strong> — only the single point you choose to save, and only on your phone. We don’t record which numbers you call. We don’t log behavior events.</p>
+
+<h2>When the app connects to the internet</h2>
+<ul>
+  <li><strong>Address lookup</strong>: to turn coordinates into an address, the app sends the <strong>accident coordinates</strong> to OpenStreetMap’s Nominatim service (<a href="https://osmfoundation.org/wiki/Privacy_Policy" target="_blank" rel="noopener">privacy policy</a>). This happens once per accident, with nothing that identifies you. Offline, the app shows coordinates instead.</li>
+  <li><strong>Opening the map</strong>: when you tap “Map”, your browser opens Google Maps with the accident coordinates.</li>
+  <li><strong>Searching rulings</strong>: when you tap it, the Judicial Yuan’s judgment search site opens.</li>
+  <li><strong>Contacting us</strong>: when you tap it, LINE opens. See the next section.</li>
+  <li><strong>Hosting</strong>: Guardy is hosted on Vercel. When you open or update the app, the host may log your IP address, browser type and time as needed to operate (<a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener">Vercel privacy policy</a>). These logs contain none of the accident data you record, and we don’t use them to identify you.</li>
+</ul>
+
+<h2>When you contact us on LINE</h2>
+<p>This is the only way we receive any of your data, and only when you send us a message. Under Taiwan’s Personal Data Protection Act:</p>
+<ul>
+  <li><strong>Who collects it</strong>: 保險好鄰居.</li>
+  <li><strong>What we collect</strong>: your LINE display name and the messages, photos and documents you send. These may include the accident time and place, plates, the other driver’s details, injuries and amounts — you decide what to send.</li>
+  <li><strong>Why</strong>: to answer your questions and, at your request, help with the accident and insurance claim.</li>
+  <li><strong>Who sees it</strong>: only us. We share it with an insurer or other party only when you ask us to help contact them, and only as far as you agree. We never sell it or use it to market unrelated products.</li>
+  <li><strong>Where and how long</strong>: in the chat history of our LINE Official Account, handled under LINE’s terms (<a href="https://line.me/en/terms/policy/" target="_blank" rel="noopener">LINE privacy policy</a>). After we’ve finished helping, you can ask us to delete the data in the chat.</li>
+  <li><strong>If you don’t provide it</strong>: it doesn’t affect your use of Guardy at all; we just can’t help with your specific case.</li>
+</ul>
+
+<h2>Permissions the app asks for</h2>
+<ul>
+  <li><strong>Location</strong>: to get the accident location. If you say no, everything else still works, and you can type the location in.</li>
+  <li><strong>Camera / photos</strong>: to take or choose evidence photos.</li>
+</ul>
+<p>Both are used only when you act. <strong>The app never gets your location in the background</strong> — only at the moment you tap the button.</p>
+
+<h2>Phone calls</h2>
+<p>When you tap 110, 119 or an insurer’s claim hotline, your phone’s dialer handles the call and asks you to confirm. Guardy doesn’t record which numbers you call.</p>
+
+<h2>Keeping and deleting data</h2>
+<p>Data is kept <strong>until you delete it</strong>. You can delete a single accident in “Settings → Accident cases”, or delete photos and clear progress for the current case in Settings. Clearing the site’s browser data deletes everything.</p>
+
+<h2>Your rights</h2>
+<p>For data you send us on LINE, you may, under Article 3 of the Personal Data Protection Act, ask to access or review it, get a copy, add to or correct it, stop its collection, processing or use, or delete it. Contact us using the details below.</p>
+<p>We can’t access the data on your phone; you can view, change or delete it directly in the app.</p>
+
+<h2>Children</h2>
+<p>The app isn’t designed for children and doesn’t collect age information.</p>
+
+<h2>Changes</h2>
+<p>If this policy changes, we’ll update the date at the top. Significant changes to what we collect will also be shown in the app.</p>
+
+<h2>Contact us</h2>
+<p>For privacy questions or to exercise your rights, contact us through our <a href="https://line.me/R/ti/p/@947sdzrz?ts=07101555&amp;oat_content=url" target="_blank" rel="noopener">LINE Official Account</a> or at <a href="mailto:getnabor@gmail.com">getnabor@gmail.com</a>.</p>
+<p>This English version is a translation for convenience. If it differs from the <a href="privacy.html" lang="zh-Hant-TW">Chinese version</a>, the Chinese version prevails.</p>
+
+<a class="back" href="index.html">← Back to Guardy</a>
+
+<footer>
+  Guardy provides general accident information, not legal advice or a claim guarantee. Your actual rights depend on your policy terms and official regulations.
+</footer>
+
+</div>
+</body>
+</html>

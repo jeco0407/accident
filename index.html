@@ -618,7 +618,7 @@ a.row-btn{color:inherit;text-decoration:none}
 
 .cc-acts{display:flex;align-items:center;gap:4px;margin:4px -6px 0 44px}
 .cc-acts button{
-  display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 10px;
+  display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 10px;white-space:nowrap;
   font-size:15px;font-weight:600;color:var(--brand);border-radius:10px;
 }
 .cc-acts button .i{width:17px;height:17px}
@@ -752,6 +752,8 @@ a.row-btn{color:inherit;text-decoration:none}
 .crec-ph figure{margin:0}
 .crec-ph img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;border:1px solid #E5DED2;background:#F4EFE6}
 .crec-ph figcaption{font-size:11px;color:#5B554C;margin-top:3px;line-height:1.35}
+.cdoc .en{display:block;font-size:.84em;font-weight:400;color:#5B554C;letter-spacing:0;line-height:1.45}
+.cdoc h2 .en{font-size:13px;margin-top:2px}
 .cdoc .sign div{flex:1;font-size:12.5px;color:#5B554C;
   border-top:1px solid #16130F;padding-top:6px}
 
@@ -930,6 +932,18 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   apply();
 })();
 
+/* 語言：選過就照選的；沒選過看手機的第一語言，中文就中文，其他一律英文。
+   切換時整頁重新載入 —— 清單、步驟這些文字都是開機時畫的，重載最不會漏 */
+(function(){
+  var KEY = 'aa.lang.v1', v = null;
+  try{ v = localStorage.getItem(KEY); }catch(e){}
+  if (v !== 'zh' && v !== 'en'){
+    var first = (navigator.languages && navigator.languages[0]) || navigator.language || '';
+    v = /^zh/i.test(first) ? 'zh' : 'en';
+  }
+  window.__lang = { cur:v, set:function(x){ try{ localStorage.setItem(KEY, x); }catch(e){} location.reload(); } };
+  document.documentElement.lang = v === 'en' ? 'en' : 'zh-Hant-TW';
+})();
 </script>
 </head>
 <body>
@@ -970,13 +984,13 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 </svg>
 
 <!-- 離線標示：只在斷線時浮出，是「地圖鍵為什麼不能按」的唯一解釋 -->
-<span class="chip-off"><span class="dot"></span>離線</span>
+<span class="chip-off" data-en="Offline"><span class="dot"></span>離線</span>
 
 <!-- ═══════════ Views ═══════════ -->
 <div class="views">
 
   <!-- ───── 現場 ───── -->
-  <section class="view on" id="v-scene" role="tabpanel" aria-label="現場">
+  <section class="view on" id="v-scene" role="tabpanel" aria-label="現場" data-en-aria="Scene">
     <div class="view-in">
       <div class="page-head scene-head">
         <!-- 純裝飾，alt 留空：標題與標語已經說完了 -->
@@ -985,8 +999,8 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
           <img src="icons/mark.png" alt="" width="24" height="24">
           <span>GUARDY</span>
         </div>
-        <h1>事故現場</h1>
-        <p class="greet">別慌，我陪你一步一步處理。</p>
+        <h1 data-en="At the Scene">事故現場</h1>
+        <p class="greet" data-en="Stay calm — I'll walk you through it.">別慌，我陪你一步一步處理。</p>
 
       </div>
 
@@ -994,258 +1008,267 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
         <div class="card" id="loc-card">
           <div class="loc-head">
             <span class="badge-ic"><svg class="i"><use href="#ic-pin"/></svg></span>
-            <span class="t">我的位置</span>
+            <span class="t" data-en="My location">我的位置</span>
           </div>
           <div id="loc-idle">
-            <p class="loc-state">尚未取得位置</p>
-            <p class="loc-sub">取得位置後，方便通報與救援。這個地點與時間會被記下來，之後移動也不會被蓋掉。</p>
-            <button class="btn-primary" id="loc-btn">
+            <p class="loc-state" data-en="Location not set yet">尚未取得位置</p>
+            <p class="loc-sub" data-en="Getting your location makes reporting and rescue easier. The place and time are saved and won't be overwritten if you move later.">取得位置後，方便通報與救援。這個地點與時間會被記下來，之後移動也不會被蓋掉。</p>
+            <button class="btn-primary" id="loc-btn" data-en="Get my location">
               <svg class="i"><use href="#ic-compass"/></svg>取得我的位置
             </button>
             <div class="loc-manual" id="loc-manual" hidden>
-              <label for="loc-manual-in">手動輸入事故地點</label>
+              <label for="loc-manual-in" data-en="Enter the accident location">手動輸入事故地點</label>
               <input type="text" id="loc-manual-in" inputmode="text" autocomplete="off"
-                     placeholder="例：台北市中正區北平西路3號　或　中山路與民權路口">
-              <p class="hint">地下停車場、隧道、室內常常定位不到。寫得出路名或路口就夠報案用。</p>
-              <button class="btn-outline" id="loc-manual-ok">記下這個地點</button>
+                     placeholder="例：台北市中正區北平西路3號　或　中山路與民權路口" data-en-ph="e.g. No. 3, Beiping W. Rd., Taipei — or Zhongshan Rd. &amp; Minquan Rd.">
+              <p class="hint" data-en="Underground parking, tunnels and indoor spots often can't get a fix. A street name or intersection is enough to file a report.">地下停車場、隧道、室內常常定位不到。寫得出路名或路口就夠報案用。</p>
+              <button class="btn-outline" id="loc-manual-ok" data-en="Save this location">記下這個地點</button>
             </div>
-            <button class="loc-link" id="loc-manual-open">定位不到？手動輸入地點</button>
+            <button class="loc-link" id="loc-manual-open" data-en="Can't get a fix? Enter the location manually">定位不到？手動輸入地點</button>
           </div>
           <div id="loc-ready" hidden>
             <p id="loc-addr"></p>
             <div class="loc-actions">
-              <button class="btn-ghost" id="btn-copy"><span class="ic"><svg class="i"><use href="#ic-copy"/></svg></span>複製</button>
-              <button class="btn-ghost" id="btn-share"><span class="ic"><svg class="i"><use href="#ic-share"/></svg></span>分享</button>
-              <button class="btn-ghost" id="btn-map"><span class="ic"><svg class="i"><use href="#ic-map"/></svg></span>地圖</button>
+              <button class="btn-ghost" id="btn-copy" data-en="Copy"><span class="ic"><svg class="i"><use href="#ic-copy"/></svg></span>複製</button>
+              <button class="btn-ghost" id="btn-share" data-en="Share"><span class="ic"><svg class="i"><use href="#ic-share"/></svg></span>分享</button>
+              <button class="btn-ghost" id="btn-map" data-en="Map"><span class="ic"><svg class="i"><use href="#ic-map"/></svg></span>地圖</button>
             </div>
             <div class="loc-foot">
-              <button id="loc-again">重新定位</button>
-              <button id="loc-close">關閉</button>
+              <button id="loc-again" data-en="Locate again">重新定位</button>
+              <button id="loc-close" data-en="Close">關閉</button>
             </div>
           </div>
         </div>
       </div>
 
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-alert"/></svg>緊急聯絡</p>
+        <p class="sec-label"><svg class="i"><use href="#ic-alert"/></svg><span data-en="Emergency calls">緊急聯絡</span></p>
         <div class="emg">
           <a class="emg-card emg-110" href="tel:110">
             <span class="ic"><svg class="i"><use href="#ic-siren"/></svg></span>
-            <span class="num">110</span><span class="lb">報警</span>
-            <span class="tip">會先確認才撥出</span>
+            <span class="num">110</span><span class="lb" data-en="Police">報警</span>
+            <span class="tip" data-en="Confirms before calling">會先確認才撥出</span>
           </a>
           <a class="emg-card emg-119" href="tel:119">
             <span class="ic"><svg class="i"><use href="#ic-cross"/></svg></span>
-            <span class="num">119</span><span class="lb">有人受傷</span>
-            <span class="tip">會先確認才撥出</span>
+            <span class="num">119</span><span class="lb" data-en="Injuries">有人受傷</span>
+            <span class="tip" data-en="Confirms before calling">會先確認才撥出</span>
           </a>
         </div>
         <!-- 沒有查證過的號碼就不顯示這一列（CONFIG.towTel 留空即隱藏） -->
         <a class="tow-row" id="tow" hidden>
           <span class="ic"><svg class="i"><use href="#ic-truck"/></svg></span>
-          <span class="t">道路救援</span><span class="ar">›</span>
+          <span class="t" data-en="Roadside assistance">道路救援</span><span class="ar">›</span>
         </a>
       </div>
 
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-check"/></svg>現場處理</p>
+        <p class="sec-label"><svg class="i"><use href="#ic-check"/></svg><span data-en="On-scene steps">現場處理</span></p>
         <div id="tl"></div>
         <div class="prog-bar">
           <span class="n" id="tl-prog"></span>
-          <button class="btn-reset" id="tl-reset">重設</button>
+          <button class="btn-reset" id="tl-reset" data-en="Reset">重設</button>
         </div>
-        <a class="help-link" hidden><svg class="i"><use href="#ic-chat"/></svg>還是不知道怎麼做嗎？<b>歡迎聯絡我們</b></a>
+        <a class="help-link" hidden data-en-html="&lt;svg class=&quot;i&quot;&gt;&lt;use href=&quot;#ic-chat&quot;/&gt;&lt;/svg&gt;Still not sure what to do? &lt;b&gt;Contact us&lt;/b&gt;"><svg class="i"><use href="#ic-chat"/></svg>還是不知道怎麼做嗎？<b>歡迎聯絡我們</b></a>
       </div>
     </div>
   </section>
 
   <!-- ───── 拍照 ───── -->
-  <section class="view" id="v-photo" role="tabpanel" aria-label="拍照">
+  <section class="view" id="v-photo" role="tabpanel" aria-label="拍照" data-en-aria="Photos">
     <div class="view-in">
       <div class="page-head">
-        <div class="head-row"><h1>拍照存證</h1></div>
-        <p class="greet">對方可能會先離開，資料先問到手；車輛移動前先拍照。</p>
+        <div class="head-row"><h1 data-en="Photo Evidence">拍照存證</h1></div>
+        <p class="greet" data-en="The other driver may leave first — get their details now, and take photos before any car is moved.">對方可能會先離開，資料先問到手；車輛移動前先拍照。</p>
       </div>
 
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-id"/></svg>對方資料</p>
+        <p class="sec-label"><svg class="i"><use href="#ic-id"/></svg><span data-en="Other driver">對方資料</span></p>
         <div class="card" id="other-card"></div>
       </div>
 
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-camera"/></svg>拍照清單</p>
+        <p class="sec-label"><svg class="i"><use href="#ic-camera"/></svg><span data-en="Photo checklist">拍照清單</span></p>
         <div class="card" id="ph-body"></div>
         <div class="prog-bar">
           <span class="n" id="ph-prog"></span>
-          <button class="btn-reset" id="ph-reset">重設</button>
+          <button class="btn-reset" id="ph-reset" data-en="Reset">重設</button>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ───── 出險 ───── -->
-  <section class="view" id="v-claim" role="tabpanel" aria-label="出險">
+  <section class="view" id="v-claim" role="tabpanel" aria-label="出險" data-en-aria="Insurer">
     <div class="view-in">
       <div class="page-head">
-        <div class="head-row"><h1>通知保險公司</h1></div>
-        <p class="greet">五日內通知，越早越順。</p>
+        <div class="head-row"><h1 data-en="Notify Your Insurer">通知保險公司</h1></div>
+        <p class="greet" data-en="Notify them within 5 days. The sooner, the smoother.">五日內通知，越早越順。</p>
       </div>
 
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-phone"/></svg>找到你的保險公司</p>
+        <p class="sec-label"><svg class="i"><use href="#ic-phone"/></svg><span data-en="Find your insurer">找到你的保險公司</span></p>
         <div class="card" id="ins-body"></div>
       </div>
 
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-check"/></svg>出險流程</p>
+        <p class="sec-label"><svg class="i"><use href="#ic-check"/></svg><span data-en="Claim process">出險流程</span></p>
         <div id="cl"></div>
         <div class="prog-bar">
           <span class="n" id="cl-prog"></span>
-          <button class="btn-reset" id="cl-reset">重設</button>
+          <button class="btn-reset" id="cl-reset" data-en="Reset">重設</button>
         </div>
-        <a class="help-link" hidden><svg class="i"><use href="#ic-chat"/></svg>還是不知道怎麼做嗎？<b>歡迎聯絡我們</b></a>
+        <a class="help-link" hidden data-en-html="&lt;svg class=&quot;i&quot;&gt;&lt;use href=&quot;#ic-chat&quot;/&gt;&lt;/svg&gt;Still not sure what to do? &lt;b&gt;Contact us&lt;/b&gt;"><svg class="i"><use href="#ic-chat"/></svg>還是不知道怎麼做嗎？<b>歡迎聯絡我們</b></a>
       </div>
     </div>
   </section>
 
   <!-- ───── 個人 ───── -->
   <!-- ───── 求償 ───── -->
-  <section class="view" id="v-comp" role="tabpanel" aria-label="求償">
+  <section class="view" id="v-comp" role="tabpanel" aria-label="求償" data-en-aria="Claims">
     <div class="view-in">
       <div class="page-head">
-        <div class="head-row"><h1>調解與求償</h1></div>
-        <p class="greet">不用今天填完，填多少就存多少。</p>
+        <div class="head-row"><h1 data-en="Mediation &amp; Compensation">調解與求償</h1></div>
+        <p class="greet" data-en="No need to finish today — whatever you fill in is saved.">不用今天填完，填多少就存多少。</p>
       </div>
 
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-coin"/></svg>把有單據的先算出來</p>
+        <p class="sec-label"><svg class="i"><use href="#ic-coin"/></svg><span data-en="Start with what you have receipts for">把有單據的先算出來</span></p>
         <div class="card" id="comp-form"></div>
         <div class="comp-sum" id="comp-sum">
           <div class="empty" id="comp-sum-empty">
-            <p class="t">還沒有填入金額</p>
-            <p class="d">手邊有幾張收據就先填幾張，之後隨時可以再補。</p>
+            <p class="t" data-en="No amounts entered yet">還沒有填入金額</p>
+            <p class="d" data-en="Enter the receipts you have now. You can add more any time.">手邊有幾張收據就先填幾張，之後隨時可以再補。</p>
           </div>
           <div class="filled" id="comp-sum-filled" hidden>
             <div class="row">
-              <span class="k">有憑據的小計</span>
+              <span class="k" data-en="Subtotal with receipts">有憑據的小計</span>
               <span class="v" id="comp-total">$0</span>
             </div>
             <p class="n" id="comp-count"></p>
           </div>
         </div>
         <div class="cdoc-actions">
-          <button id="cdoc-open" disabled>
+          <button id="cdoc-open" disabled data-en="Export claim statement">
             <span class="i-w"><svg class="i"><use href="#ic-doc"/></svg></span>匯出請求明細
           </button>
         </div>
-        <p class="note-soft">只填你<strong>拿得出單據</strong>的金額。這份小計的力量，在於每一筆都有收據、估價單或薪資證明可以攤在桌上。</p>
+        <p class="note-soft" data-en-html="Only enter amounts you &lt;strong&gt;have documents for&lt;/strong&gt;. The strength of this subtotal is that every item is backed by a receipt, estimate or proof of pay you can put on the table.">只填你<strong>拿得出單據</strong>的金額。這份小計的力量，在於每一筆都有收據、估價單或薪資證明可以攤在桌上。</p>
       </div>
 
       <!-- 長篇說明收起來，先看標題與一句重點；要細看再點開。
            期限的重點數字直接寫在摘要上，收著也看得到 -->
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-scale"/></svg>你可能想知道</p>
+        <p class="sec-label"><svg class="i"><use href="#ic-scale"/></svg><span data-en="Good to know">你可能想知道</span></p>
         <details class="fold card">
           <summary><span class="ic"><svg class="i"><use href="#ic-alert"/></svg></span>
-            <span class="tx"><b>要注意的期限</b><span>提告、鑑定 6 個月內，求償 2 年內</span></span><span class="ar">›</span></summary>
+            <span class="tx"><b data-en="Deadlines to watch">要注意的期限</b><span data-en="Complaint &amp; fault review: 6 months; civil claim: 2 years">提告、鑑定 6 個月內，求償 2 年內</span></span><span class="ar">›</span></summary>
           <div id="comp-deadlines"></div>
         </details>
         <details class="fold card">
           <summary><span class="ic"><svg class="i"><use href="#ic-doc"/></svg></span>
-            <span class="tx"><b>調解有三條路</b><span>區公所調解、法院調解、直接提告</span></span><span class="ar">›</span></summary>
+            <span class="tx"><b data-en="Three ways to settle">調解有三條路</b><span data-en="District office, court mediation, or a lawsuit">區公所調解、法院調解、直接提告</span></span><span class="ar">›</span></summary>
           <div id="comp-paths"></div>
         </details>
         <details class="fold card">
           <summary><span class="ic"><svg class="i"><use href="#ic-scale"/></svg></span>
-            <span class="tx"><b>精神慰撫金</b><span>沒有價目表，怎麼抓比較踏實</span></span><span class="ar">›</span></summary>
+            <span class="tx"><b data-en="Pain and suffering">精神慰撫金</b><span data-en="There's no price list — how to estimate it sensibly">沒有價目表，怎麼抓比較踏實</span></span><span class="ar">›</span></summary>
           <div class="card-pad">
-            <p class="lead">你受的苦是真的，只是它沒有價目表。</p>
-            <p class="body">法院是就個案衡量的，同樣的傷勢判下來可以差上好幾倍。所以這裡不會給你一個「大概多少」—— 那種數字是猜的，而拿著猜來的數字上調解桌，開太高談不攏、開太低自己吃虧。</p>
-            <p class="sub-h">法院會看這些</p>
+            <p class="lead" data-en="What you went through is real. It just doesn't come with a price list.">你受的苦是真的，只是它沒有價目表。</p>
+            <p class="body" data-en="Courts weigh each case on its own, and the same injury can lead to awards several times apart. So we won't give you a ballpark figure — it would be a guess, and bringing a guess to mediation means asking too much and stalling, or asking too little and losing out.">法院是就個案衡量的，同樣的傷勢判下來可以差上好幾倍。所以這裡不會給你一個「大概多少」—— 那種數字是猜的，而拿著猜來的數字上調解桌，開太高談不攏、開太低自己吃虧。</p>
+            <p class="sub-h" data-en="What courts consider">法院會看這些</p>
             <ul class="bullets" id="comp-factors"></ul>
-            <p class="body">比較踏實的做法，是<strong>去查類似案件的實際判決</strong>。真實判決在調解桌上是能攤開來講的東西，比自己開一個數字有力得多。</p>
-            <a class="btn-outline" id="btn-judicial" href="https://judgment.judicial.gov.tw/FJUD/default.aspx" target="_blank" rel="noopener">查詢類似案件的判決</a>
-            <p class="hint-sm">關鍵字可以用「車禍 慰撫金」加上你的傷勢名稱。需要網路連線。</p>
+            <p class="body" data-en-html="The more solid approach is to &lt;strong&gt;look up actual rulings in similar cases&lt;/strong&gt;. Real rulings can be laid on the mediation table — far more persuasive than a number you came up with yourself.">比較踏實的做法，是<strong>去查類似案件的實際判決</strong>。真實判決在調解桌上是能攤開來講的東西，比自己開一個數字有力得多。</p>
+            <a class="btn-outline" id="btn-judicial" href="https://judgment.judicial.gov.tw/FJUD/default.aspx" target="_blank" rel="noopener" data-en="Search rulings in similar cases">查詢類似案件的判決</a>
+            <p class="hint-sm" data-en="The site is in Chinese. Try the keywords 車禍 慰撫金 (accident, pain and suffering) plus your injury. Needs an internet connection.">關鍵字可以用「車禍 慰撫金」加上你的傷勢名稱。需要網路連線。</p>
           </div>
         </details>
       </div>
 
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg>調解前，一樣一樣準備</p>
+        <p class="sec-label"><svg class="i"><use href="#ic-list"/></svg><span data-en="Before mediation, prepare these">調解前，一樣一樣準備</span></p>
         <div class="card" id="comp-docs"></div>
         <div class="prog-bar">
           <span class="n" id="doc-prog"></span>
-          <button class="btn-reset" id="doc-reset">重設</button>
+          <button class="btn-reset" id="doc-reset" data-en="Reset">重設</button>
         </div>
       </div>
 
       <div class="blk">
         <button class="row-btn" id="btn-comp-copy">
           <span class="ic"><svg class="i"><use href="#ic-copy"/></svg></span>
-          <span class="t">複製求償明細</span><span class="ar">›</span>
+          <span class="t" data-en="Copy claim summary">複製求償明細</span><span class="ar">›</span>
         </button>
       </div>
 
-      <a class="help-link" hidden><svg class="i"><use href="#ic-chat"/></svg>還是不知道怎麼做嗎？<b>歡迎聯絡我們</b></a>
-      <p class="legal-foot">以上為一般性資訊整理，不構成法律意見。個案認定請諮詢律師。若擔心費用，可洽<strong>法律扶助基金會</strong>申請扶助。</p>
+      <a class="help-link" hidden data-en-html="&lt;svg class=&quot;i&quot;&gt;&lt;use href=&quot;#ic-chat&quot;/&gt;&lt;/svg&gt;Still not sure what to do? &lt;b&gt;Contact us&lt;/b&gt;"><svg class="i"><use href="#ic-chat"/></svg>還是不知道怎麼做嗎？<b>歡迎聯絡我們</b></a>
+      <p class="legal-foot" data-en-html="This is general information, not legal advice. For your specific case, consult a lawyer. If cost is a concern, you can apply for help from the &lt;strong&gt;Legal Aid Foundation&lt;/strong&gt;.">以上為一般性資訊整理，不構成法律意見。個案認定請諮詢律師。若擔心費用，可洽<strong>法律扶助基金會</strong>申請扶助。</p>
     </div>
   </section>
 
-  <section class="view" id="v-me" role="tabpanel" aria-label="設定">
+  <section class="view" id="v-me" role="tabpanel" aria-label="設定" data-en-aria="Settings">
     <div class="view-in">
       <div class="page-head">
         <div class="head-row">
-          <h1>設定</h1>
+          <h1 data-en="Settings">設定</h1>
         </div>
       </div>
 
       <!-- 關於我們。聯絡鍵連到 CONFIG.contactUrl，由 applyConfig() 填 -->
       <div class="blk about">
         <div class="about-top">
-          <img src="icons/about.png" alt="保險好鄰居的頭像" width="52" height="52" decoding="async">
+          <img src="icons/about.png" alt="保險好鄰居的頭像" data-en-alt="保險好鄰居 (Guardy's creator)" width="52" height="52" decoding="async">
           <p class="nm">保險好鄰居</p>
-          <a class="about-line" hidden><svg class="i"><use href="#ic-chat"/></svg>用 LINE 找我</a>
+          <a class="about-line" hidden><svg class="i"><use href="#ic-chat"/></svg><span data-en="Chat on LINE">用 LINE 找我</span></a>
         </div>
-        <p class="tx">車禍當下，多數人第一次遇到都會慌：該先打給誰、要拍哪些照片、能不能移車？我把這些整理成 Guardy，讓你在現場一步一步照著做。</p>
-        <p class="tx">遇到不確定的地方，隨時用 LINE 找我。你先顧好自己的安全，其他的我陪你一起處理。</p>
+        <p class="tx" data-en="Most people panic the first time they're in a car accident: who to call first, which photos to take, whether to move the car. I put all of that into Guardy so you can follow along, one step at a time, right at the scene.">車禍當下，多數人第一次遇到都會慌：該先打給誰、要拍哪些照片、能不能移車？我把這些整理成 Guardy，讓你在現場一步一步照著做。</p>
+        <p class="tx" data-en="If anything's unclear, message me on LINE any time. Keep yourself safe first — I'll help you with the rest.">遇到不確定的地方，隨時用 LINE 找我。你先顧好自己的安全，其他的我陪你一起處理。</p>
       </div>
 
       <div class="blk">
-        <p class="sec-label">事故案件</p>
+        <p class="sec-label" data-en="Accident cases">事故案件</p>
         <div id="case-box"></div>
       </div>
 
       <div class="blk">
-        <p class="sec-label">照片與進度</p>
+        <p class="sec-label" data-en="Photos &amp; progress">照片與進度</p>
         <button class="row-btn warn" id="btn-del-photos">
           <span class="ic"><svg class="i"><use href="#ic-camera"/></svg></span>
-          <span class="t">刪除本案件的照片</span><span class="ar">›</span>
+          <span class="t" data-en="Delete this case's photos">刪除本案件的照片</span><span class="ar">›</span>
         </button>
         <button class="row-btn warn" id="btn-reset-all">
           <span class="ic"><svg class="i"><use href="#ic-ban"/></svg></span>
-          <span class="t">清除本案件的進度</span><span class="ar">›</span>
+          <span class="t" data-en="Clear this case's progress">清除本案件的進度</span><span class="ar">›</span>
         </button>
         <p class="set-foot" id="storage-info"></p>
       </div>
 
       <div class="blk">
-        <p class="sec-label">外觀</p>
+        <p class="sec-label" data-en="Appearance">外觀</p>
         <div class="seg" id="seg-theme">
-          <button data-v="auto">跟隨系統</button>
-          <button data-v="light">淺色</button>
-          <button data-v="dark">深色</button>
+          <button data-v="auto" data-en="System">跟隨系統</button>
+          <button data-v="light" data-en="Light">淺色</button>
+          <button data-v="dark" data-en="Dark">深色</button>
+        </div>
+      </div>
+
+      <!-- 小標中英都寫：看不懂目前語言的人也找得到這裡 -->
+      <div class="blk">
+        <p class="sec-label">語言 Language</p>
+        <div class="seg" id="seg-lang">
+          <button data-v="zh" lang="zh-Hant-TW">中文</button>
+          <button data-v="en" lang="en">English</button>
         </div>
       </div>
 
       <div class="blk">
-        <p class="sec-label">關於</p>
-        <a class="row-btn" href="terms.html" id="row-terms">
+        <p class="sec-label" data-en="About">關於</p>
+        <a class="row-btn" href="terms.html" id="row-terms" data-en-href="terms-en.html">
           <span class="ic"><svg class="i"><use href="#ic-doc"/></svg></span>
-          <span class="t">服務條款</span><span class="ar">›</span>
+          <span class="t" data-en="Terms of Service">服務條款</span><span class="ar">›</span>
         </a>
-        <a class="row-btn" href="privacy.html">
+        <a class="row-btn" href="privacy.html" data-en-href="privacy-en.html">
           <span class="ic"><svg class="i"><use href="#ic-id"/></svg></span>
-          <span class="t">隱私權政策</span><span class="ar">›</span>
+          <span class="t" data-en="Privacy Policy">隱私權政策</span><span class="ar">›</span>
         </a>
       </div>
 
@@ -1258,85 +1281,85 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 <nav class="tabbar" role="tablist">
   <div class="tabbar-in">
     <button class="tab" role="tab" data-v="scene" aria-selected="true">
-      <svg class="i"><use href="#ic-alert"/></svg><span>現場</span>
+      <svg class="i"><use href="#ic-alert"/></svg><span data-en="Scene">現場</span>
     </button>
     <button class="tab" role="tab" data-v="photo" aria-selected="false">
-      <svg class="i"><use href="#ic-camera"/></svg><span>存證</span>
+      <svg class="i"><use href="#ic-camera"/></svg><span data-en="Evidence">存證</span>
       <span class="badge" id="tab-badge"></span>
     </button>
     <button class="tab" role="tab" data-v="claim" aria-selected="false">
-      <svg class="i"><use href="#ic-shield"/></svg><span>出險</span>
+      <svg class="i"><use href="#ic-shield"/></svg><span data-en="Insurer">出險</span>
     </button>
     <button class="tab" role="tab" data-v="comp" aria-selected="false">
-      <svg class="i"><use href="#ic-scale"/></svg><span>求償</span>
+      <svg class="i"><use href="#ic-scale"/></svg><span data-en="Claims">求償</span>
     </button>
     <button class="tab" role="tab" data-v="me" aria-selected="false">
-      <svg class="i"><use href="#ic-gear"/></svg><span>設定</span>
+      <svg class="i"><use href="#ic-gear"/></svg><span data-en="Settings">設定</span>
     </button>
   </div>
 </nav>
 
 <!-- 照片檢視器 -->
-<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="照片">
+<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="照片" data-en-aria="Photo">
   <div class="viewer-top">
     <span class="t" id="viewer-t"></span>
-    <button id="viewer-close">關閉</button>
+    <button id="viewer-close" data-en="Close">關閉</button>
   </div>
   <div class="viewer-img"><img id="viewer-img" alt=""></div>
   <div class="viewer-bar">
-    <button id="viewer-share">分享 / 存到相簿</button>
-    <button class="del" id="viewer-del">刪除</button>
+    <button id="viewer-share" data-en="Share / Save to Photos">分享 / 存到相簿</button>
+    <button class="del" id="viewer-del" data-en="Delete">刪除</button>
   </div>
 </div>
 
 <input type="file" id="picker" accept="image/*" multiple hidden>
 
 <!-- 對方資料 -->
-<div class="sheet" id="other-sheet" role="dialog" aria-modal="true" aria-label="對方資料">
+<div class="sheet" id="other-sheet" role="dialog" aria-modal="true" aria-label="對方資料" data-en-aria="Other driver">
   <div class="sheet-top">
-    <span class="sheet-title">對方資料</span>
-    <button class="sheet-close" id="other-close">完成</button>
+    <span class="sheet-title" data-en="Other driver">對方資料</span>
+    <button class="sheet-close" id="other-close" data-en="Done">完成</button>
   </div>
   <div class="sheet-scroll"><div class="sheet-inner" id="other-form"></div></div>
 </div>
 
 <!-- 損害賠償請求明細。列印時 body 底下只有這一個會留著，
      所以它必須是 body 的直接子元素，不能包在 .views 裡面 -->
-<div class="sheet printable" id="cdoc-sheet" role="dialog" aria-modal="true" aria-label="損害賠償請求明細">
+<div class="sheet printable" id="cdoc-sheet" role="dialog" aria-modal="true" aria-label="損害賠償請求明細" data-en-aria="Claim statement">
   <div class="sheet-top">
-    <span class="sheet-title">請求明細</span>
-    <button class="sheet-close" id="cdoc-close">關閉</button>
+    <span class="sheet-title" data-en="Claim statement">請求明細</span>
+    <button class="sheet-close" id="cdoc-close" data-en="Close">關閉</button>
   </div>
   <div class="sheet-scroll">
     <div class="cdoc" id="cdoc-body"></div>
     <div class="cdoc-print-hide" style="max-width:520px;margin:0 auto;padding:0 22px 28px">
       <div class="cdoc-actions">
-        <button id="cdoc-print"><span class="i-w"><svg class="i"><use href="#ic-doc"/></svg></span>列印／存成 PDF</button>
-        <button id="cdoc-copy"><span class="i-w"><svg class="i"><use href="#ic-copy"/></svg></span>複製文字</button>
+        <button id="cdoc-print" data-en="Print / Save as PDF"><span class="i-w"><svg class="i"><use href="#ic-doc"/></svg></span>列印／存成 PDF</button>
+        <button id="cdoc-copy" data-en="Copy text"><span class="i-w"><svg class="i"><use href="#ic-copy"/></svg></span>複製文字</button>
       </div>
-      <p class="note-soft">「列印」會開啟系統的列印視窗，在那裡可以選擇「儲存為 PDF」。</p>
+      <p class="note-soft" data-en="“Print” opens your system's print dialog, where you can choose “Save as PDF”. The document is in both Chinese and English.">「列印」會開啟系統的列印視窗，在那裡可以選擇「儲存為 PDF」。</p>
     </div>
   </div>
 </div>
 
 <!-- 事故紀錄：把這件事故 App 裡記下的東西整理成一份，可以存成 PDF、複製文字、分享照片。
      跟請求明細一樣必須是 body 的直接子元素，列印時才只印這一張 -->
-<div class="sheet printable" id="crec-sheet" role="dialog" aria-modal="true" aria-label="事故紀錄">
+<div class="sheet printable" id="crec-sheet" role="dialog" aria-modal="true" aria-label="事故紀錄" data-en-aria="Accident record">
   <div class="sheet-top">
-    <span class="sheet-title">事故紀錄</span>
-    <button class="sheet-close" id="crec-close">關閉</button>
+    <span class="sheet-title" data-en="Accident record">事故紀錄</span>
+    <button class="sheet-close" id="crec-close" data-en="Close">關閉</button>
   </div>
   <div class="sheet-scroll">
     <div class="cdoc" id="crec-body"></div>
     <div class="cdoc-print-hide" style="max-width:520px;margin:0 auto;padding:0 22px 28px">
       <div class="cdoc-actions">
-        <button id="crec-print"><span class="i-w"><svg class="i"><use href="#ic-doc"/></svg></span>列印／存成 PDF</button>
-        <button id="crec-copy"><span class="i-w"><svg class="i"><use href="#ic-copy"/></svg></span>複製文字</button>
+        <button id="crec-print" data-en="Print / Save as PDF"><span class="i-w"><svg class="i"><use href="#ic-doc"/></svg></span>列印／存成 PDF</button>
+        <button id="crec-copy" data-en="Copy text"><span class="i-w"><svg class="i"><use href="#ic-copy"/></svg></span>複製文字</button>
       </div>
       <div class="cdoc-actions">
         <button id="crec-share"><span class="i-w"><svg class="i"><use href="#ic-share"/></svg></span><span id="crec-share-t">分享照片</span></button>
       </div>
-      <p class="note-soft">「列印」會開啟系統的列印視窗，在那裡可以選擇「儲存為 PDF」，照片會一起印進去。</p>
+      <p class="note-soft" data-en="“Print” opens your system's print dialog, where you can choose “Save as PDF”. Photos are included. The document is in both Chinese and English.">「列印」會開啟系統的列印視窗，在那裡可以選擇「儲存為 PDF」，照片會一起印進去。</p>
     </div>
   </div>
 </div>
@@ -1348,10 +1371,10 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 <div class="install" id="save-album" role="dialog" aria-labelledby="save-album-t">
   <div class="install-in">
     <p class="t" id="save-album-t">存一份到手機相簿？</p>
-    <p class="d" id="save-album-d">App 裡的照片會隨清除瀏覽器資料消失，相簿裡多一份比較保險。</p>
+    <p class="d" id="save-album-d" data-en="Photos in the app disappear if browser data is cleared. An extra copy in your photo library is safer.">App 裡的照片會隨清除瀏覽器資料消失，相簿裡多一份比較保險。</p>
     <div class="row">
-      <button class="go" id="save-album-go">存到相簿</button>
-      <button class="no" id="save-album-no">不用</button>
+      <button class="go" id="save-album-go" data-en="Save to Photos">存到相簿</button>
+      <button class="no" id="save-album-no" data-en="No thanks">不用</button>
     </div>
   </div>
 </div>
@@ -1362,8 +1385,8 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
     <p class="d">車禍現場往往沒有網路。加到主畫面後，即使離線也能開啟。</p>
     <div id="install-steps"></div>
     <div class="row">
-      <button class="go" id="install-go">加入主畫面</button>
-      <button class="no" id="install-no">以後再說</button>
+      <button class="go" id="install-go" data-en="Add to Home Screen">加入主畫面</button>
+      <button class="no" id="install-no" data-en="Not now">以後再說</button>
     </div>
   </div>
 </div>
@@ -1374,7 +1397,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
     <div class="ask-t" id="ask-t"></div>
     <div class="ask-m" id="ask-m"></div>
     <div class="ask-btns">
-      <button class="ask-no" id="ask-no">取消</button>
+      <button class="ask-no" id="ask-no" data-en="Cancel">取消</button>
       <button class="ask-yes" id="ask-yes">刪除</button>
     </div>
   </div>
@@ -1482,6 +1505,46 @@ function save(k,v){
 
 var $ = function(id){ return document.getElementById(id); };
 
+/* =========================================================
+   語言（中文／英文）
+   ---------------------------------------------------------
+   語言在 <head> 決定（window.__lang），切換時整頁重載，所以這裡只要讀一次。
+   - 畫面上固定的文字：HTML 標上 data-en（換最後一段文字）、data-en-html（換整段 HTML）、
+     data-en-ph／data-en-aria／data-en-alt／data-en-href，開機時換掉
+   - 程式裡的文字：T('中文', 'English')
+   - 會進匯出文件的清單（步驟、欄位、照片項目）：中文欄位旁邊多一個 _en 欄位，
+     畫面用 L(物件, 欄位) 挑一個，匯出文件兩個都用（文件一律中英並列）
+   ========================================================= */
+var EN = !!(window.__lang && window.__lang.cur === 'en');
+function T(zh, en){ return EN ? en : zh; }
+function L(o, k){ return EN && o[k + '_en'] ? o[k + '_en'] : o[k]; }
+
+(function applyStatic(){
+  if (!EN) return;
+  document.title = 'Guardy — Car Accident Helper';
+  var md = document.querySelector('meta[name="description"]');
+  if (md) md.setAttribute('content', 'Stay calm — step-by-step help at a car accident: location, reporting, photo evidence, and insurance claims.');
+  function each(sel, fn){ Array.prototype.forEach.call(document.querySelectorAll(sel), fn); }
+  each('[data-en]', function(el){
+    var en = el.getAttribute('data-en');
+    /* 有圖示的按鈕只換文字那一段，圖示留著 */
+    var tn = null;
+    for (var n = el.lastChild; n; n = n.previousSibling){
+      if (n.nodeType === 3 && n.nodeValue.trim()){ tn = n; break; }
+    }
+    if (tn && el.children.length) tn.nodeValue = en; else el.textContent = en;
+  });
+  each('[data-en-html]', function(el){ el.innerHTML = el.getAttribute('data-en-html'); });
+  each('[data-en-ph]', function(el){ el.placeholder = el.getAttribute('data-en-ph'); });
+  each('[data-en-aria]', function(el){ el.setAttribute('aria-label', el.getAttribute('data-en-aria')); });
+  each('[data-en-alt]', function(el){ el.alt = el.getAttribute('data-en-alt'); });
+  each('[data-en-href]', function(el){ el.href = el.getAttribute('data-en-href'); });
+})();
+
+/* 匯出文件用：中文在上、英文小一號在下（HTML），或同一行並列（純文字） */
+function bh(zh, en){ return esc(zh) + '<span class="en">' + esc(en) + '</span>'; }
+function bt(zh, en){ return zh + ' ' + en; }
+
 /* 地址可能是使用者手動輸入的，凡是要進 innerHTML 的都得先過這裡 */
 function esc(s){
   return String(s == null ? '' : s).replace(/[&<>"']/g, function(m){
@@ -1499,7 +1562,7 @@ function ask(title, msg, yesLabel, cb){
   $('ask-t').textContent = title;
   $('ask-m').textContent = msg || '';
   $('ask-m').hidden = !msg;
-  $('ask-yes').textContent = yesLabel || '確定';
+  $('ask-yes').textContent = yesLabel || T('確定', 'OK');
   $('ask').classList.add('open');
 }
 function askClose(ok){
@@ -1614,10 +1677,12 @@ function who(){ return '我們'; }
 
   $('brandfoot').innerHTML =
     '<div class="b">Guardy</div>' +
-    '<p>事故資料與照片只存在這支手機裡，不會上傳。<br>' +
-    '本 App 提供一般性事故處理資訊，實際權益依保單條款與主管機關規定為準。</p>' +
+    T('<p>事故資料與照片只存在這支手機裡，不會上傳。<br>' +
+      '本 App 提供一般性事故處理資訊，實際權益依保單條款與主管機關規定為準。</p>',
+      '<p>Your accident data and photos stay on this phone and are never uploaded.<br>' +
+      'Guardy provides general information. Your actual rights depend on your policy terms and official regulations.</p>') +
     /* Nominatim 的使用政策要求標示資料來源 */
-    '<p>地址資料 © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</p>';
+    '<p>' + T('地址資料', 'Address data') + ' © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</p>';
 })();
 
 /* =========================================================
@@ -1658,9 +1723,9 @@ function hasCoords(s){ return !!s && typeof s.lat === 'number' && typeof s.lon =
 
 $('loc-btn').addEventListener('click', function(){
   var btn = this;
-  if (!navigator.geolocation){ toast('此裝置不支援定位'); return; }
+  if (!navigator.geolocation){ toast(T('此裝置不支援定位', "Location isn't supported on this device")); return; }
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> 定位中…';
+  btn.innerHTML = '<span class="spinner"></span> ' + T('定位中…', 'Locating…');
   navigator.geolocation.getCurrentPosition(onPos, onPosErr, {
     enableHighAccuracy:true, timeout:15000, maximumAge:0
   });
@@ -1669,8 +1734,10 @@ $('loc-btn').addEventListener('click', function(){
 function onPosErr(err){
   var btn = $('loc-btn');
   btn.disabled = false;
-  btn.textContent = '重新取得我的位置';
-  toast(err && err.code === 1 ? '請允許定位權限後再試一次' : '定位失敗，改用手動輸入也可以');
+  btn.textContent = T('重新取得我的位置', 'Try again');
+  toast(err && err.code === 1
+    ? T('請允許定位權限後再試一次', 'Please allow location access and try again')
+    : T('定位失敗，改用手動輸入也可以', "Couldn't get your location — you can enter it manually"));
   openManual();   // 失敗當下就把退路攤開，不要讓使用者自己去找
 }
 
@@ -1684,9 +1751,9 @@ $('loc-manual-open').addEventListener('click', openManual);
 
 $('loc-manual-ok').addEventListener('click', function(){
   var v = $('loc-manual-in').value.trim();
-  if (!v){ toast('請先輸入地點'); $('loc-manual-in').focus(); return; }
+  if (!v){ toast(T('請先輸入地點', 'Please enter a location first')); $('loc-manual-in').focus(); return; }
   setManualSite(v);
-  toast('事故地點已記下');
+  toast(T('事故地點已記下', 'Accident location saved'));
 });
 
 $('loc-manual-in').addEventListener('keydown', function(e){
@@ -1709,15 +1776,15 @@ function renderLoc(){
 
   if (s.addr){ el.textContent = s.addr; return; }
 
-  if (!hasCoords(s)){ el.textContent = '（未取得位置）'; return; }
+  if (!hasCoords(s)){ el.textContent = T('（未取得位置）', '(No location)'); return; }
 
-  var ll = '<span class="ll">座標 ' + fmtLL(s) + '</span>';
+  var ll = '<span class="ll">' + T('座標 ', 'Coordinates ') + fmtLL(s) + '</span>';
   if (!navigator.onLine){
-    el.innerHTML = '<span class="why">離線中，把座標唸給接線員一樣準確</span>' + ll;
+    el.innerHTML = '<span class="why">' + T('離線中，把座標唸給接線員一樣準確', 'Offline — reading these coordinates to the dispatcher works just as well') + '</span>' + ll;
   } else if (geoFailed){
-    el.innerHTML = '<span class="why">查不到地址，改用座標</span>' + ll;
+    el.innerHTML = '<span class="why">' + T('查不到地址，改用座標', "Couldn't find the address — use the coordinates") + '</span>' + ll;
   } else {
-    el.innerHTML = '<span class="why">查詢地址中…可先唸座標</span>' + ll;
+    el.innerHTML = '<span class="why">' + T('查詢地址中…可先唸座標', 'Looking up the address… you can read out the coordinates meanwhile') + '</span>' + ll;
   }
 }
 
@@ -1725,17 +1792,17 @@ function renderLoc(){
    不需要再確認一次。 */
 $('loc-again').addEventListener('click', function(){
   var btn = this;
-  if (!navigator.geolocation){ toast('此裝置不支援定位'); return; }
+  if (!navigator.geolocation){ toast(T('此裝置不支援定位', "Location isn't supported on this device")); return; }
   btn.disabled = true;
-  btn.textContent = '定位中…';
+  btn.textContent = T('定位中…', 'Locating…');
   navigator.geolocation.getCurrentPosition(function(pos){
-    btn.disabled = false; btn.textContent = '重新定位';
+    btn.disabled = false; btn.textContent = T('重新定位', 'Locate again');
     state.coords = { lat: pos.coords.latitude, lon: pos.coords.longitude, acc: pos.coords.accuracy };
     setSite(state.coords);
-    toast('位置已更新');
+    toast(T('位置已更新', 'Location updated'));
   }, function(){
-    btn.disabled = false; btn.textContent = '重新定位';
-    toast('定位失敗，維持原本的位置');
+    btn.disabled = false; btn.textContent = T('重新定位', 'Locate again');
+    toast(T('定位失敗，維持原本的位置', "Couldn't get a fix — keeping the previous location"));
   }, { enableHighAccuracy:true, timeout:15000, maximumAge:0 });
 });
 
@@ -1756,7 +1823,7 @@ function clearLocUI(){
   $('loc-idle').hidden = false;
   $('loc-card').classList.remove('ready');
   $('loc-btn').disabled = false;
-  $('loc-btn').textContent = '取得我的位置';
+  $('loc-btn').textContent = T('取得我的位置', 'Get my location');
   $('loc-manual').hidden = true;
   $('loc-manual-open').hidden = false;
   $('loc-manual-in').value = '';
@@ -1836,9 +1903,10 @@ function reverseGeocode(){
 function shareText(){
   var s = state.site;
   if (!s) return '';
-  var out = '事故時間 ' + new Date(s.at).toLocaleString('zh-TW', { hour12:false }) + '\n';
+  /* 會傳給別人（家人、保險公司），跟匯出文件一樣中英並列 */
+  var out = bt('事故時間', 'Time of accident') + ' ' + new Date(s.at).toLocaleString('zh-TW', { hour12:false }) + '\n';
   if (s.addr) out += s.addr + '\n';
-  if (hasCoords(s)) out += '座標 ' + fmtLL(s) + '\n' + siteMapUrl();
+  if (hasCoords(s)) out += bt('座標', 'Coordinates') + ' ' + fmtLL(s) + '\n' + siteMapUrl();
   return out.replace(/\n$/, '');
 }
 
@@ -1863,7 +1931,7 @@ function copyText(txt, okMsg){
     ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0';
     document.body.appendChild(ta); ta.select();
     try{ document.execCommand('copy'); toast(okMsg); }
-    catch(e){ toast('複製失敗，請長按選取'); }
+    catch(e){ toast(T('複製失敗，請長按選取', "Couldn't copy — long-press to select the text")); }
     document.body.removeChild(ta);
   }
   if (navigator.clipboard && navigator.clipboard.writeText){
@@ -1872,7 +1940,7 @@ function copyText(txt, okMsg){
 }
 
 $('btn-copy').addEventListener('click', function(){
-  copyText(shareText(), '位置已複製');
+  copyText(shareText(), T('位置已複製', 'Location copied'));
 });
 
 /* 有座標就用座標，手動輸入的地點只能拿地址去搜尋 —— 後者不保證找得到，
@@ -1888,7 +1956,7 @@ $('btn-share').addEventListener('click', function(){
   var s = state.site;
   if (!s) return;
   if (navigator.share){
-    var d = { title:'事故地點', text: s.addr || ('座標 ' + fmtLL(s)) };
+    var d = { title:T('事故地點', 'Accident location'), text: s.addr || (bt('座標', 'Coordinates') + ' ' + fmtLL(s)) };
     var u = siteMapUrl();
     if (u) d.url = u;
     navigator.share(d).catch(function(){});
@@ -1898,9 +1966,9 @@ $('btn-share').addEventListener('click', function(){
 /* iOS 的 standalone PWA 常常擋掉 window.open，
    改用臨時 <a target="_blank"> 由瀏覽器自己處理，行為一致得多。 */
 $('btn-map').addEventListener('click', function(){
-  if (!navigator.onLine){ toast('需要網路連線'); return; }
+  if (!navigator.onLine){ toast(T('需要網路連線', 'Needs an internet connection')); return; }
   var url = siteMapUrl();
-  if (!url){ toast('這個地點沒有座標，無法開啟地圖'); return; }
+  if (!url){ toast(T('這個地點沒有座標，無法開啟地圖', "This location has no coordinates, so the map can't open")); return; }
   var a = document.createElement('a');
   a.href = url;
   a.target = '_blank';
@@ -1918,20 +1986,25 @@ var TL_LEGACY = ['hazard', 'photo', 'police', 'nosettle', 'insurer'];   /* 舊�
 
 function sceneSteps(){
   return [
-    { id:'hazard', ic:'alert', t:'開雙黃燈、放三角警示架',
-      d:'一般道路放在車後 30–100 公尺（車速越快放越遠），高速公路約 100 公尺。先確保自己不會被追撞。' },
-    { id:'photo', ic:'camera', t:'拍照存證',
+    { id:'hazard', ic:'alert', t:'開雙黃燈、放三角警示架', t_en:'Turn on hazard lights, set up a warning triangle',
+      d:'一般道路放在車後 30–100 公尺（車速越快放越遠），高速公路約 100 公尺。先確保自己不會被追撞。',
+      d_en:'On regular roads, place it 30–100 m behind your car (farther at higher speeds); on freeways, about 100 m. Make sure you won\'t be hit from behind first.' },
+    { id:'photo', ic:'camera', t:'拍照存證', t_en:'Take photos as evidence',
       d:'要拍：全景、碰撞點、車損、車牌、證件、地面痕跡、行車記錄器。',
-      act:{ t:'打開拍照清單', go:'photo' } },
-    { id:'police', ic:'siren', t:'撥 110 報案，索取登記聯單',
+      d_en:'Photograph the overall scene, point of impact, damage, license plates, IDs, marks on the road, and dashcam footage.',
+      act:{ t:T('打開拍照清單', 'Open photo checklist'), go:'photo' } },
+    { id:'police', ic:'siren', t:'撥 110 報案，索取登記聯單', t_en:'Call 110 and ask for the registration slip',
       d:'不論事故大小都建議報警。向處理員警索取「交通事故當事人登記聯單」，後續申請文件都要用到。',
-      act:{ t:'撥打 110', tel:'110' } },
+      d_en:'Calling the police is recommended no matter how minor the accident. Ask the officer for the “Traffic Accident Party Registration Slip” (交通事故當事人登記聯單) — you\'ll need it later.',
+      act:{ t:T('撥打 110', 'Call 110'), tel:'110' } },
     /* 有人受傷時原則上不得移車，雙方同意才可標繪後移置（道路交通事故處理辦法 §3）。
        沒有引導問答之後分不出有沒有人受傷，所以一律寫保守的版本。 */
-    { id:'nosettle', ic:'ban', t:'不私下和解、不隨意移車',
-      d:'有人受傷時，除非雙方同意或警方指示，不要移車。沒人受傷且車能開，先拍照記下位置再移到路邊。也不要簽任何文件。' },
-    { id:'insurer', ic:'phone', t:'五日內通知保險公司出險', d:'越早通知，理賠越順。',
-      act:{ t:'查出險專線', go:'claim' } }
+    { id:'nosettle', ic:'ban', t:'不私下和解、不隨意移車', t_en:"Don't settle privately or move the car carelessly",
+      d:'有人受傷時，除非雙方同意或警方指示，不要移車。沒人受傷且車能開，先拍照記下位置再移到路邊。也不要簽任何文件。',
+      d_en:"If anyone is hurt, don't move the car unless both sides agree or the police say so. If no one is hurt and the car can be driven, photograph its position first, then move to the roadside. Don't sign anything." },
+    { id:'insurer', ic:'phone', t:'五日內通知保險公司出險', t_en:'Notify your insurer within 5 days',
+      d:'越早通知，理賠越順。', d_en:'The sooner you notify them, the smoother the claim.',
+      act:{ t:T('查出險專線', 'Find the claim hotline'), go:'claim' } }
   ];
 }
 
@@ -1964,12 +2037,12 @@ function renderSteps(box, steps, st, onToggle){
       '<button class="tl-head" data-id="' + s.id + '" aria-pressed="' + done + '">' +
         '<span class="tl-mark">' + ico(s.ic) + '</span>' +
         '<span class="tl-titles">' +
-          '<span class="tl-step">STEP ' + (i + 1) + (i === now ? '<em>現在做這一步</em>' : '') + '</span>' +
-          '<span class="tl-t">' + s.t + '</span>' +
+          '<span class="tl-step">STEP ' + (i + 1) + (i === now ? '<em>' + T('現在做這一步', 'Do this now') + '</em>' : '') + '</span>' +
+          '<span class="tl-t">' + L(s, 't') + '</span>' +
         '</span>' +
         '<span class="tl-check">' + CHECK + '</span>' +
       '</button>' +
-      (done ? '' : '<div class="tl-body"><p class="tl-d">' + s.d + '</p>' + actHTML(s.act) + '</div>');
+      (done ? '' : '<div class="tl-body"><p class="tl-d">' + L(s, 'd') + '</p>' + actHTML(s.act) + '</div>');
     el.querySelector('.tl-head').addEventListener('click', function(){
       onToggle(s.id);
       /* 整份重畫會把焦點丟掉，鍵盤與讀屏使用者得從頭找起 */
@@ -1983,6 +2056,8 @@ function renderSteps(box, steps, st, onToggle){
   return n;
 }
 
+function prog(n, total){ return T('已完成 ' + n + ' / ' + total, n + ' / ' + total + ' done'); }
+
 function renderTL(){
   var steps = sceneSteps();
   var n = renderSteps($('tl'), steps, tlState(load(LS.tl)), function(id){
@@ -1991,10 +2066,10 @@ function renderTL(){
     save(LS.tl, cur);
     renderTL();
   });
-  $('tl-prog').textContent = '已完成 ' + n + ' / ' + steps.length;
+  $('tl-prog').textContent = prog(n, steps.length);
 }
 $('tl-reset').addEventListener('click', function(){
-  save(LS.tl, {}); renderTL(); toast('現場處理進度已重設');
+  save(LS.tl, {}); renderTL(); toast(T('現場處理進度已重設', 'On-scene steps reset'));
 });
 renderTL();
 
@@ -2002,10 +2077,10 @@ renderTL();
    對方資料 — 全部存在本機，不會上傳
    ========================================================= */
 var OTHER_FIELDS = [
-  { k:'plate',   t:'車牌號碼', ph:'ABC-1234', cls:'plate' },
-  { k:'name',    t:'姓名', ph:'' },
-  { k:'tel',     t:'電話', ph:'0912345678', type:'tel' },
-  { k:'insurer', t:'保險公司', ph:'○○產物保險' }
+  { k:'plate',   t:'車牌號碼', t_en:'License plate', ph:'ABC-1234', cls:'plate' },
+  { k:'name',    t:'姓名', t_en:'Name', ph:'' },
+  { k:'tel',     t:'電話', t_en:'Phone', ph:'0912345678', type:'tel' },
+  { k:'insurer', t:'保險公司', t_en:'Insurer', ph:T('○○產物保險', 'e.g. Fubon Insurance') }
 ];
 
 function otherData(){ return load(LS.other); }
@@ -2020,9 +2095,9 @@ function renderOther(){
   if (!otherFilled()){
     box.innerHTML =
       '<div class="other-empty">' +
-        '<p class="t">還沒記錄對方資料</p>' +
-        '<p class="d">對方可能先離開現場。至少把車牌問到手，其他之後還能補。</p>' +
-        '<button class="btn-primary" id="other-open">記錄對方資料</button>' +
+        '<p class="t">' + T('還沒記錄對方資料', 'No details recorded yet') + '</p>' +
+        '<p class="d">' + T('對方可能先離開現場。至少把車牌問到手，其他之後還能補。', 'The other driver may leave the scene. At least get their plate number — the rest can be added later.') + '</p>' +
+        '<button class="btn-primary" id="other-open">' + T('記錄對方資料', 'Record their details') + '</button>' +
       '</div>';
   } else {
     var rows = '';
@@ -2033,7 +2108,7 @@ function renderOther(){
       /* 這四個欄位是使用者在現場自己打進去的，一定要過 esc()。
          漏掉的話，一個叫做 <img src=x onerror=…> 的「對方」會在每次
          打開現場分頁時執行 —— 而且這包資料在帳號制上線後會同步到雲端。 */
-      rows += '<div class="kv"><span class="k">' + f.t + '</span><span class="v">' +
+      rows += '<div class="kv"><span class="k">' + L(f, 't') + '</span><span class="v">' +
               (f.k === 'tel'
                 ? '<a class="tel-a" href="tel:' + v.replace(/[^0-9+#*,]/g, '') + '">' + esc(v) + '</a>'
                 : esc(v)) +
@@ -2042,9 +2117,9 @@ function renderOther(){
     var plate = (d.plate || '').trim();
     box.innerHTML =
       '<div class="other-sum">' +
-        '<p class="plate' + (plate ? '' : ' none') + '">' + (plate ? esc(plate) : '（車牌未填）') + '</p>' +
+        '<p class="plate' + (plate ? '' : ' none') + '">' + (plate ? esc(plate) : T('（車牌未填）', '(No plate)')) + '</p>' +
         rows +
-        '<button class="edit" id="other-open">' + ico('id') + '編輯</button>' +
+        '<button class="edit" id="other-open">' + ico('id') + T('編輯', 'Edit') + '</button>' +
       '</div>';
   }
   $('other-open').addEventListener('click', openOther);
@@ -2052,12 +2127,12 @@ function renderOther(){
 
 function openOther(){
   var d = otherData(), html = '<div class="qhead" style="padding:26px 0 20px">' +
-    '<p class="k">現場記錄</p><h2>對方資料</h2>' +
-    '<p class="sub">邊問邊填，會自動儲存。全部只存在這支手機裡，不會上傳。</p></div><div class="card">';
+    '<p class="k">' + T('現場記錄', 'At the scene') + '</p><h2>' + T('對方資料', 'Other driver') + '</h2>' +
+    '<p class="sub">' + T('邊問邊填，會自動儲存。全部只存在這支手機裡，不會上傳。', 'Fill it in as you ask — it saves automatically. Everything stays on this phone and is never uploaded.') + '</p></div><div class="card">';
 
   OTHER_FIELDS.forEach(function(f){
     var v = esc(d[f.k] || '');
-    html += '<div class="f"><label for="of-' + f.k + '">' + f.t + '</label>' +
+    html += '<div class="f"><label for="of-' + f.k + '">' + L(f, 't') + '</label>' +
             (f.area
               ? '<textarea id="of-' + f.k + '" placeholder="' + f.ph + '">' + v + '</textarea>'
               : '<input id="of-' + f.k + '" type="' + (f.type || 'text') + '"' +
@@ -2066,8 +2141,8 @@ function openOther(){
             (f.hint ? '<p class="hint" style="font-size:13.5px;color:var(--muted);margin:7px 0 0;line-height:1.55">' + f.hint + '</p>' : '') +
             '</div>';
   });
-  html += '</div><p class="saved" id="of-saved">已儲存</p>' +
-          '<button class="sheet-back" id="of-clear" style="color:var(--red)">清除對方資料</button>';
+  html += '</div><p class="saved" id="of-saved">' + T('已儲存', 'Saved') + '</p>' +
+          '<button class="sheet-back" id="of-clear" style="color:var(--red)">' + T('清除對方資料', 'Clear these details') + '</button>';
 
   $('other-form').innerHTML = html;
   $('other-sheet').classList.add('open');
@@ -2088,7 +2163,7 @@ function openOther(){
     save(LS.other, {});
     $('other-sheet').classList.remove('open');
     renderOther();
-    toast('對方資料已清除');
+    toast(T('對方資料已清除', 'Details cleared'));
   });
 }
 
@@ -2102,14 +2177,21 @@ renderOther();
    拍照清單
    ========================================================= */
 var PHOTOS = [
-  { ic:'road',  t:'現場全景', s:'含車道線、號誌、路口，看得出相對位置' },
-  { ic:'burst', t:'碰撞點特寫', s:'兩車接觸的位置，近拍' },
-  { ic:'car',   t:'車損各角度', s:'自己與對方，前後左右都拍' },
-  { ic:'plate', t:'對方車牌', s:'車牌要清晰可辨識' },
-  { ic:'id',    t:'對方駕照與行照', s:'徵得同意後拍攝' },
-  { ic:'wave',  t:'煞車痕與散落物', s:'地面痕跡、碎片位置，會影響肇責認定' },
+  { ic:'road',  t:'現場全景', s:'含車道線、號誌、路口，看得出相對位置',
+    t_en:'Overall scene', s_en:'Include lane lines, signals and the intersection so positions are clear' },
+  { ic:'burst', t:'碰撞點特寫', s:'兩車接觸的位置，近拍',
+    t_en:'Point of impact', s_en:'Close-up of where the cars touched' },
+  { ic:'car',   t:'車損各角度', s:'自己與對方，前後左右都拍',
+    t_en:'Damage from every angle', s_en:'Both cars — front, back and sides' },
+  { ic:'plate', t:'對方車牌', s:'車牌要清晰可辨識',
+    t_en:"Other car's plate", s_en:'Make sure it is clearly readable' },
+  { ic:'id',    t:'對方駕照與行照', s:'徵得同意後拍攝',
+    t_en:"Other driver's license & registration", s_en:'Ask for permission first' },
+  { ic:'wave',  t:'煞車痕與散落物', s:'地面痕跡、碎片位置，會影響肇責認定',
+    t_en:'Skid marks & debris', s_en:'Marks on the road and where debris landed affect who is at fault' },
   /* 影片拍不進來，只能手動標記 */
-  { ic:'video', t:'行車記錄器備份', s:'當場存檔，避免循環錄影覆蓋', manual:true }
+  { ic:'video', t:'行車記錄器備份', s:'當場存檔，避免循環錄影覆蓋', manual:true,
+    t_en:'Back up dashcam footage', s_en:"Save it now so loop recording doesn't overwrite it" }
 ];
 
 /* ── 照片儲存：IndexedDB（照片是 Blob，localStorage 放不下） ── */
@@ -2273,13 +2355,13 @@ function renderPH(){
     row.innerHTML =
       '<span class="ic">' + (done ? CHECK : ico(p.ic)) + '</span>' +
       '<span class="body">' +
-        '<span class="t">' + p.t + '<span class="s">' + p.s + '</span></span>' +
+        '<span class="t">' + L(p, 't') + '<span class="s">' + L(p, 's') + '</span></span>' +
         thumbs +
       '</span>' +
       (p.manual
         ? '<button class="mark" aria-pressed="' + (done ? 'true' : 'false') + '">' +
-            (done ? CHECK + '已備份' : '標記已備份') + '</button>'
-        : '<button class="shoot" aria-label="拍照">' + ico('camera') + '</button>');
+            (done ? CHECK + T('已備份', 'Backed up') : T('標記已備份', 'Mark as backed up')) + '</button>'
+        : '<button class="shoot" aria-label="' + T('拍照', 'Take photo') + '">' + ico('camera') + '</button>');
 
     /* 一列只有一個按鈕：拍了照就算完成，不用另外打勾。
        舊版手動打的勾（st[i]）照樣算數，按「重設」會清掉 */
@@ -2302,7 +2384,7 @@ function renderPH(){
 
     box.appendChild(row);
   });
-  $('ph-prog').textContent = '已完成 ' + n + ' / ' + PHOTOS.length;
+  $('ph-prog').textContent = prog(n, PHOTOS.length);
 
   var badge = $('tab-badge'), left = PHOTOS.length - n;
   badge.textContent = left;
@@ -2321,7 +2403,7 @@ $('picker').addEventListener('change', function(){
   var files = Array.prototype.slice.call(this.files || []);
   if (!files.length || pickSlot === null) return;
   var slot = pickSlot;
-  toast('處理中…');
+  toast(T('處理中…', 'Processing…'));
 
   /* 第一次存照片時申請永久儲存，避免瀏覽器清掉證據 */
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function(){});
@@ -2339,10 +2421,10 @@ $('picker').addEventListener('change', function(){
   .then(loadPhotos)
   .then(function(){
     renderPH();
-    toast('已加入 ' + files.length + ' 張照片');
+    toast(T('已加入 ' + files.length + ' 張照片', files.length > 1 ? 'Added ' + files.length + ' photos' : 'Added 1 photo'));
     offerSaveToAlbum(files);
   })
-  .catch(function(){ toast('照片儲存失敗，可能是空間不足'); });
+  .catch(function(){ toast(T('照片儲存失敗，可能是空間不足', "Couldn't save the photos — storage may be full")); });
 });
 
 /* ── 存到手機相簿 ──
@@ -2361,14 +2443,15 @@ function offerSaveToAlbum(files){
   if (!fresh.length) return;
   albumQueue = fresh;
   $('save-album-t').textContent = fresh.length > 1
-    ? '把這 ' + fresh.length + ' 張存到手機相簿？' : '存一份到手機相簿？';
+    ? T('把這 ' + fresh.length + ' 張存到手機相簿？', 'Save these ' + fresh.length + ' photos to your photo library?')
+    : T('存一份到手機相簿？', 'Save a copy to your photo library?');
   $('install').classList.remove('open');      /* 兩條橫幅疊在同一個位置，不能同時開 */
   $('save-album').classList.add('open');
 }
 
 function albumName(i){
   var d = new Date(), z = function(n){ return (n < 10 ? '0' : '') + n; };
-  return '事故照片-' + d.getFullYear() + z(d.getMonth() + 1) + z(d.getDate()) + '-' +
+  return T('事故照片-', 'accident-photo-') + d.getFullYear() + z(d.getMonth() + 1) + z(d.getDate()) + '-' +
          z(d.getHours()) + z(d.getMinutes()) + z(d.getSeconds()) + '-' + (i + 1) + '.jpg';
 }
 
@@ -2393,7 +2476,7 @@ $('save-album-go').addEventListener('click', function(){
   var apple = isIOS || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   if (apple && navigator.canShare && navigator.canShare({ files:files })){
     navigator.share({ files:files }).then(function(){
-      toast('請確認已選「儲存影像」');
+      toast(T('請確認已選「儲存影像」', 'Make sure you chose “Save Image”'));
     }).catch(function(){});
     return;
   }
@@ -2406,7 +2489,9 @@ $('save-album-go').addEventListener('click', function(){
       setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
     }, i * 350);                               /* 連點太快，Chrome 會只下載第一個 */
   });
-  toast(files.length > 1 ? '已存 ' + files.length + ' 張到手機的下載資料夾' : '已存到手機的下載資料夾');
+  toast(files.length > 1
+    ? T('已存 ' + files.length + ' 張到手機的下載資料夾', 'Saved ' + files.length + ' photos to your Downloads folder')
+    : T('已存到手機的下載資料夾', 'Saved to your Downloads folder'));
 });
 
 /* ── 檢視器 ── */
@@ -2419,7 +2504,7 @@ function openViewer(id){
   if (viewUrl) URL.revokeObjectURL(viewUrl);
   viewUrl = URL.createObjectURL(recBlob(rec));
   $('viewer-img').src = viewUrl;
-  $('viewer-t').textContent = PHOTOS[rec.slot] ? PHOTOS[rec.slot].t : '照片';
+  $('viewer-t').textContent = PHOTOS[rec.slot] ? L(PHOTOS[rec.slot], 't') : T('照片', 'Photo');
   $('viewer').classList.add('open');
 }
 function closeViewer(){
@@ -2431,7 +2516,7 @@ $('viewer-close').addEventListener('click', closeViewer);
 $('viewer-del').addEventListener('click', function(){
   if (viewId === null) return;
   photoDel(viewId).then(loadPhotos).then(function(){
-    closeViewer(); renderPH(); toast('照片已刪除');
+    closeViewer(); renderPH(); toast(T('照片已刪除', 'Photo deleted'));
   });
 });
 $('viewer-share').addEventListener('click', function(){
@@ -2441,19 +2526,21 @@ $('viewer-share').addEventListener('click', function(){
 });
 
 function sharePhotos(list){
-  if (!list.length){ toast('還沒有照片'); return; }
+  if (!list.length){ toast(T('還沒有照片', 'No photos yet')); return; }
   var files = list.map(function(r, i){
-    return new File([r.buf], '事故照片-' + (i + 1) + '.jpg', { type:'image/jpeg' });
+    return new File([r.buf], T('事故照片-', 'accident-photo-') + (i + 1) + '.jpg', { type:'image/jpeg' });
   });
   if (navigator.canShare && navigator.canShare({ files:files })){
-    navigator.share({ files:files, title:'事故照片' }).catch(function(){});
+    navigator.share({ files:files, title:T('事故照片', 'Accident photos') }).catch(function(){});
   } else {
     var a = document.createElement('a');
     a.href = URL.createObjectURL(recBlob(list[0]));
-    a.download = '事故照片.jpg';
+    a.download = T('事故照片.jpg', 'accident-photo.jpg');
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
-    toast(list.length > 1 ? '此裝置不支援批次分享，已下載第一張' : '已下載');
+    toast(list.length > 1
+      ? T('此裝置不支援批次分享，已下載第一張', "This device can't share several files at once — downloaded the first one")
+      : T('已下載', 'Downloaded'));
   }
 }
 
@@ -2465,17 +2552,19 @@ function renderStorage(){
   var bytes = PHOTO_CACHE.reduce(function(s, p){ return s + recSize(p); }, 0);
   var mb = (bytes / 1048576).toFixed(1);
   /* 「只存在手機裡」頁尾已經講了，這裡只報數字 */
-  el.textContent = '目前這件事故有照片 ' + n + ' 張，約 ' + mb + ' MB。' +
-    (n ? '建議用事故卡上的「匯出案件紀錄」→「分享照片」再備份一份到相簿。' : '');
+  el.textContent = T('目前這件事故有照片 ' + n + ' 張，約 ' + mb + ' MB。' +
+      (n ? '建議用事故卡上的「匯出案件紀錄」→「分享照片」再備份一份到相簿。' : ''),
+    'This accident has ' + n + (n === 1 ? ' photo' : ' photos') + ', about ' + mb + ' MB.' +
+      (n ? ' Back them up to your photo library with “Export” → “Share photos” on the case card.' : ''));
 }
 
 $('ph-reset').addEventListener('click', function(){
-  save(LS.ph, {}); renderPH(); toast('勾選狀態已重設（照片保留）');
+  save(LS.ph, {}); renderPH(); toast(T('勾選狀態已重設（照片保留）', 'Checkmarks reset (photos kept)'));
 });
 $('btn-del-photos').addEventListener('click', function(){
-  if (!PHOTO_CACHE.length){ toast('目前沒有照片'); return; }
+  if (!PHOTO_CACHE.length){ toast(T('目前沒有照片', 'No photos right now')); return; }
   photosClearCase(curCaseId()).then(loadPhotos).then(function(){
-    renderPH(); renderStorage(); refreshPhotoCounts(renderCases); toast('本案件的照片已刪除');
+    renderPH(); renderStorage(); refreshPhotoCounts(renderCases); toast(T('本案件的照片已刪除', "This case's photos were deleted"));
   });
 });
 loadPhotos().then(function(){ renderPH(); sweepOrphanPhotos(); refreshPhotoCounts(renderCases); });
@@ -2486,51 +2575,56 @@ renderPH();
    ========================================================= */
 /* 號碼查證於 2026-09-17，對照汽車交通事故特別補償基金「各產險公司電話」與各家官網。 */
 var INSURERS = [
-  { n:'富邦產險',     tel:'0800-009-888' },
-  { n:'國泰產險',     tel:'0800-212-880' },
-  { n:'和泰產險',     tel:'0800-077-568' },
-  { n:'新安東京海上', tel:'0800-050-119' },
-  { n:'明台產險',     tel:'0800-078-888' },
-  { n:'兆豐產險',     tel:'0800-053-588' },
-  { n:'南山產物',     tel:'0800-005-678' },
-  { n:'新光產險',     tel:'0800-789-999' },
-  { n:'臺灣產物',     tel:'0809-068-888' },
-  { n:'中國信託產險', tel:'0800-075-777' },
-  { n:'泰安產險',     tel:'0800-012-080' },
-  { n:'第一產險',     tel:'0800-288-068' },
-  { n:'旺旺友聯產險', tel:'0800-024-024' },
-  { n:'華南產險',     tel:'0800-010-850' }
+  { n:'富邦產險', en:'Fubon Insurance', tel:'0800-009-888' },
+  { n:'國泰產險', en:'Cathay Century Insurance', tel:'0800-212-880' },
+  { n:'和泰產險', en:'Hotai Insurance', tel:'0800-077-568' },
+  { n:'新安東京海上', en:'Tokio Marine Newa Insurance', tel:'0800-050-119' },
+  { n:'明台產險', en:'MSIG Mingtai Insurance', tel:'0800-078-888' },
+  { n:'兆豐產險', en:'Chung Kuo Insurance', tel:'0800-053-588' },
+  { n:'南山產物', en:'Nan Shan General Insurance', tel:'0800-005-678' },
+  { n:'新光產險', en:'Shinkong Insurance', tel:'0800-789-999' },
+  { n:'臺灣產物', en:'Taiwan Fire & Marine Insurance', tel:'0809-068-888' },
+  { n:'中國信託產險', en:'CTBC Insurance', tel:'0800-075-777' },
+  { n:'泰安產險', en:'Taian Insurance', tel:'0800-012-080' },
+  { n:'第一產險', en:'First Insurance', tel:'0800-288-068' },
+  { n:'旺旺友聯產險', en:'Union Insurance', tel:'0800-024-024' },
+  { n:'華南產險', en:'South China Insurance', tel:'0800-010-850' }
 ];
 
 /* 各家產險的作業大同小異，這裡只寫共通流程，不臆測個別公司的細節 */
 /* id 沿用舊版的索引，已存的 {2:true} 不必轉換 */
 var CLAIM_STEPS = [
   { id:'0', ic:'phone',  t:'撥打出險專線通知', d:'事故後五日內。打不通也先留紀錄，之後補通知。',
-    act:{ t:'選你的保險公司', fn:function(){ $('ins-body').scrollIntoView({ behavior:'smooth', block:'start' }); } } },
-  { id:'1', ic:'list',   t:'提供事故基本資料', d:'保單或車牌、時間地點、對方資料、警方案件編號。' },
+    t_en:'Call the claim hotline', d_en:"Within 5 days of the accident. If you can't get through, keep a record and follow up.",
+    act:{ t:T('選你的保險公司', 'Choose your insurer'), fn:function(){ $('ins-body').scrollIntoView({ behavior:'smooth', block:'start' }); } } },
+  { id:'1', ic:'list',   t:'提供事故基本資料', d:'保單或車牌、時間地點、對方資料、警方案件編號。',
+    t_en:'Give the basic accident details', d_en:"Policy or plate number, time and place, the other driver's details, and the police case number." },
   { id:'2', ic:'camera', t:'交付照片與行車記錄器', d:'現場全景、車損、對方車牌，以及行車記錄器影片。',
-    act:{ t:'打開存證', go:'photo' } },
-  { id:'3', ic:'car',    t:'配合車輛定損與估價', d:'依理賠人員安排的時間與地點，別自己先動工。' },
-  { id:'4', ic:'id',     t:'送修並保留所有單據', d:'估價單、維修單、收據正本都留著，理賠與求償都要用。' }
+    t_en:'Hand over photos and dashcam footage', d_en:"The overall scene, damage, the other car's plate, and your dashcam video.",
+    act:{ t:T('打開存證', 'Open Evidence'), go:'photo' } },
+  { id:'3', ic:'car',    t:'配合車輛定損與估價', d:'依理賠人員安排的時間與地點，別自己先動工。',
+    t_en:'Cooperate with the damage assessment', d_en:"Follow the adjuster's time and place — don't start repairs on your own." },
+  { id:'4', ic:'id',     t:'送修並保留所有單據', d:'估價單、維修單、收據正本都留著，理賠與求償都要用。',
+    t_en:'Repair the car and keep every receipt', d_en:"Keep the original estimates, repair orders and receipts — you'll need them for the insurance claim and for compensation." }
 ];
 
 (function renderINS(){
   var box = $('ins-body');
   /* 十幾家攤成清單太長，改成下拉選單：選了才出現那一家的撥號鍵。
      用原生 <select>，手機上會跳出系統的滾輪／清單，比自己畫的好按 */
-  var opts = '<option value="" disabled selected>選擇你的保險公司</option>';
-  INSURERS.forEach(function(ins, i){ opts += '<option value="' + i + '">' + ins.n + '</option>'; });
+  var opts = '<option value="" disabled selected>' + T('選擇你的保險公司', 'Choose your insurer') + '</option>';
+  INSURERS.forEach(function(ins, i){ opts += '<option value="' + i + '">' + (EN ? ins.en + ' (' + ins.n + ')' : ins.n) + '</option>'; });
   box.innerHTML =
     '<label class="ins-pick">' +
-      '<select id="ins-sel" required aria-label="選擇保險公司">' + opts + '</select><span class="ar">›</span>' +
+      '<select id="ins-sel" required aria-label="' + T('選擇保險公司', 'Choose insurer') + '">' + opts + '</select><span class="ar">›</span>' +
     '</label>' +
     '<a class="ins-call" id="ins-call" hidden>' + ico('phone') +
-      '<span class="t">撥打出險專線</span><span class="p"></span></a>';
+      '<span class="t">' + T('撥打出險專線', 'Call hotline') + '</span><span class="p"></span></a>';
 
   $('ins-sel').addEventListener('change', function(){
     var ins = INSURERS[this.value], a = $('ins-call');
     a.href = 'tel:' + ins.tel.replace(/-/g, '');
-    a.setAttribute('aria-label', '撥打' + ins.n + '出險專線 ' + ins.tel);
+    a.setAttribute('aria-label', T('撥打' + ins.n + '出險專線 ', 'Call ' + ins.en + ' claim hotline ') + ins.tel);
     a.querySelector('.p').textContent = ins.tel;
     a.hidden = false;
   });
@@ -2543,7 +2637,7 @@ var CLAIM_STEPS = [
     note.target = '_blank';
     note.rel = 'noopener';
   }
-  note.innerHTML = '不清楚嗎，<b>歡迎聯繫我們</b>';
+  note.innerHTML = T('不清楚嗎，<b>歡迎聯繫我們</b>', 'Not sure?&nbsp;<b>Contact us</b>');
   box.appendChild(note);
 })();
 
@@ -2555,10 +2649,10 @@ function renderCL(){
     save(LS.claim, cur);
     renderCL();
   });
-  $('cl-prog').textContent = '已完成 ' + n + ' / ' + CLAIM_STEPS.length;
+  $('cl-prog').textContent = prog(n, CLAIM_STEPS.length);
 }
 $('cl-reset').addEventListener('click', function(){
-  save(LS.claim, {}); renderCL(); toast('出險流程進度已重設');
+  save(LS.claim, {}); renderCL(); toast(T('出險流程進度已重設', 'Claim steps reset'));
 });
 renderCL();
 
@@ -2579,19 +2673,33 @@ document.addEventListener('keydown', function(e){
    後者（精神慰撫金）沒有公式，任何估算都是誤導，只提供查詢實際判決的路徑。
    ========================================================= */
 var COMP_FIELDS = [
-  { g:'身體與照護' },
-  { k:'med',   t:'醫療費用',      d:'掛號、藥費、住院、手術。收據正本要留著' },
-  { k:'rehab', t:'後續醫療與復健', d:'已經發生的部分。未來的費用需要診斷證明佐證' },
-  { k:'care',  t:'看護費用',      d:'請看護的收據；親屬照顧也可能主張，需要證明' },
-  { k:'trans', t:'就醫交通費',    d:'計程車收據、復康巴士。自行開車較難舉證' },
-  { g:'收入與財物' },
-  { k:'work',  t:'工作損失',      d:'薪資證明 × 無法工作天數。自營者需所得資料' },
-  { k:'car',   t:'車輛修復',      d:'估價單或維修發票。對方可能主張折舊' },
-  { k:'prop',  t:'其他財物損失',  d:'手機、安全帽、眼鏡、衣物等' }
+  { g:'身體與照護', g_en:'Medical & care' },
+  { k:'med',   t:'醫療費用',      d:'掛號、藥費、住院、手術。收據正本要留著',
+    t_en:'Medical expenses', d_en:'Registration, medication, hospital stays, surgery. Keep the original receipts' },
+  { k:'rehab', t:'後續醫療與復健', d:'已經發生的部分。未來的費用需要診斷證明佐證',
+    t_en:'Follow-up care & rehab', d_en:"What you've already paid. Future costs need a doctor's certificate" },
+  { k:'care',  t:'看護費用',      d:'請看護的收據；親屬照顧也可能主張，需要證明',
+    t_en:'Caregiver costs', d_en:'Receipts for a caregiver; care by family may also count, with proof' },
+  { k:'trans', t:'就醫交通費',    d:'計程車收據、復康巴士。自行開車較難舉證',
+    t_en:'Travel for treatment', d_en:'Taxi receipts, accessible transport. Driving yourself is harder to prove' },
+  { g:'收入與財物', g_en:'Income & property' },
+  { k:'work',  t:'工作損失',      d:'薪資證明 × 無法工作天數。自營者需所得資料',
+    t_en:'Lost income', d_en:"Proof of pay × days you couldn't work. Self-employed need income records" },
+  { k:'car',   t:'車輛修復',      d:'估價單或維修發票。對方可能主張折舊',
+    t_en:'Vehicle repair', d_en:'Estimate or repair invoice. The other side may argue for depreciation' },
+  { k:'prop',  t:'其他財物損失',  d:'手機、安全帽、眼鏡、衣物等',
+    t_en:'Other property', d_en:'Phone, helmet, glasses, clothing, etc.' }
 ];
 
 /* 法院衡量慰撫金的因素。這些是通則，不是能換算成金額的權重。 */
-var COMP_FACTORS = [
+var COMP_FACTORS = EN ? [
+  "Both sides' social and financial standing",
+  'How serious the injuries are and how long treatment takes',
+  'Any lasting effects or visible scarring',
+  'The impact on daily life and ability to work',
+  "The at-fault party's degree of negligence and conduct afterwards",
+  "Each side's share of the fault"
+] : [
   '雙方的身分、地位與經濟狀況',
   '傷勢的嚴重程度與治療期間長短',
   '是否留下後遺症或外觀損傷',
@@ -2601,7 +2709,26 @@ var COMP_FACTORS = [
 ];
 
 /* 期限放在調解之前講：錯過了，後面三條路再怎麼走都少了籌碼。 */
-var COMP_DEADLINES = [
+var COMP_DEADLINES = EN ? [
+  {
+    t:'Criminal complaint: 6 months',
+    tag:'Most often missed',
+    d:"Injuring someone in a car accident is negligent injury, which is only prosecuted if the victim files a complaint. Once you know who caused it, you have 6 months to file — after that, you can't.",
+    m:'Code of Criminal Procedure, Art. 237. If settlement talks stall and the deadline is near, you can file first and keep negotiating.'
+  },
+  {
+    t:'Civil claim: 2 years',
+    tag:'Time limit',
+    d:'2 years from when you know about the damage and who is liable. Either way, no claim can be made more than 10 years after the accident.',
+    m:'Civil Code, Art. 197.'
+  },
+  {
+    t:'Fault assessment: 6 months',
+    tag:'Disputed fault',
+    d:'If fault is disputed, you can apply to the Vehicle Accident Assessment Committee within 6 months of the accident.',
+    m:'Regulations Governing Vehicle Accident Assessment and Review.'
+  }
+] : [
   {
     t:'刑事告訴：6 個月',
     tag:'最常錯過',
@@ -2622,7 +2749,26 @@ var COMP_DEADLINES = [
   }
 ];
 
-var COMP_PATHS = [
+var COMP_PATHS = EN ? [
+  {
+    t:'District mediation committee',
+    tag:'Free', free:true,
+    d:"Apply to the mediation committee at the district (township) office, where a mediator helps both sides reach agreement. If you both live in the same district, apply there. Otherwise, the civil part goes to the other party's district, and if someone was injured, the accident location also works. If both agree, any district is fine.",
+    m:"Once approved by the court, the settlement has the same effect as a final civil judgment — if they don't pay, you can apply for enforcement directly (Township and County-Administered City Mediation Act, Art. 27)."
+  },
+  {
+    t:'Court mediation',
+    tag:'Free under NT$100k', free:true,
+    d:'Traffic accident cases must go through court mediation before a lawsuit (Code of Civil Procedure, Art. 403). A mediated settlement has the same effect as a final judgment.',
+    m:'Free for claims under NT$100,000; NT$1,000 for NT$100,000 to under NT$1M; NT$2,000 for NT$1M to under NT$5M (Code of Civil Procedure, Art. 77-20). If mediation fails and you sue within 30 days, the fee counts toward court costs.'
+  },
+  {
+    t:'File a civil lawsuit',
+    tag:'Takes time',
+    d:"For when mediation fails or the other side won't negotiate at all. You'll need complete evidence and may want a lawyer.",
+    m:"If you've filed a criminal complaint, you can bring an incidental civil action within the criminal case, with no court fee."
+  }
+] : [
   {
     t:'鄉鎮市區調解委員會',
     tag:'免費', free:true,
@@ -2655,6 +2801,16 @@ var COMP_DOCS = [
   '行照跟駕照',
   '身分證與印章'
 ];
+var COMP_DOCS_EN = [
+  'Traffic Accident Party Registration Slip',
+  'Preliminary Traffic Accident Analysis Report',
+  'Original medical receipts & diagnosis certificate',
+  'Proof of pay or employment',
+  'Vehicle repair estimate or invoice',
+  'Photos of the scene and damage',
+  "Vehicle registration & driver's license",
+  'ID card & personal seal (stamp)'
+];
 
 function compData(){ return load(LS.comp); }
 
@@ -2684,7 +2840,8 @@ function renderCompSum(){
   $('comp-sum-filled').hidden = st.n === 0;
   if (st.n){
     $('comp-total').textContent = money(st.sum);
-    $('comp-count').textContent = '目前填了 ' + st.n + ' 項，隨時可以再補';
+    $('comp-count').textContent = T('目前填了 ' + st.n + ' 項，隨時可以再補',
+      st.n + (st.n === 1 ? ' item' : ' items') + ' so far — you can add more any time');
   }
 }
 
@@ -2703,19 +2860,20 @@ function renderCompSum(){
    ========================================================= */
 
 function cdocDate(){
-  var d = new Date();
-  return d.getFullYear() + ' 年 ' + (d.getMonth() + 1) + ' 月 ' + d.getDate() + ' 日';
+  var d = new Date(), z = function(n){ return (n < 10 ? '0' : '') + n; };
+  return d.getFullYear() + ' 年 ' + (d.getMonth() + 1) + ' 月 ' + d.getDate() + ' 日' +
+         '（' + d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + '）';
 }
 
 /* 明細列：只收有填而且大於 0 的。填了 0 跟沒填在這張表上是同一件事 —— 
    都代表「這一項我提不出金額」，列出來只會多一行 $0 讓表變弱。 */
 function cdocRows(){
-  var d = compData(), out = [], grp = '';
+  var d = compData(), out = [], grp = '', grpEn = '';
   COMP_FIELDS.forEach(function(f){
-    if (f.g){ grp = f.g; return; }
+    if (f.g){ grp = f.g; grpEn = f.g_en; return; }
     var v = parseInt(d[f.k], 10);
     if (isNaN(v) || v <= 0) return;
-    out.push({ g:grp, t:f.t, d:f.d, v:v });
+    out.push({ g:grp, t:f.t, d:f.d, v:v, g_en:grpEn, t_en:f.t_en, d_en:f.d_en });
   });
   return out;
 }
@@ -2724,53 +2882,57 @@ function renderCdoc(){
   var rows = cdocRows(), ot = otherData(), site = state.site;
   var total = rows.reduce(function(a, r){ return a + r.v; }, 0);
 
-  function kv(k, v){
+  /* 這張紙會拿給調解委員、保險公司、對方看，不管 App 用哪個語言都中英並列 */
+  function kv(k, ke, v){
     var has = (v || '').toString().trim();
-    return '<div class="kv"><span class="k">' + esc(k) + '</span>' +
+    return '<div class="kv"><span class="k">' + bh(k, ke) + '</span>' +
            '<span class="v' + (has ? '' : ' none') + '">' +
-           esc(has || '未填寫') + '</span></div>';
+           (has ? esc(has) : bh('未填寫', 'Not filled in')) + '</span></div>';
   }
 
-  var h = '<h2>交通事故損害賠償請求明細</h2>' +
-          '<p class="made">製表日期：' + cdocDate() + '</p>';
+  var h = '<h2>' + bh('交通事故損害賠償請求明細', 'Statement of Damages — Traffic Accident') + '</h2>' +
+          '<p class="made">' + esc(bt('製表日期', 'Date prepared')) + '：' + cdocDate() + '</p>';
 
   /* 事故資訊 */
-  h += '<section><p class="sec-t">事故</p>';
-  h += kv('發生時間', site && site.at
+  h += '<section><p class="sec-t">' + bh('事故', 'Accident') + '</p>';
+  h += kv('發生時間', 'Time', site && site.at
         ? new Date(site.at).toLocaleString('zh-TW', { hour12:false }) : '');
-  h += kv('地點', site ? (site.addr || (hasCoords(site) ? fmtLL(site) : '')) : '');
+  h += kv('地點', 'Location', site ? (site.addr || (hasCoords(site) ? fmtLL(site) : '')) : '');
   h += '</section>';
 
   /* 兩造。用「請求人／相對人」而不是「我／對方」—— 這張紙會給第三個人看 */
   /* 請求人：App 不存使用者自己的資料，留底線印出來手寫 */
-  function blank(k){ return '<div class="kv"><span class="k">' + k + '</span><span class="v blank"></span></div>'; }
-  h += '<section><p class="sec-t">請求人</p>' +
-       blank('姓名') + blank('車牌') + blank('保險公司') + blank('保單號碼') + '</section>';
+  function blank(k, ke){ return '<div class="kv"><span class="k">' + bh(k, ke) + '</span><span class="v blank"></span></div>'; }
+  h += '<section><p class="sec-t">' + bh('請求人', 'Claimant') + '</p>' +
+       blank('姓名', 'Name') + blank('車牌', 'Plate') + blank('保險公司', 'Insurer') + blank('保單號碼', 'Policy no.') + '</section>';
 
-  h += '<section><p class="sec-t">相對人</p>' +
-       kv('姓名', ot.name) + kv('車牌', ot.plate) +
-       kv('電話', ot.tel) + kv('保險公司', ot.insurer) + '</section>';
+  h += '<section><p class="sec-t">' + bh('相對人', 'Other party') + '</p>' +
+       kv('姓名', 'Name', ot.name) + kv('車牌', 'Plate', ot.plate) +
+       kv('電話', 'Phone', ot.tel) + kv('保險公司', 'Insurer', ot.insurer) + '</section>';
 
   /* 明細 */
-  h += '<section><p class="sec-t">請求項目</p><table><thead><tr>' +
-       '<th>項目</th><th class="r">金額（新臺幣）</th></tr></thead><tbody>';
+  h += '<section><p class="sec-t">' + bh('請求項目', 'Items claimed') + '</p><table><thead><tr>' +
+       '<th>' + bh('項目', 'Item') + '</th><th class="r">' + bh('金額（新臺幣）', 'Amount (NT$)') + '</th></tr></thead><tbody>';
   var g = '';
   rows.forEach(function(r){
     if (r.g !== g){
       g = r.g;
-      h += '<tr class="grp"><td colspan="2">' + esc(g) + '</td></tr>';
+      h += '<tr class="grp"><td colspan="2">' + bh(g, r.g_en) + '</td></tr>';
     }
-    h += '<tr><td>' + esc(r.t) + '<span class="d">' + esc(r.d) + '</span></td>' +
+    h += '<tr><td>' + bh(r.t, r.t_en) + '<span class="d">' + esc(r.d) + '</span><span class="d">' + esc(r.d_en) + '</span></td>' +
          '<td class="r">' + esc(money(r.v)) + '</td></tr>';
   });
-  h += '<tr class="sum"><td>合計</td><td class="r">' + esc(money(total)) + '</td></tr>';
+  h += '<tr class="sum"><td>' + bh('合計', 'Total') + '</td><td class="r">' + esc(money(total)) + '</td></tr>';
   h += '</tbody></table></section>';
 
   h += '<p class="warn"><strong>本表僅列出目前已有單據可以佐證的財產上損失。</strong>' +
        '精神慰撫金沒有計算公式，法院是就個案衡量，因此不列入本表。' +
-       '各項金額以實際收據、估價單或薪資證明為準；本表不構成任何法律主張或金額承諾。</p>';
+       '各項金額以實際收據、估價單或薪資證明為準；本表不構成任何法律主張或金額承諾。<br><br>' +
+       '<strong>This statement lists only property losses currently supported by receipts.</strong> ' +
+       'Pain and suffering has no formula — courts assess it case by case — so it is not included. ' +
+       'All amounts are subject to the actual receipts, estimates or proof of pay; this statement is not a legal claim or a commitment to any amount.</p>';
 
-  h += '<div class="sign"><div>請求人簽名</div><div>日期</div></div>';
+  h += '<div class="sign"><div>' + bh('請求人簽名', 'Claimant signature') + '</div><div>' + bh('日期', 'Date') + '</div></div>';
 
   $('cdoc-body').innerHTML = h;
 }
@@ -2779,25 +2941,28 @@ function renderCdoc(){
 function cdocText(){
   var rows = cdocRows(), ot = otherData(), site = state.site;
   var total = rows.reduce(function(a, r){ return a + r.v; }, 0);
-  var L = ['交通事故損害賠償請求明細', '製表日期：' + cdocDate(), ''];
+  var lines = [bt('交通事故損害賠償請求明細', 'Statement of Damages — Traffic Accident'),
+           bt('製表日期', 'Date prepared') + '：' + cdocDate(), ''];
 
-  if (site && site.at) L.push('發生時間：' + new Date(site.at).toLocaleString('zh-TW', { hour12:false }));
+  if (site && site.at) lines.push(bt('發生時間', 'Time') + '：' + new Date(site.at).toLocaleString('zh-TW', { hour12:false }));
   var loc = site ? (site.addr || (hasCoords(site) ? fmtLL(site) : '')) : '';
-  if (loc) L.push('地點：' + loc);
+  if (loc) lines.push(bt('地點', 'Location') + '：' + loc);
 
   var theirs = [ot.name, ot.plate, ot.tel, ot.insurer].filter(Boolean);
-  if (theirs.length) L.push('', '【相對人】' + theirs.join('／'));
+  if (theirs.length) lines.push('', '【' + bt('相對人', 'Other party') + '】' + theirs.join('／'));
 
-  L.push('', '【請求項目】');
+  lines.push('', '【' + bt('請求項目', 'Items claimed') + '】');
   var g = '';
   rows.forEach(function(r){
-    if (r.g !== g){ g = r.g; L.push('— ' + g); }
-    L.push('  ' + r.t + '　' + money(r.v));
+    if (r.g !== g){ g = r.g; lines.push('— ' + bt(g, r.g_en)); }
+    lines.push('  ' + r.t + ' / ' + r.t_en + '　' + money(r.v));
   });
-  L.push('', '合計　' + money(total));
-  L.push('', '本表僅列出目前已有單據可以佐證的財產上損失，不含精神慰撫金。');
-  L.push('各項金額以實際收據、估價單或薪資證明為準。');
-  return L.join('\n');
+  lines.push('', bt('合計', 'Total') + '　' + money(total));
+  lines.push('', '本表僅列出目前已有單據可以佐證的財產上損失，不含精神慰撫金。');
+  lines.push('各項金額以實際收據、估價單或薪資證明為準。');
+  lines.push('Only property losses supported by receipts are listed; pain and suffering is not included.');
+  lines.push('All amounts are subject to the actual receipts, estimates or proof of pay.');
+  return lines.join('\n');
 }
 
 $('cdoc-open').addEventListener('click', function(){
@@ -2810,7 +2975,7 @@ $('cdoc-close').addEventListener('click', function(){
 });
 $('cdoc-print').addEventListener('click', function(){ window.print(); });
 $('cdoc-copy').addEventListener('click', function(){
-  copyText(cdocText(), '明細已複製');
+  copyText(cdocText(), T('明細已複製', 'Statement copied'));
 });
 
 /* =========================================================
@@ -2833,99 +2998,108 @@ function crecPlace(){
 function renderCrec(){
   var ot = otherData(), site = state.site, tl = tlState(load(LS.tl)), cl = load(LS.claim),
       ph = load(LS.ph), docs = load(LS.compdoc), rows = cdocRows();
-  function kv(k, v){
+  /* 跟請求明細一樣：中英並列 */
+  function kv(k, ke, v){
     var has = (v || '').toString().trim();
-    return '<div class="kv"><span class="k">' + esc(k) + '</span>' +
-           '<span class="v' + (has ? '' : ' none') + '">' + esc(has || '未記錄') + '</span></div>';
+    return '<div class="kv"><span class="k">' + bh(k, ke) + '</span>' +
+           '<span class="v' + (has ? '' : ' none') + '">' + (has ? esc(has) : bh('未記錄', 'Not recorded')) + '</span></div>';
   }
-  function chk(done, t, n){
+  function chk(done, t, te, n){
     return '<div class="chk' + (done ? '' : ' no') + '"><span class="m">' + (done ? '✓' : '—') + '</span>' +
-           '<span>' + esc(t) + '</span>' + (n != null ? '<span class="n">' + esc(n) + '</span>' : '') + '</div>';
+           '<span>' + bh(t, te) + '</span>' + (n ? '<span class="n">' + n + '</span>' : '') + '</div>';
   }
+  function shots(n){ return esc(n + ' 張') + '<span class="en">' + n + (n === 1 ? ' photo' : ' photos') + '</span>'; }
 
   crecFree();
-  var h = '<h2>交通事故紀錄</h2><p class="made">匯出日期：' + cdocDate() + '</p>';
+  var h = '<h2>' + bh('交通事故紀錄', 'Traffic Accident Record') + '</h2>' +
+          '<p class="made">' + esc(bt('匯出日期', 'Exported')) + '：' + cdocDate() + '</p>';
 
-  h += '<section><p class="sec-t">事故</p>' + kv('時間', crecWhen()) + kv('地點', crecPlace());
-  if (hasCoords(site)) h += kv('座標', fmtLL(site)) +
-    kv('地圖', 'https://www.google.com/maps?q=' + site.lat + ',' + site.lon);
+  h += '<section><p class="sec-t">' + bh('事故', 'Accident') + '</p>' + kv('時間', 'Time', crecWhen()) + kv('地點', 'Location', crecPlace());
+  if (hasCoords(site)) h += kv('座標', 'Coordinates', fmtLL(site)) +
+    kv('地圖', 'Map', 'https://www.google.com/maps?q=' + site.lat + ',' + site.lon);
   h += '</section>';
 
-  h += '<section><p class="sec-t">對方資料</p>';
-  OTHER_FIELDS.forEach(function(f){ h += kv(f.t, ot[f.k]); });
+  h += '<section><p class="sec-t">' + bh('對方資料', 'Other driver') + '</p>';
+  OTHER_FIELDS.forEach(function(f){ h += kv(f.t, f.t_en, ot[f.k]); });
   h += '</section>';
 
-  h += '<section><p class="sec-t">現場處理</p>';
-  sceneSteps().forEach(function(s){ h += chk(tl[s.id], s.t); });
+  h += '<section><p class="sec-t">' + bh('現場處理', 'At the scene') + '</p>';
+  sceneSteps().forEach(function(s){ h += chk(tl[s.id], s.t, s.t_en); });
   h += '</section>';
 
   /* 照片：清單每一項的張數，下面再把所有照片排出來 */
-  h += '<section><p class="sec-t">拍照存證（共 ' + PHOTO_CACHE.length + ' 張）</p>';
+  h += '<section><p class="sec-t">' + bh('拍照存證（共 ' + PHOTO_CACHE.length + ' 張）',
+         'Photo evidence (' + PHOTO_CACHE.length + ' in total)') + '</p>';
   var figs = '';
   PHOTOS.forEach(function(p, i){
-    var shots = photosOf(i);
-    h += chk(shots.length > 0 || !!ph[i], p.t,
-             p.manual ? (ph[i] ? '已備份' : '') : shots.length + ' 張');
-    shots.forEach(function(r, k){
+    var list = photosOf(i);
+    h += chk(list.length > 0 || !!ph[i], p.t, p.t_en,
+             p.manual ? (ph[i] ? bh('已備份', 'Backed up') : '') : shots(list.length));
+    list.forEach(function(r, k){
       var u = URL.createObjectURL(recBlob(r)); crecUrls.push(u);
-      figs += '<figure><img src="' + u + '" alt=""><figcaption>' + esc(p.t) +
-              (shots.length > 1 ? ' ' + (k + 1) : '') + '</figcaption></figure>';
+      var no = list.length > 1 ? ' ' + (k + 1) : '';
+      figs += '<figure><img src="' + u + '" alt=""><figcaption>' + bh(p.t + no, p.t_en + no) + '</figcaption></figure>';
     });
   });
   if (figs) h += '<div class="crec-ph">' + figs + '</div>';
   h += '</section>';
 
-  h += '<section><p class="sec-t">通知保險公司</p>';
-  CLAIM_STEPS.forEach(function(s){ h += chk(!!cl[s.id], s.t); });
+  h += '<section><p class="sec-t">' + bh('通知保險公司', 'Insurer notified') + '</p>';
+  CLAIM_STEPS.forEach(function(s){ h += chk(!!cl[s.id], s.t, s.t_en); });
   h += '</section>';
 
-  h += '<section><p class="sec-t">損失金額（有單據的）</p>';
+  h += '<section><p class="sec-t">' + bh('損失金額（有單據的）', 'Losses (with receipts)') + '</p>';
   if (rows.length){
     var total = rows.reduce(function(a, r){ return a + r.v; }, 0);
-    rows.forEach(function(r){ h += kv(r.t, money(r.v)); });
-    h += kv('合計', money(total));
-  } else h += kv('金額', '');
+    rows.forEach(function(r){ h += kv(r.t, r.t_en, money(r.v)); });
+    h += kv('合計', 'Total', money(total));
+  } else h += kv('金額', 'Amount', '');
   h += '</section>';
 
-  h += '<section><p class="sec-t">調解準備文件</p>';
-  COMP_DOCS.forEach(function(x, i){ h += chk(!!docs[i], x); });
+  h += '<section><p class="sec-t">' + bh('調解準備文件', 'Documents for mediation') + '</p>';
+  COMP_DOCS.forEach(function(x, i){ h += chk(!!docs[i], x, COMP_DOCS_EN[i]); });
   h += '</section>';
 
-  h += '<p class="warn">本紀錄由 Guardy 依使用者在 App 中記下的內容整理，僅供個人留存與提供保險公司、調解單位參考。</p>';
+  h += '<p class="warn">本紀錄由 Guardy 依使用者在 App 中記下的內容整理，僅供個人留存與提供保險公司、調解單位參考。<br><br>' +
+       'This record was compiled by Guardy from what the user entered in the app. It is for personal records and for reference by insurers and mediation bodies only.</p>';
   $('crec-body').innerHTML = h;
-  $('crec-share-t').textContent = PHOTO_CACHE.length ? '分享照片（' + PHOTO_CACHE.length + ' 張）' : '分享照片';
+  $('crec-share-t').textContent = PHOTO_CACHE.length
+    ? T('分享照片（' + PHOTO_CACHE.length + ' 張）', 'Share photos (' + PHOTO_CACHE.length + ')')
+    : T('分享照片', 'Share photos');
 }
 
 /* 純文字版：貼到 LINE 給業務員或保險公司 */
 function crecText(){
   var ot = otherData(), site = state.site, tl = tlState(load(LS.tl)), cl = load(LS.claim),
       ph = load(LS.ph), rows = cdocRows();
-  var L = ['交通事故紀錄', '匯出日期：' + cdocDate(), ''];
-  L.push('時間：' + (crecWhen() || '未記錄'));
-  L.push('地點：' + (crecPlace() || '未記錄'));
-  if (hasCoords(site)) L.push('地圖：https://www.google.com/maps?q=' + site.lat + ',' + site.lon);
+  function item(done, t, te){ return (done ? '✓ ' : '— ') + t + ' / ' + te; }
+  var lines = [bt('交通事故紀錄', 'Traffic Accident Record'), bt('匯出日期', 'Exported') + '：' + cdocDate(), ''];
+  lines.push(bt('時間', 'Time') + '：' + (crecWhen() || bt('未記錄', 'Not recorded')));
+  lines.push(bt('地點', 'Location') + '：' + (crecPlace() || bt('未記錄', 'Not recorded')));
+  if (hasCoords(site)) lines.push(bt('地圖', 'Map') + '：https://www.google.com/maps?q=' + site.lat + ',' + site.lon);
 
-  var theirs = OTHER_FIELDS.map(function(f){ return (ot[f.k] || '').trim() ? f.t + ' ' + ot[f.k].trim() : ''; }).filter(Boolean);
-  L.push('', '【對方資料】' + (theirs.length ? theirs.join('／') : '未記錄'));
+  var theirs = OTHER_FIELDS.map(function(f){ return (ot[f.k] || '').trim() ? bt(f.t, f.t_en) + ' ' + ot[f.k].trim() : ''; }).filter(Boolean);
+  lines.push('', '【' + bt('對方資料', 'Other driver') + '】' + (theirs.length ? theirs.join('／') : bt('未記錄', 'Not recorded')));
 
-  L.push('', '【現場處理】');
-  sceneSteps().forEach(function(s){ L.push((tl[s.id] ? '✓ ' : '— ') + s.t); });
+  lines.push('', '【' + bt('現場處理', 'At the scene') + '】');
+  sceneSteps().forEach(function(s){ lines.push(item(tl[s.id], s.t, s.t_en)); });
 
-  L.push('', '【拍照存證】共 ' + PHOTO_CACHE.length + ' 張');
+  lines.push('', '【' + bt('拍照存證', 'Photo evidence') + '】' + bt('共 ' + PHOTO_CACHE.length + ' 張', '(' + PHOTO_CACHE.length + ' in total)'));
   PHOTOS.forEach(function(p, i){
     var n = photosOf(i).length;
-    L.push(((n || ph[i]) ? '✓ ' : '— ') + p.t + (p.manual ? (ph[i] ? '（已備份）' : '') : '（' + n + ' 張）'));
+    lines.push(item(n || ph[i], p.t, p.t_en) +
+           (p.manual ? (ph[i] ? '（' + bt('已備份', 'backed up') + '）' : '') : '（' + n + '）'));
   });
 
-  L.push('', '【通知保險公司】');
-  CLAIM_STEPS.forEach(function(s){ L.push((cl[s.id] ? '✓ ' : '— ') + s.t); });
+  lines.push('', '【' + bt('通知保險公司', 'Insurer notified') + '】');
+  CLAIM_STEPS.forEach(function(s){ lines.push(item(cl[s.id], s.t, s.t_en)); });
 
   if (rows.length){
-    L.push('', '【損失金額】');
-    rows.forEach(function(r){ L.push('  ' + r.t + '　' + money(r.v)); });
-    L.push('  合計　' + money(rows.reduce(function(a, r){ return a + r.v; }, 0)));
+    lines.push('', '【' + bt('損失金額', 'Losses') + '】');
+    rows.forEach(function(r){ lines.push('  ' + r.t + ' / ' + r.t_en + '　' + money(r.v)); });
+    lines.push('  ' + bt('合計', 'Total') + '　' + money(rows.reduce(function(a, r){ return a + r.v; }, 0)));
   }
-  return L.join('\n');
+  return lines.join('\n');
 }
 
 function openCrec(){
@@ -2936,7 +3110,7 @@ function openCrec(){
 function closeCrec(){ $('crec-sheet').classList.remove('open'); crecFree(); }
 $('crec-close').addEventListener('click', closeCrec);
 $('crec-print').addEventListener('click', function(){ window.print(); });
-$('crec-copy').addEventListener('click', function(){ copyText(crecText(), '紀錄已複製'); });
+$('crec-copy').addEventListener('click', function(){ copyText(crecText(), T('紀錄已複製', 'Record copied')); });
 $('crec-share').addEventListener('click', function(){ sharePhotos(PHOTO_CACHE); });
 
 function renderComp(){
@@ -2946,7 +3120,7 @@ function renderComp(){
     if (f.g){
       var g = document.createElement('p');
       g.className = 'comp-g';
-      g.textContent = f.g;
+      g.textContent = L(f, 'g');
       box.appendChild(g);
       return;
     }
@@ -2957,8 +3131,8 @@ function renderComp(){
     var lbl = document.createElement('label');
     lbl.className = 'lbl';
     lbl.setAttribute('for', 'comp-' + f.k);
-    var b = document.createElement('b'); b.textContent = f.t;
-    var s = document.createElement('span'); s.textContent = f.d;
+    var b = document.createElement('b'); b.textContent = L(f, 't');
+    var s = document.createElement('span'); s.textContent = L(f, 'd');
     lbl.appendChild(b); lbl.appendChild(s);
 
     var wrap = document.createElement('div');
@@ -3040,7 +3214,7 @@ function renderDocs(){
     b.className = 'doc' + (done ? ' done' : '');
     b.setAttribute('aria-pressed', done ? 'true' : 'false');
     b.innerHTML = '<span class="t"></span><span class="box">' + CHECK + '</span>';
-    b.querySelector('.t').textContent = x;
+    b.querySelector('.t').textContent = EN ? COMP_DOCS_EN[i] : x;
     b.addEventListener('click', function(){
       var cur = load(LS.compdoc);
       cur[i] = !cur[i];
@@ -3050,22 +3224,23 @@ function renderDocs(){
     docs.appendChild(b);
   });
   $('doc-prog').textContent = n === COMP_DOCS.length
-    ? '都準備好了'
-    : '已備妥 ' + n + ' / ' + COMP_DOCS.length;
+    ? T('都準備好了', 'All ready')
+    : T('已備妥 ' + n + ' / ' + COMP_DOCS.length, n + ' / ' + COMP_DOCS.length + ' ready');
 }
 
 $('doc-reset').addEventListener('click', function(){
-  save(LS.compdoc, {}); renderDocs(); toast('準備進度已重設');
+  save(LS.compdoc, {}); renderDocs(); toast(T('準備進度已重設', 'Checklist reset'));
 });
 
 /* 產生可以直接貼進 LINE 或列印帶去調解的明細。
    刻意不含慰撫金 —— 那個數字不該由這個 App 產生。 */
 function compText(){
-  var d = compData(), lines = ['【求償明細】'], sum = 0;
+  /* 會傳給別人，跟匯出文件一樣中英並列 */
+  var d = compData(), lines = ['【' + bt('求償明細', 'Claim summary') + '】'], sum = 0;
   var s = state.site;
   if (s){
-    lines.push('事故時間　' + new Date(s.at).toLocaleString('zh-TW', { hour12:false }));
-    if (s.addr) lines.push('事故地點　' + s.addr);
+    lines.push(bt('事故時間', 'Time') + '　' + new Date(s.at).toLocaleString('zh-TW', { hour12:false }));
+    if (s.addr) lines.push(bt('事故地點', 'Location') + '　' + s.addr);
     lines.push('');
   }
   COMP_FIELDS.forEach(function(f){
@@ -3073,21 +3248,22 @@ function compText(){
     var v = parseInt(d[f.k], 10);
     if (!isNaN(v) && v > 0){
       sum += v;
-      lines.push(f.t + '　' + money(v));
+      lines.push(f.t + ' / ' + f.t_en + '　' + money(v));
     }
   });
   if (!sum) return '';
   lines.push('');
-  lines.push('有憑據的小計　' + money(sum));
+  lines.push(bt('有憑據的小計', 'Subtotal with receipts') + '　' + money(sum));
   lines.push('');
   lines.push('※ 以上為檢附單據之金額，精神慰撫金另計。');
+  lines.push('※ Amounts above are backed by receipts; pain and suffering is claimed separately.');
   return lines.join('\n');
 }
 
 $('btn-comp-copy').addEventListener('click', function(){
   var txt = compText();
-  if (!txt){ toast('還沒有填入任何金額'); return; }
-  copyText(txt, '求償明細已複製');
+  if (!txt){ toast(T('還沒有填入任何金額', 'No amounts entered yet')); return; }
+  copyText(txt, T('求償明細已複製', 'Claim summary copied'));
 });
 
 renderComp();
@@ -3108,7 +3284,8 @@ function caseTitle(id){
   var c = caseById(id), d = new Date(c ? c.ts : Date.now());
   var y = d.getFullYear() === new Date().getFullYear()
         ? '' : d.getFullYear() + '/';
-  return y + (d.getMonth() + 1) + '/' + d.getDate() + ' 事故';
+  return T(y + (d.getMonth() + 1) + '/' + d.getDate() + ' 事故',
+           'Accident on ' + y + (d.getMonth() + 1) + '/' + d.getDate());
 }
 
 /* 「高雄市三民區市中一路2號」→「高雄市三民區」。
@@ -3120,7 +3297,7 @@ function caseArea(id){
     if (m) return m[1] + m[2];
     return s.addr.length > 10 ? s.addr.slice(0, 10) + '…' : s.addr;
   }
-  if (hasCoords(s)) return '座標 ' + fmtLL(s);
+  if (hasCoords(s)) return T('座標 ', 'Coordinates ') + fmtLL(s);
   return '';
 }
 
@@ -3151,7 +3328,7 @@ function switchCase(id){
   writeCases();
   renderAllForCase();
   /* 講清楚切到哪一件。只說「已切換」等於沒說 —— 使用者要確認的正是這個 */
-  toast('已切換到：' + caseTitle(id));
+  toast(T('已切換到：', 'Switched to: ') + caseTitle(id));
 }
 
 /* 這個案件有沒有任何內容。判斷用的是「所有欄位都空」，不是「沒有 key」——
@@ -3174,14 +3351,14 @@ function caseIsEmpty(id){
 
 var NEW_CARD =
   '<button class="row-btn case-new" data-act="new">' +
-    '<span class="ic">＋</span><span class="t">開始新案件</span><span class="ar">›</span>' +
+    '<span class="ic">＋</span><span class="t">' + T('開始新案件', 'Start a new case') + '</span><span class="ar">›</span>' +
   '</button>';
 
 function caseMeta(id){
   var bits = [], area = caseArea(id), n = photoCounts[id];
   if (area) bits.push(esc(area));
-  if (n != null) bits.push('照片 ' + n + ' 張');
-  bits.push('進度 ' + caseProgress(id));
+  if (n != null) bits.push(T('照片 ' + n + ' 張', n + (n === 1 ? ' photo' : ' photos')));
+  bits.push(T('進度 ', 'Progress ') + caseProgress(id));
   return bits.join(' ・ ');
 }
 
@@ -3204,9 +3381,9 @@ function renderCases(){
   if (hideCur){
     var onlyOne = cases.list.length === 1;
     h += '<div class="case-empty">' +
-           '<div class="t">' + (onlyOne ? '目前沒有事故紀錄' : '目前沒有進行中的紀錄') + '</div>' +
-           '<div class="s">在「現場」取得位置，或到「存證」拍第一張照片，<br>' +
-             '這裡就會自動出現一件。</div>' +
+           '<div class="t">' + (onlyOne ? T('目前沒有事故紀錄', 'No accident records yet') : T('目前沒有進行中的紀錄', 'No case in progress')) + '</div>' +
+           '<div class="s">' + T('在「現場」取得位置，或到「存證」拍第一張照片，<br>這裡就會自動出現一件。',
+             'Get your location on the Scene tab, or take a photo on the Evidence tab,<br>and a case will appear here automatically.') + '</div>' +
          '</div>';
   }
 
@@ -3221,21 +3398,22 @@ function renderCases(){
              '<span class="cc-txt">' +
                '<span class="cc-title">' + esc(caseTitle(x.id)) +
                  '<span class="cc-tag' + (x.closed ? ' done' : '') + '">' +
-                   (x.closed ? '已結案' : '處理中') + '</span>' +
+                   (x.closed ? T('已結案', 'Closed') : T('處理中', 'Open')) + '</span>' +
                '</span>' +
                '<span class="cc-meta">' + caseMeta(x.id) + '</span>' +
              '</span>' +
            '</div>' +
            '<div class="cc-acts">' +
              (isCur
-               ? '<button data-act="export">' + ico('doc') + '匯出案件紀錄</button>' +
+               ? '<button data-act="export">' + ico('doc') + T('匯出案件紀錄', 'Export') + '</button>' +
                  (x.closed
-                   ? '<button data-act="reopen">' + ico('arrow') + '重新開啟</button>'
-                   : '<button data-act="close">' + ico('check') + '結案</button>')
-               : '<button data-go="' + x.id + '">' + ico('arrow') + '切換到這件</button>') +
-             '<button class="cc-del" data-del="' + x.id + '">刪除</button>' +
+                   ? '<button data-act="reopen">' + ico('arrow') + T('重新開啟', 'Reopen') + '</button>'
+                   : '<button data-act="close">' + ico('check') + T('結案', 'Close case') + '</button>')
+               : '<button data-go="' + x.id + '">' + ico('arrow') + T('切換到這件', 'Switch to this') + '</button>') +
+             '<button class="cc-del" data-del="' + x.id + '">' + T('刪除', 'Delete') + '</button>' +
            '</div>' +
-           (isCur ? '<p class="cc-note">理賠常拖好幾個月。結案後紀錄仍會留著，隨時可以回來看。</p>' : '') +
+           (isCur ? '<p class="cc-note">' + T('理賠常拖好幾個月。結案後紀錄仍會留著，隨時可以回來看。',
+             'Insurance claims often take months. Closed cases stay here — come back any time.') + '</p>' : '') +
          '</div>';
   }
 
@@ -3263,17 +3441,21 @@ $('case-box').addEventListener('click', function(e){
     /* 底層仍然會開一件新的（App 隨時要握著一個案件），但那件是空的、
        畫面上不顯示，所以問句與提示都不再提它 —— 講一件使用者看不到的
        東西，只會讓人以為結案沒結成功。 */
-    ask('把這件結案？', '紀錄與照片都會留著，隨時可以切回來。', '結案', function(){
+    ask(T('把這件結案？', 'Close this case?'),
+        T('紀錄與照片都會留著，隨時可以切回來。', 'Records and photos are kept — you can switch back any time.'),
+        T('結案', 'Close case'), function(){
       c.closed = Date.now();
       newCase();
-      toast('已結案');
+      toast(T('已結案', 'Case closed'));
     });
   } else if (a === 'reopen'){
-    c.closed = 0; writeCases(); renderCases(); toast('已重新開啟');
+    c.closed = 0; writeCases(); renderCases(); toast(T('已重新開啟', 'Reopened'));
   } else if (a === 'new'){
-    ask('建立一件新的事故紀錄？', '目前這件會留在列表裡，不會消失。', '建立', function(){
+    ask(T('建立一件新的事故紀錄？', 'Start a new accident record?'),
+        T('目前這件會留在列表裡，不會消失。', 'The current one stays in the list.'),
+        T('建立', 'Create'), function(){
       newCase();
-      toast('已建立新案件');
+      toast(T('已建立新案件', 'New case created'));
     });
   }
 });
@@ -3298,11 +3480,11 @@ function newCase(keepCurrent){
 
 function deleteCase(id){
   var last = cases.list.length === 1;
-  ask('刪除這件事故的所有紀錄與照片？',
+  ask(T('刪除這件事故的所有紀錄與照片？', 'Delete all records and photos for this accident?'),
       caseTitle(id) + '\n\n' +
-      (last ? '刪除後就沒有任何事故紀錄了。\n' : '') +
-      '這個動作無法復原。',
-      '刪除',
+      (last ? T('刪除後就沒有任何事故紀錄了。\n', 'After this, no accident records will be left.\n') : '') +
+      T('這個動作無法復原。', "This can't be undone."),
+      T('刪除', 'Delete'),
       function(){ doDeleteCase(id, last); });
 }
 
@@ -3333,7 +3515,7 @@ function doDeleteCase(id, wasLast){
     caseData = {};
     newCase(false);
   }
-  toast(wasLast ? '已刪除，目前沒有任何紀錄' : '已刪除');
+  toast(wasLast ? T('已刪除，目前沒有任何紀錄', 'Deleted — no records left') : T('已刪除', 'Deleted'));
   photosClearCase(id).then(function(){ renderStorage(); refreshPhotoCounts(renderCases); }, function(){});
 }
 
@@ -3361,12 +3543,14 @@ renderCases();
    設定
    ========================================================= */
 $('btn-reset-all').addEventListener('click', function(){
-  ask('清除這件事故的所有進度？', '照片會保留。若要留著紀錄，請改用「結案」。', '清除', function(){
+  ask(T('清除這件事故的所有進度？', 'Clear all progress for this accident?'),
+      T('照片會保留。若要留著紀錄，請改用「結案」。', 'Photos are kept. To keep the record, use “Close case” instead.'),
+      T('清除', 'Clear'), function(){
     save(LS.tl, {}); save(LS.ph, {}); save(LS.todo, {}); save(LS.claim, {});
     save(LS.other, {}); save(LS.comp, {}); save(LS.compdoc, {});
     resetLoc();
     renderTL(); renderPH(); renderCL(); renderOther(); renderComp(); renderCases();
-    toast('本案件的進度已清除');
+    toast(T('本案件的進度已清除', "This case's progress was cleared"));
   });
 });
 
@@ -3388,6 +3572,19 @@ $('btn-reset-all').addEventListener('click', function(){
     });
   });
   paint();
+})();
+
+/* =========================================================
+   語言
+   ========================================================= */
+(function(){
+  var seg = $('seg-lang'), cur = EN ? 'en' : 'zh';
+  seg.querySelectorAll('button').forEach(function(b){
+    b.setAttribute('aria-pressed', b.dataset.v === cur ? 'true' : 'false');
+    b.addEventListener('click', function(){
+      if (b.dataset.v !== cur && window.__lang) window.__lang.set(b.dataset.v);
+    });
+  });
 })();
 
 /* =========================================================
@@ -3418,7 +3615,7 @@ window.addEventListener('beforeinstallprompt', function(e){
 });
 
 function showInstall(force){
-  if (isStandalone){ if (force) toast('已經在主畫面上了'); return; }
+  if (isStandalone){ if (force) toast(T('已經在主畫面上了', "It's already on your home screen")); return; }
   if (!force && !inApp){
     try{
       var t = +localStorage.getItem(LS.install);
@@ -3427,25 +3624,31 @@ function showInstall(force){
   }
   var steps = $('install-steps'), goBtn = $('install-go'),
       title = $('install').querySelector('.t'), desc = $('install').querySelector('.d');
-  title.textContent = '把它加到主畫面';
-  desc.textContent = '車禍現場往往沒有網路。加到主畫面後，即使離線也能開啟。';
+  title.textContent = T('把它加到主畫面', 'Add it to your home screen');
+  desc.textContent = T('車禍現場往往沒有網路。加到主畫面後，即使離線也能開啟。',
+    "There's often no signal at an accident scene. Once it's on your home screen, it opens even offline.");
   if (inApp){
-    title.textContent = '請改用瀏覽器開啟';
-    desc.textContent = '在 LINE／Facebook 裡面開啟無法加入主畫面，離線時也打不開。';
+    title.textContent = T('請改用瀏覽器開啟', 'Please open this in your browser');
+    desc.textContent = T('在 LINE／Facebook 裡面開啟無法加入主畫面，離線時也打不開。',
+      "Opened inside LINE or Facebook, it can't be added to your home screen or opened offline.");
     steps.className = 'steps';
-    steps.innerHTML = '1. 點右上角的「⋯」或「︙」<br>2. 選擇「用預設瀏覽器開啟」或「在瀏覽器中開啟」<br>3. 在瀏覽器裡再加入主畫面';
+    steps.innerHTML = T('1. 點右上角的「⋯」或「︙」<br>2. 選擇「用預設瀏覽器開啟」或「在瀏覽器中開啟」<br>3. 在瀏覽器裡再加入主畫面',
+      '1. Tap “⋯” or “︙” in the top-right corner<br>2. Choose “Open in browser” or “Open in default browser”<br>3. Add it to your home screen from the browser');
     goBtn.style.display = 'none';
   } else if (isIOS){
-    desc.textContent = '車禍現場往往沒有網路。加到主畫面後才能離線開啟；沒加的話，iPhone 可能在一段時間沒開之後清掉你存的照片與資料。';
+    desc.textContent = T('車禍現場往往沒有網路。加到主畫面後才能離線開啟；沒加的話，iPhone 可能在一段時間沒開之後清掉你存的照片與資料。',
+      "There's often no signal at an accident scene. Add it to your home screen so it opens offline — otherwise your iPhone may clear your saved photos and data if you don't open it for a while.");
     steps.className = 'steps';
-    steps.innerHTML = '1. 點「分享」↗（Safari 在下方工具列，Chrome 在網址列右側）<br>2. 往下滑，選擇「加入主畫面」<br>3. 右上角點「加入」';
+    steps.innerHTML = T('1. 點「分享」↗（Safari 在下方工具列，Chrome 在網址列右側）<br>2. 往下滑，選擇「加入主畫面」<br>3. 右上角點「加入」',
+      '1. Tap Share ↗ (Safari: bottom toolbar; Chrome: right of the address bar)<br>2. Scroll down and choose “Add to Home Screen”<br>3. Tap “Add” in the top-right corner');
     goBtn.style.display = 'none';
   } else if (deferredPrompt){
     steps.innerHTML = ''; steps.className = '';
     goBtn.style.display = '';
   } else {
     steps.className = 'steps';
-    steps.innerHTML = '開啟瀏覽器選單 ⋮ → 選擇「安裝應用程式」或「加到主畫面」';
+    steps.innerHTML = T('開啟瀏覽器選單 ⋮ → 選擇「安裝應用程式」或「加到主畫面」',
+      'Open the browser menu ⋮ → choose “Install app” or “Add to Home screen”');
     goBtn.style.display = 'none';
   }
   $('install').classList.add('open');
@@ -3488,7 +3691,7 @@ if ('serviceWorker' in navigator){
     if (!hadController || pendingReload) return;
     pendingReload = true;
     if (document.visibilityState === 'hidden') location.reload();
-    else toast('已更新到新版，下次開啟時生效');
+    else toast(T('已更新到新版，下次開啟時生效', 'Updated — the new version applies next time you open it'));
   });
   document.addEventListener('visibilitychange', function(){
     if (pendingReload && document.visibilityState === 'hidden') location.reload();

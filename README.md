@@ -121,6 +121,12 @@ v58 起**不上架商店**，直接發網址。
 
 預設跟隨系統，使用者可在「設定 → 外觀」手動指定。判斷主題的腳本刻意放在 `<style>` 之後、`</head>` 之前，必須在首次繪製前執行，否則深色使用者會看到一閃的白畫面。
 
+## 語言
+
+中文與英文（v80 起）。沒選過的話看手機的第一語言：中文就中文，其他一律英文；「設定 → 語言 Language」可以手動切換。匯出的文件（請求明細、事故紀錄、複製的文字）**不管用哪個語言都中英並列**，因為那是要拿給台灣的警察、保險公司、調解委員看的。
+
+加新文字時：HTML 裡的固定文字加 `data-en="English"`；程式裡寫 `T('中文', 'English')`；會進匯出文件的清單項目加一個 `_en` 欄位。改完跑 `tests/test_i18n.py`，它會抓出畫面上漏翻的中文。
+
 ## 改版後一定要做的事
 
 **修改任何檔案後，把 `sw.js` 最上面的 `VERSION` 加一。**
@@ -167,6 +173,8 @@ Google Play 也有類似條款，但對 TWA 的容忍度高很多，因為 TWA �
 index.html      主程式，CSS 與 JS 全部內嵌
 privacy.html    隱私權政策（商店上架必要）
 terms.html      服務條款
+privacy-en.html 英文版隱私權政策（以中文版為準）
+terms-en.html   英文版服務條款（以中文版為準）
 manifest.json   PWA manifest
 sw.js           service worker，cache-first 快取 app shell
 vercel.json     快取標頭設定
