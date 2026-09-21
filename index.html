@@ -2818,11 +2818,39 @@ function money(n){
   return '$' + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
+/* 金額欄位的輸入清理。這裡錯一個字就是金額錯一位數，所以規則寫死：
+   - 中文鍵盤打得出全形數字（１２３），先轉成半形
+   - 收據上的金額常寫成 1,500.50：逗號直接拿掉，**小數點以後整段丟掉**。
+     原本是「濾掉所有非數字」，1500.50 會被接成 150050 —— 剛好是十倍，
+     而且畫面上看起來像個正常的數字，使用者不會發現。無條件捨去不會多要錢。
+   - 前面的 0 去掉（012800 看起來像打錯）
+   - 最多 9 位數。再多是打錯或亂按，讓小計變成幾百億只會讓整份明細失去可信度 */
+var MAX_AMOUNT_DIGITS = 9;
+function cleanAmount(v){
+  var t = String(v == null ? '' : v)
+    .replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); })
+    .replace(/[．。]/g, '.')          /* 中文鍵盤的句號 */
+    .replace(/,/g, '');
+  var dot = t.indexOf('.');
+  if (dot >= 0) t = t.slice(0, dot);
+  t = t.replace(/[^0-9]/g, '').replace(/^0+(?=\d)/, '');
+  return t.slice(0, MAX_AMOUNT_DIGITS);
+}
+/* 同樣的清理，但不砍位數 —— 用來判斷是不是真的被截掉了 */
+function cleanAmountRaw(v){
+  var t = String(v == null ? '' : v)
+    .replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); })
+    .replace(/[．。]/g, '.').replace(/,/g, '');
+  var dot = t.indexOf('.');
+  if (dot >= 0) t = t.slice(0, dot);
+  return t.replace(/[^0-9]/g, '').replace(/^0+(?=\d)/, '');
+}
+
 function compStats(){
   var d = compData(), sum = 0, n = 0;
   COMP_FIELDS.forEach(function(f){
     if (!f.k) return;
-    var v = parseInt(d[f.k], 10);
+    var v = parseInt(cleanAmount(d[f.k]), 10);
     if (!isNaN(v) && v > 0){ sum += v; n++; }
   });
   return { sum:sum, n:n };
@@ -2871,7 +2899,7 @@ function cdocRows(){
   var d = compData(), out = [], grp = '', grpEn = '';
   COMP_FIELDS.forEach(function(f){
     if (f.g){ grp = f.g; grpEn = f.g_en; return; }
-    var v = parseInt(d[f.k], 10);
+    var v = parseInt(cleanAmount(d[f.k]), 10);
     if (isNaN(v) || v <= 0) return;
     out.push({ g:grp, t:f.t, d:f.d, v:v, g_en:grpEn, t_en:f.t_en, d_en:f.d_en });
   });
@@ -3143,12 +3171,15 @@ function renderComp(){
     inp.id = 'comp-' + f.k;
     inp.type = 'text';
     inp.inputMode = 'numeric';
-    inp.value = d[f.k] || '';
+    inp.value = cleanAmount(d[f.k]);
     inp.addEventListener('input', function(){
-      // 中文鍵盤打得出全形數字，先轉成半形再濾掉逗號、負號等雜訊
-      this.value = this.value
-        .replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); })
-        .replace(/[^0-9]/g, '');
+      /* 默默改掉使用者打的數字最糟：他會以為自己打的就是那樣。
+         被捨去小數或截到 9 位數時講一聲 */
+      var raw = this.value, cleaned = cleanAmount(raw);
+      this.value = cleaned;
+      if (/[.．。]\d/.test(raw)) toast(T('小數點以下不計入', 'Amounts are rounded down to whole dollars'));
+      else if (cleaned.length === MAX_AMOUNT_DIGITS && cleanAmountRaw(raw).length > MAX_AMOUNT_DIGITS)
+        toast(T('金額最多 9 位數', 'Amounts can be at most 9 digits'));
       var cur = compData();
       if (this.value) cur[f.k] = this.value; else delete cur[f.k];
       save(LS.comp, cur);
@@ -3245,7 +3276,7 @@ function compText(){
   }
   COMP_FIELDS.forEach(function(f){
     if (!f.k) return;                 // 分組標題列，沒有金額
-    var v = parseInt(d[f.k], 10);
+    var v = parseInt(cleanAmount(d[f.k]), 10);
     if (!isNaN(v) && v > 0){
       sum += v;
       lines.push(f.t + ' / ' + f.t_en + '　' + money(v));
