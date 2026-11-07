@@ -6,9 +6,9 @@
 
 純 HTML/CSS/JS，**沒有框架、沒有 build step、沒有後端**。核心功能（定位、撥號、現場流程、拍照清單、出險專線）在完全離線的情況下都能使用 —— 車禍現場常常沒有訊號，這是設計上的第一原則。
 
-- [DEVLOG.md](DEVLOG.md) —— 開發歷程、重大決策與被推翻的方向
-- [ROADMAP.md](ROADMAP.md) —— 待辦、優化與未解的問題
-- [ARCHITECTURE.md](ARCHITECTURE.md) —— 帳號制與雲端同步的架構設計（**v59 已整個移除**，留作紀錄）
+- [DEVLOG.md](docs/DEVLOG.md) —— 開發歷程、重大決策與被推翻的方向
+- [ROADMAP.md](docs/ROADMAP.md) —— 待辦、優化與未解的問題
+- [ARCHITECTURE.md](docs/archive/ARCHITECTURE.md) —— 帳號制與雲端同步的架構設計（**v59 已整個移除**，留作紀錄）
 
 ## 部署
 
@@ -42,7 +42,7 @@ v58 起**不上架商店**，直接發網址。
 - 橫幅開啟 8 秒後才跳出，而且**不擋正在處理事故的人**：這次打開後按過 110／119、定位、拍照、記錄對方，或 6 小時內定位／拍過照，就不自動跳出。最好的提醒時機是客戶平時收到網址、隨手點開的時候。
 - 已安裝的 App 切回前景時會檢查新版，改完記得照下面「改版後一定要做的事」加版號。
 
-**綁定業務員的功能已於 v43 取消**（理由見 [DEVLOG](DEVLOG.md#被推翻的方向)）。文案中「有問題找誰」統一走 `who()`，v58 起回傳「我們」—— 客戶一律聯絡 LINE 官方帳號，不指向各自的業務員。
+**綁定業務員的功能已於 v43 取消**（理由見 [DEVLOG](docs/DEVLOG.md#被推翻的方向)）。文案中「有問題找誰」統一走 `who()`，v58 起回傳「我們」—— 客戶一律聯絡 LINE 官方帳號，不指向各自的業務員。
 
 ## 位置
 
@@ -64,7 +64,7 @@ v58 起**不上架商店**，直接發網址。
 
 **v59 起移除了歡迎、註冊、登入、身分四屏，以及整段帳號與雲端同步的程式。** App 打開就是現場頁，所有資料只存在手機裡。
 
-以前用 `?auth=1` 預覽過的瀏覽器，本機還留著 `aa.authpreview.v1` 等 key，現在沒有任何程式會讀它們，不必清。帳號制的設計留在 [ARCHITECTURE.md](ARCHITECTURE.md) 當紀錄；SQL 檔已在 v79 刪除，需要時從 git 歷史取回。
+以前用 `?auth=1` 預覽過的瀏覽器，本機還留著 `aa.authpreview.v1` 等 key，現在沒有任何程式會讀它們，不必清。帳號制的設計留在 [ARCHITECTURE.md](docs/archive/ARCHITECTURE.md) 當紀錄；SQL 檔已在 v79 刪除，需要時從 git 歷史取回。
 
 ## 事故案件
 
@@ -180,14 +180,22 @@ privacy-en.html 英文版隱私權政策（以中文版為準）
 terms-en.html   英文版服務條款（以中文版為準）
 manifest.json   PWA manifest
 sw.js           service worker，cache-first 快取 app shell
+favicon.ico     瀏覽器分頁圖示
 vercel.json     快取標頭設定
-icons/          192 / 512 / maskable 512、mark.png、歡迎屏的去背 logo-mark.png
+.vercelignore   部署白名單：只有上面這些檔案與 icons/、screenshots/ 會上線
+icons/          App 圖示、mark.png、現場頁插圖 hero.jpg、自我介紹頭像 about.png
 screenshots/    商店列表與 manifest 用，1080×1920
 tests/          CDP 驗證腳本（手動重跑，見 tests/README.md）
+docs/           內部文件，不會部署
+  DEVLOG.md         開發歷程
+  ROADMAP.md        待辦
+  VERIFY.md         會過期的內容與查證來源
+  教學素材-從一個App到一支影片.md   從 App 到宣傳影片的完整過程
+  archive/ARCHITECTURE.md          已移除的帳號制架構，留作紀錄
+video/          宣傳影片的素材與 Remotion 專案（不進 git）
 ```
 
-文件：`DEVLOG.md`（開發歷程）、`ARCHITECTURE.md`（架構決策）、`ROADMAP.md`（待辦）、
-`VERIFY.md`（會過期的內容與查證來源）、`教學素材-從一個App到一支影片.md`（從 App 到宣傳影片的完整過程）。
+**App 的檔案一律留在根目錄，路徑不要改。** 已安裝的客戶、service worker 的快取清單與 manifest 都靠這些網址。新增會上線的檔案時，記得也加進 `.vercelignore` 的白名單，否則部署後會 404。
 
 
 ## 免責

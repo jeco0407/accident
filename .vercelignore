@@ -1,0 +1,15 @@
+# 部署白名單：先排除根目錄所有東西，再逐一放行 App 需要的檔案。
+# 文件（docs/）、測試（tests/）、影片素材（video/）都不該出現在公開網址上。
+# 新增會上線的檔案時，要加進下面的清單，否則部署後會 404。
+/*
+!index.html
+!sw.js
+!manifest.json
+!favicon.ico
+!privacy.html
+!privacy-en.html
+!terms.html
+!terms-en.html
+!vercel.json
+!icons
+!screenshots
