@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Guardy — 車禍緊急助手</title>
-<meta name="description" content="別慌，我陪你一步一步處理。車禍現場定位、報案、拍照存證與後續理賠的完整引導。">
+<meta name="description" content="別慌，我們陪你一步一步處理。車禍現場定位、報案、拍照存證與後續理賠的完整引導。">
 <meta name="theme-color" content="#FAF3E1">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -154,7 +154,7 @@ body.is-offline .chip-off{display:flex}
    .page-head 本身就用負 margin 貼齊螢幕上、左、右三邊，插圖跟著它 inset:0 就滿版。
    可讀性靠兩層：圖本身降透明度，再從左側（文字所在）蓋一層底色漸層；
    人物在圖的右半邊，漸層在那裡淡掉，不會被蓋住。 */
-.scene-head{position:relative;overflow:hidden;min-height:250px}
+.scene-head{position:relative;overflow:hidden;min-height:200px}
 .scene-head .brand,.scene-head h1,.scene-head .greet{position:relative;z-index:2}
 .hero-bg{
   position:absolute;inset:0;width:100%;height:100%;z-index:0;
@@ -321,14 +321,6 @@ body.is-offline .chip-off{display:flex}
 .emg-card .lb{font-size:16px;font-weight:600;margin-top:7px}
 .emg-110{background:var(--red-bg);border-color:var(--red-line);color:var(--red)}
 .emg-119{background:var(--amber-bg);border-color:var(--amber-line);color:var(--amber)}
-/* 提示改放進卡片裡。原本掛在兩張卡下面，讀的人得自己把它跟上面連起來 */
-.emg-card .tip{
-  display:block;width:100%;margin-top:14px;padding:7px 6px;
-  border-radius:var(--r-sm);background:rgba(255,255,255,.6);
-  font-size:12px;font-weight:500;line-height:1.4;letter-spacing:0;
-  text-align:center;
-}
-:root[data-theme="dark"] .emg-card .tip{background:rgba(255,255,255,.07)}
 
 /* 道路救援：跟其他列表列同一個語彙 */
 .tow-row{
@@ -341,6 +333,23 @@ body.is-offline .chip-off{display:flex}
 .tow-row .ic .i{width:24px;height:24px}
 .tow-row .t{flex:1;font-size:16.5px;font-weight:600}
 .tow-row .ar{color:var(--chev);font-size:19px}
+.deadline-bar{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  margin:0 0 30px;padding:14px 16px;min-height:60px;
+  background:var(--amber-bg);border:1px solid var(--amber-line);border-radius:var(--r-lg);
+  color:var(--amber);
+}
+.deadline-bar .ic{display:flex}
+.deadline-bar .ic .i{width:22px;height:22px}
+.deadline-bar .tx{flex:1;display:flex;flex-direction:column;gap:2px}
+.deadline-bar b{font-size:15px;font-weight:700}
+.deadline-bar .tx span{font-size:14.5px;color:var(--ink);line-height:1.45}
+.deadline-bar .ar{font-size:19px}
+.loc-slow{
+  margin:12px 0 0;padding:10px 12px;border-radius:var(--r-sm);
+  background:var(--amber-bg);border:1px solid var(--amber-line);
+  font-size:14px;line-height:1.55;color:var(--ink);
+}
 .help-link{
   display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;margin-top:10px;
   font-size:14.5px;color:var(--ink-2);text-decoration:none;
@@ -1000,8 +1009,28 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
           <span>GUARDY</span>
         </div>
         <h1 data-en="At the Scene">事故現場</h1>
-        <p class="greet" data-en="Stay calm — I'll walk you through it.">別慌，我陪你一步一步處理。</p>
+        <p class="greet" data-en-html="Stay calm —&lt;br&gt;we'll walk you through it.">別慌，我們陪你<br>一步一步處理。</p>
 
+      </div>
+
+      <!-- 緊急聯絡排在位置卡前面：小螢幕一打開就要看得到 110／119，不必先滑 -->
+      <div class="blk">
+        <p class="sec-label"><svg class="i"><use href="#ic-alert"/></svg><span data-en="Emergency calls">緊急聯絡</span></p>
+        <div class="emg">
+          <a class="emg-card emg-110" href="tel:110">
+            <span class="ic"><svg class="i"><use href="#ic-siren"/></svg></span>
+            <span class="num">110</span><span class="lb" data-en="Police">報警</span>
+          </a>
+          <a class="emg-card emg-119" href="tel:119">
+            <span class="ic"><svg class="i"><use href="#ic-cross"/></svg></span>
+            <span class="num">119</span><span class="lb" data-en="Injuries">有人受傷</span>
+          </a>
+        </div>
+        <!-- 沒有查證過的號碼就不顯示這一列（CONFIG.towTel 留空即隱藏） -->
+        <a class="tow-row" id="tow" hidden>
+          <span class="ic"><svg class="i"><use href="#ic-truck"/></svg></span>
+          <span class="t" data-en="Roadside assistance">道路救援</span><span class="ar">›</span>
+        </a>
       </div>
 
       <div class="blk">
@@ -1016,6 +1045,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
             <button class="btn-primary" id="loc-btn" data-en="Get my location">
               <svg class="i"><use href="#ic-compass"/></svg>取得我的位置
             </button>
+            <p class="loc-slow" id="loc-slow" hidden data-en="Still locating — it can take a while with weak signal. You can also enter the location manually below. Calling the police or an ambulance doesn't have to wait.">還在定位，收訊差的地方可能要等一下，也可以直接在下面手動輸入地點。報警、叫救護車不用等定位。</p>
             <div class="loc-manual" id="loc-manual" hidden>
               <label for="loc-manual-in" data-en="Enter the accident location">手動輸入事故地點</label>
               <input type="text" id="loc-manual-in" inputmode="text" autocomplete="off"
@@ -1038,27 +1068,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-alert"/></svg><span data-en="Emergency calls">緊急聯絡</span></p>
-        <div class="emg">
-          <a class="emg-card emg-110" href="tel:110">
-            <span class="ic"><svg class="i"><use href="#ic-siren"/></svg></span>
-            <span class="num">110</span><span class="lb" data-en="Police">報警</span>
-            <span class="tip" data-en="Confirms before calling">會先確認才撥出</span>
-          </a>
-          <a class="emg-card emg-119" href="tel:119">
-            <span class="ic"><svg class="i"><use href="#ic-cross"/></svg></span>
-            <span class="num">119</span><span class="lb" data-en="Injuries">有人受傷</span>
-            <span class="tip" data-en="Confirms before calling">會先確認才撥出</span>
-          </a>
-        </div>
-        <!-- 沒有查證過的號碼就不顯示這一列（CONFIG.towTel 留空即隱藏） -->
-        <a class="tow-row" id="tow" hidden>
-          <span class="ic"><svg class="i"><use href="#ic-truck"/></svg></span>
-          <span class="t" data-en="Roadside assistance">道路救援</span><span class="ar">›</span>
-        </a>
       </div>
 
       <div class="blk">
@@ -1131,6 +1140,14 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
         <p class="greet" data-en="No need to finish today — whatever you fill in is saved.">不用今天填完，填多少就存多少。</p>
       </div>
 
+      <!-- 期限關係到權益，錯過就補不回來，所以不能只藏在下面的折疊區裡。
+           按下去展開「要注意的期限」那一格並捲過去 -->
+      <button class="deadline-bar" id="deadline-bar">
+        <span class="ic"><svg class="i"><use href="#ic-alert"/></svg></span>
+        <span class="tx"><b data-en="Deadlines">要注意的期限</b><span data-en="Complaint &amp; fault review: 6 months · civil claim: 2 years">提告、鑑定 6 個月內，求償 2 年內</span></span>
+        <span class="ar">›</span>
+      </button>
+
       <div class="blk">
         <p class="sec-label"><svg class="i"><use href="#ic-coin"/></svg><span data-en="Start with what you have receipts for">把有單據的先算出來</span></p>
         <div class="card" id="comp-form"></div>
@@ -1159,7 +1176,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
            期限的重點數字直接寫在摘要上，收著也看得到 -->
       <div class="blk">
         <p class="sec-label"><svg class="i"><use href="#ic-scale"/></svg><span data-en="Good to know">你可能想知道</span></p>
-        <details class="fold card">
+        <details class="fold card" id="deadline-fold">
           <summary><span class="ic"><svg class="i"><use href="#ic-alert"/></svg></span>
             <span class="tx"><b data-en="Deadlines to watch">要注意的期限</b><span data-en="Complaint &amp; fault review: 6 months; civil claim: 2 years">提告、鑑定 6 個月內，求償 2 年內</span></span><span class="ar">›</span></summary>
           <div id="comp-deadlines"></div>
@@ -1218,10 +1235,10 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
         <div class="about-top">
           <img src="icons/about.png" alt="保險好鄰居的頭像" data-en-alt="保險好鄰居 (Guardy's creator)" width="52" height="52" decoding="async">
           <p class="nm">保險好鄰居</p>
-          <a class="about-line" hidden><svg class="i"><use href="#ic-chat"/></svg><span data-en="Chat on LINE">用 LINE 找我</span></a>
+          <a class="about-line" hidden><svg class="i"><use href="#ic-chat"/></svg><span data-en="Chat on LINE">用 LINE 找我們</span></a>
         </div>
-        <p class="tx" data-en="Most people panic the first time they're in a car accident: who to call first, which photos to take, whether to move the car. I put all of that into Guardy so you can follow along, one step at a time, right at the scene.">車禍當下，多數人第一次遇到都會慌：該先打給誰、要拍哪些照片、能不能移車？我把這些整理成 Guardy，讓你在現場一步一步照著做。</p>
-        <p class="tx" data-en="If anything's unclear, message me on LINE any time. Keep yourself safe first — I'll help you with the rest.">遇到不確定的地方，隨時用 LINE 找我。你先顧好自己的安全，其他的我陪你一起處理。</p>
+        <p class="tx" data-en="Most people panic the first time they're in a car accident: who to call first, which photos to take, whether to move the car. We put all of that into Guardy so you can follow along, one step at a time, right at the scene.">車禍當下，多數人第一次遇到都會慌：該先打給誰、要拍哪些照片、能不能移車？我們把這些整理成 Guardy，讓你在現場一步一步照著做。</p>
+        <p class="tx" data-en="If anything's unclear, message us on LINE any time. Keep yourself safe first — we'll help you with the rest.">遇到不確定的地方，隨時用 LINE 找我們。你先顧好自己的安全，其他的我們陪你一起處理。</p>
       </div>
 
       <div class="blk">
@@ -1229,7 +1246,8 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
         <div id="case-box"></div>
       </div>
 
-      <div class="blk">
+      <!-- 沒有照片也沒有進度時整區收起來：沒東西可刪，卻擺兩顆紅色按鈕只會讓人緊張 -->
+      <div class="blk" id="data-blk">
         <p class="sec-label" data-en="Photos &amp; progress">照片與進度</p>
         <button class="row-btn warn" id="btn-del-photos">
           <span class="ic"><svg class="i"><use href="#ic-camera"/></svg></span>
@@ -1412,7 +1430,8 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 var LS = {
   tl:'aa.timeline.v1', ph:'aa.photos.v1', todo:'aa.todo.v1',
   install:'aa.install.dismissed.v1', claim:'aa.claim.v1', other:'aa.other.v1',
-  site:'aa.site.v1', comp:'aa.comp.v1', compdoc:'aa.compdoc.v1'
+  site:'aa.site.v1', comp:'aa.comp.v1', compdoc:'aa.compdoc.v1',
+  insurer:'aa.insurer.v1'
 };
 
 function rawLoad(k){ try{ return JSON.parse(localStorage.getItem(k)) || {}; }catch(e){ return {}; } }
@@ -1439,6 +1458,8 @@ var LS_CASES = 'aa.cases.v1', CASE_PREFIX = 'aa.case.';
 try{ localStorage.removeItem('aa.me.v1'); localStorage.removeItem('aa.avatar.v1'); }catch(e){}
 var GLOBAL_KEYS = {};
 GLOBAL_KEYS[LS.install] = 1;
+/* 自己的保險公司不會因為換一件事故就變，跨案件共用 */
+GLOBAL_KEYS[LS.insurer] = 1;
 
 /* 舊版把資料散在這幾個 key，第一次開新版時要收攏成一個案件 */
 var LEGACY_KEYS = [LS.tl, LS.ph, LS.todo, LS.claim, LS.other, LS.site, LS.comp, LS.compdoc];
@@ -1726,12 +1747,19 @@ $('loc-btn').addEventListener('click', function(){
   if (!navigator.geolocation){ toast(T('此裝置不支援定位', "Location isn't supported on this device")); return; }
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> ' + T('定位中…', 'Locating…');
+  /* 最多會等 15 秒。轉了幾秒還沒好，就先告訴使用者有別的路可以走 */
+  clearTimeout(slowTimer);
+  slowTimer = setTimeout(function(){ $('loc-slow').hidden = false; }, 5000);
   navigator.geolocation.getCurrentPosition(onPos, onPosErr, {
     enableHighAccuracy:true, timeout:15000, maximumAge:0
   });
 });
 
+var slowTimer = null;
+function stopSlowHint(){ clearTimeout(slowTimer); $('loc-slow').hidden = true; }
+
 function onPosErr(err){
+  stopSlowHint();
   var btn = $('loc-btn');
   btn.disabled = false;
   btn.textContent = T('重新取得我的位置', 'Try again');
@@ -1761,6 +1789,7 @@ $('loc-manual-in').addEventListener('keydown', function(e){
 });
 
 function onPos(pos){
+  stopSlowHint();
   state.coords = { lat: pos.coords.latitude, lon: pos.coords.longitude, acc: pos.coords.accuracy };
   setSite(state.coords);
   syncNet();
@@ -1815,6 +1844,7 @@ function resetLoc(){ clearLocUI(); save(LS.site, {}); }
 /* 只收畫面，不動存檔。切換案件時要用這個 ——
    若直接呼叫 resetLoc()，會把剛切過去那個案件的位置寫成空的。 */
 function clearLocUI(){
+  stopSlowHint();
   state.site = null;
   state.coords = null;
   geoFailed = false;
@@ -2551,6 +2581,10 @@ function renderStorage(){
   var n = PHOTO_CACHE.length;
   var bytes = PHOTO_CACHE.reduce(function(s, p){ return s + recSize(p); }, 0);
   var mb = (bytes / 1048576).toFixed(1);
+  var hasProg = !dataIsEmpty(caseData);
+  $('btn-del-photos').hidden = !n;
+  $('btn-reset-all').hidden = !hasProg;
+  $('data-blk').hidden = !n && !hasProg;
   /* 「只存在手機裡」頁尾已經講了，這裡只報數字 */
   el.textContent = T('目前這件事故有照片 ' + n + ' 張，約 ' + mb + ' MB。' +
       (n ? '建議用事故卡上的「匯出案件紀錄」→「分享照片」再備份一份到相簿。' : ''),
@@ -2591,12 +2625,15 @@ var INSURERS = [
   { n:'華南產險', en:'South China Insurance', tel:'0800-010-850' }
 ];
 
+/* STEP 1 還沒選保險公司時的按鈕；選好之後 renderCL() 換成撥號鍵 */
+var CLAIM_PICK = { t:T('選你的保險公司', 'Choose your insurer'), fn:function(){ $('ins-body').scrollIntoView({ behavior:'smooth', block:'start' }); } };
+
 /* 各家產險的作業大同小異，這裡只寫共通流程，不臆測個別公司的細節 */
 /* id 沿用舊版的索引，已存的 {2:true} 不必轉換 */
 var CLAIM_STEPS = [
   { id:'0', ic:'phone',  t:'撥打出險專線通知', d:'事故後五日內。打不通也先留紀錄，之後補通知。',
     t_en:'Call the claim hotline', d_en:"Within 5 days of the accident. If you can't get through, keep a record and follow up.",
-    act:{ t:T('選你的保險公司', 'Choose your insurer'), fn:function(){ $('ins-body').scrollIntoView({ behavior:'smooth', block:'start' }); } } },
+    act:null },
   { id:'1', ic:'list',   t:'提供事故基本資料', d:'保單或車牌、時間地點、對方資料、警方案件編號。',
     t_en:'Give the basic accident details', d_en:"Policy or plate number, time and place, the other driver's details, and the police case number." },
   { id:'2', ic:'camera', t:'交付照片與行車記錄器', d:'現場全景、車損、對方車牌，以及行車記錄器影片。',
@@ -2607,6 +2644,13 @@ var CLAIM_STEPS = [
   { id:'4', ic:'id',     t:'送修並保留所有單據', d:'估價單、維修單、收據正本都留著，理賠與求償都要用。',
     t_en:'Repair the car and keep every receipt', d_en:"Keep the original estimates, repair orders and receipts — you'll need them for the insurance claim and for compensation." }
 ];
+
+/* 使用者記住的保險公司；沒選過、或那一家已經不在清單上就回傳 null */
+function myInsurer(){
+  var n = load(LS.insurer).n;
+  for (var i = 0; i < INSURERS.length; i++) if (INSURERS[i].n === n) return INSURERS[i];
+  return null;
+}
 
 (function renderINS(){
   var box = $('ins-body');
@@ -2621,13 +2665,23 @@ var CLAIM_STEPS = [
     '<a class="ins-call" id="ins-call" hidden>' + ico('phone') +
       '<span class="t">' + T('撥打出險專線', 'Call hotline') + '</span><span class="p"></span></a>';
 
-  $('ins-sel').addEventListener('change', function(){
-    var ins = INSURERS[this.value], a = $('ins-call');
+  function showIns(i){
+    var ins = INSURERS[i], a = $('ins-call');
     a.href = 'tel:' + ins.tel.replace(/-/g, '');
     a.setAttribute('aria-label', T('撥打' + ins.n + '出險專線 ', 'Call ' + ins.en + ' claim hotline ') + ins.tel);
     a.querySelector('.p').textContent = ins.tel;
     a.hidden = false;
+  }
+  $('ins-sel').addEventListener('change', function(){
+    showIns(this.value);
+    /* 存名稱不存索引：清單日後增刪、換順序，記住的那一家才不會跑掉 */
+    save(LS.insurer, { n: INSURERS[this.value].n });
+    renderCL();
+    toast(T('已記住你的保險公司，下次打開直接撥', "Saved — next time you can call straight away"));
   });
+  /* 平時先選好，出事時打開就是一顆撥號鍵 */
+  var saved = myInsurer();
+  if (saved){ $('ins-sel').value = String(INSURERS.indexOf(saved)); showIns(INSURERS.indexOf(saved)); }
 
   /* 聯絡連結跟其他頁的「歡迎聯絡我們」一樣，由 CONFIG.contactUrl 決定 */
   var note = document.createElement(CONFIG.contactUrl ? 'a' : 'p');
@@ -2637,12 +2691,17 @@ var CLAIM_STEPS = [
     note.target = '_blank';
     note.rel = 'noopener';
   }
-  note.innerHTML = T('不清楚嗎，<b>歡迎聯繫我們</b>', 'Not sure?&nbsp;<b>Contact us</b>');
+  note.innerHTML = T('不確定是哪一家？<b>歡迎聯絡我們</b>', 'Not sure which one?&nbsp;<b>Contact us</b>');
   box.appendChild(note);
 })();
 
 /* ── 出險流程勾選 ── */
 function renderCL(){
+  /* 選好保險公司之後，STEP 1 直接變成撥號鍵，不必再捲回上面 */
+  var ins = myInsurer();
+  CLAIM_STEPS[0].act = ins
+    ? { t: T('撥打' + ins.n, 'Call ' + ins.en), tel: ins.tel.replace(/-/g, '') }
+    : CLAIM_PICK;
   var n = renderSteps($('cl'), CLAIM_STEPS, load(LS.claim), function(id){
     var cur = load(LS.claim);
     cur[id] = !cur[id];
@@ -2651,6 +2710,12 @@ function renderCL(){
   });
   $('cl-prog').textContent = prog(n, CLAIM_STEPS.length);
 }
+$('deadline-bar').addEventListener('click', function(){
+  var f = $('deadline-fold');
+  f.open = true;
+  f.scrollIntoView({ behavior:'smooth', block:'start' });
+});
+
 $('cl-reset').addEventListener('click', function(){
   save(LS.claim, {}); renderCL(); toast(T('出險流程進度已重設', 'Claim steps reset'));
 });
@@ -3369,7 +3434,12 @@ function caseIsEmpty(id){
      原本會被當成空的而不顯示。目前這件看 PHOTO_CACHE，其他件看非同步查來的張數 */
   var shots = (id === cases.cur) ? PHOTO_CACHE.length : (photoCounts[id] || 0);
   if (shots > 0) return false;
-  var d = (id === cases.cur) ? caseData : rawLoad(caseKey(id)), k, v;
+  return dataIsEmpty((id === cases.cur) ? caseData : rawLoad(caseKey(id)));
+}
+
+/* 案件的 localStorage 那一包是不是全空（不看照片） */
+function dataIsEmpty(d){
+  var k, v;
   for (k in d){
     if (!Object.prototype.hasOwnProperty.call(d, k)) continue;
     v = d[k];
@@ -3580,7 +3650,7 @@ $('btn-reset-all').addEventListener('click', function(){
     save(LS.tl, {}); save(LS.ph, {}); save(LS.todo, {}); save(LS.claim, {});
     save(LS.other, {}); save(LS.comp, {}); save(LS.compdoc, {});
     resetLoc();
-    renderTL(); renderPH(); renderCL(); renderOther(); renderComp(); renderCases();
+    renderTL(); renderPH(); renderCL(); renderOther(); renderComp(); renderCases(); renderStorage();
     toast(T('本案件的進度已清除', "This case's progress was cleared"));
   });
 });
@@ -3641,8 +3711,30 @@ if (isLine && !/[?&]openExternalBrowser=1/.test(location.search)){
    照片與資料，所以不能讓人按一次就永遠不再提醒。 */
 var INSTALL_SNOOZE = 7 * 24 * 60 * 60 * 1000;
 
+/* 橫幅不能擋住正在處理事故的人。兩種情況不自動跳出：
+   1. 這次打開後已經按過 110／119、定位、拍照、記錄對方 —— 人就在現場
+   2. 6 小時內才定位過或拍過照 —— 多半是事故當下又打開一次
+   只看「最近」，不看「有沒有資料」：事故處理完之後案件一直有資料，
+   但那正是 iPhone 最需要加入主畫面、免得照片被清掉的時候。
+   客戶平時收到網址、隨手點開看看時，才是提醒加入主畫面的好時機。 */
+var sceneBusy = false;
+document.addEventListener('click', function(e){
+  if (e.target.closest && e.target.closest('.emg-card, #loc-btn, #loc-manual-open, #ph-body, #other-card, a[href^="tel:"]')) sceneBusy = true;
+}, true);
+function recentActivity(){
+  var since = Date.now() - 6 * 60 * 60 * 1000;
+  if (state.site && state.site.at > since) return true;
+  return PHOTO_CACHE.some(function(p){ return p.ts > since; });
+}
+function autoInstall(){
+  if (sceneBusy || recentActivity()) return;
+  if (!$('install').classList.contains('open') && !$('save-album').classList.contains('open')) showInstall(false);
+}
+
 window.addEventListener('beforeinstallprompt', function(e){
-  e.preventDefault(); deferredPrompt = e; showInstall(false);
+  e.preventDefault(); deferredPrompt = e;
+  /* 已經開著就重畫一次，換成「加入主畫面」按鈕；沒開就等下面的計時器決定要不要跳 */
+  if ($('install').classList.contains('open')) showInstall(false);
 });
 
 function showInstall(force){
@@ -3698,9 +3790,8 @@ $('install-no').addEventListener('click', function(){
   try{ localStorage.setItem(LS.install, String(Date.now())); }catch(e){}
 });
 
-setTimeout(function(){
-  if (!$('install').classList.contains('open') && !$('save-album').classList.contains('open')) showInstall(false);
-}, 3500);
+/* 晚一點才跳：第一眼先看到 110／119 與現場步驟，不是一條橫幅 */
+setTimeout(autoInstall, 8000);
 
 /* Service Worker */
 if ('serviceWorker' in navigator){
