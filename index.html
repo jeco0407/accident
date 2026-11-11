@@ -1107,7 +1107,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   </section>
 
   <!-- ───── 出險 ───── -->
-  <section class="view" id="v-claim" role="tabpanel" aria-label="出險" data-en-aria="Insurer">
+  <section class="view" id="v-claim" role="tabpanel" aria-label="保險" data-en-aria="Insurer">
     <div class="view-in">
       <div class="page-head">
         <div class="head-row"><h1 data-en="Notify Your Insurer">通知保險公司</h1></div>
@@ -1133,7 +1133,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 
   <!-- ───── 個人 ───── -->
   <!-- ───── 求償 ───── -->
-  <section class="view" id="v-comp" role="tabpanel" aria-label="求償" data-en-aria="Claims">
+  <section class="view" id="v-comp" role="tabpanel" aria-label="賠償" data-en-aria="Claims">
     <div class="view-in">
       <div class="page-head">
         <div class="head-row"><h1 data-en="Mediation &amp; Compensation">調解與求償</h1></div>
@@ -1176,6 +1176,11 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
            期限的重點數字直接寫在摘要上，收著也看得到 -->
       <div class="blk">
         <p class="sec-label"><svg class="i"><use href="#ic-scale"/></svg><span data-en="Good to know">你可能想知道</span></p>
+        <details class="fold card" id="who-fold">
+          <summary><span class="ic"><svg class="i"><use href="#ic-shield"/></svg></span>
+            <span class="tx"><b data-en="Who pays whom">誰賠誰</b><span data-en="Injuries go to compulsory insurance; the rest is split by fault">受傷先找強制險，其他照肇事比例互賠</span></span><span class="ar">›</span></summary>
+          <div id="comp-who"></div>
+        </details>
         <details class="fold card" id="deadline-fold">
           <summary><span class="ic"><svg class="i"><use href="#ic-alert"/></svg></span>
             <span class="tx"><b data-en="Deadlines to watch">要注意的期限</b><span data-en="Complaint &amp; fault review: 6 months; civil claim: 2 years">提告、鑑定 6 個月內，求償 2 年內</span></span><span class="ar">›</span></summary>
@@ -1306,10 +1311,10 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
       <span class="badge" id="tab-badge"></span>
     </button>
     <button class="tab" role="tab" data-v="claim" aria-selected="false">
-      <svg class="i"><use href="#ic-shield"/></svg><span data-en="Insurer">出險</span>
+      <svg class="i"><use href="#ic-shield"/></svg><span data-en="Insurer">保險</span>
     </button>
     <button class="tab" role="tab" data-v="comp" aria-selected="false">
-      <svg class="i"><use href="#ic-scale"/></svg><span data-en="Claims">求償</span>
+      <svg class="i"><use href="#ic-scale"/></svg><span data-en="Claims">賠償</span>
     </button>
     <button class="tab" role="tab" data-v="me" aria-selected="false">
       <svg class="i"><use href="#ic-gear"/></svg><span data-en="Settings">設定</span>
@@ -1608,7 +1613,8 @@ function toast(msg){
    分頁切換（hash 路由，Android 返回鍵可用）
    ========================================================= */
 /* 有效的分頁名稱。標題只留作註解 —— 頂欄移除後畫面上不再顯示 */
-var VIEWS = { scene:'現場', photo:'存證', claim:'出險', comp:'求償', me:'設定' };
+/* 分頁名稱用一般人懂的詞：「出險」「求償」是業界用語，第一次出車禍的人看不懂 */
+var VIEWS = { scene:'現場', photo:'存證', claim:'保險', comp:'賠償', me:'設定' };
 var appReady = false;   /* 開機流程跑完才設成 true，見 go() */
 var current = null;
 
@@ -2015,23 +2021,32 @@ $('btn-map').addEventListener('click', function(){
 var TL_LEGACY = ['hazard', 'photo', 'police', 'nosettle', 'insurer'];   /* 舊版索引 → id */
 
 function sceneSteps(){
+  /* 順序照道路交通事故處理辦法 §3 的處置順序：救護 → 警示 → 通知警察，
+     拍照排在報警之後 —— 拍完七項可能要十幾分鐘，不該讓報警等它。
+     進度是用 id 記的，插入 injury、調換順序都不影響已勾選的狀態。 */
   return [
+    { id:'injury', ic:'cross', t:'先看有沒有人受傷', t_en:'Check whether anyone is hurt',
+      d:'有人受傷就馬上撥 119。沒有起火這類立即危險的話，不要搬動傷者。自己覺得沒事，也建議當天就去看醫生，因為有些傷過幾天才會出現。之後申請強制險和求償，都要用到診斷證明。',
+      d_en:"If anyone is hurt, call 119 right away. Unless there's immediate danger such as fire, don't move the injured person. Even if you feel fine, see a doctor the same day, because some injuries only show up days later. You'll need the medical certificate for compulsory-insurance and compensation claims.",
+      act:{ t:T('撥打 119', 'Call 119'), tel:'119' } },
     { id:'hazard', ic:'alert', t:'開雙黃燈、放三角警示架', t_en:'Turn on hazard lights, set up a warning triangle',
-      d:'一般道路放在車後 30–100 公尺（車速越快放越遠），高速公路約 100 公尺。先確保自己不會被追撞。',
-      d_en:'On regular roads, place it 30–100 m behind your car (farther at higher speeds); on freeways, about 100 m. Make sure you won\'t be hit from behind first.' },
+      d:'一般道路放在車後 30–100 公尺（車速越快放越遠），高速公路約 100 公尺。先確保自己不會被追撞。騎機車沒有警示架的話，打開警示燈，人先退到路邊安全的地方。',
+      d_en:'On regular roads, place it 30–100 m behind your car (farther at higher speeds); on freeways, about 100 m. Make sure you won\'t be hit from behind first. On a scooter with no triangle, turn on the hazard lights and get yourself to a safe spot off the road.' },
+    { id:'police', ic:'siren', t:'撥 110 報案，索取登記聯單', t_en:'Call 110 and ask for the registration slip',
+      d:'不論事故大小都建議報警。向處理員警索取「交通事故當事人登記聯單」，後續申請文件都要用到。員警到場只負責記錄和蒐證，不會當場判定誰對誰錯，把經過照實說清楚就好。',
+      d_en:'Calling the police is recommended no matter how minor the accident. Ask the officer for the “Traffic Accident Party Registration Slip” (交通事故當事人登記聯單) — you\'ll need it later. The police record the scene and gather evidence; they won\'t decide who is at fault on the spot, so just describe what happened truthfully.',
+      act:{ t:T('撥打 110', 'Call 110'), tel:'110' } },
     { id:'photo', ic:'camera', t:'拍照存證', t_en:'Take photos as evidence',
       d:'要拍：全景、碰撞點、車損、車牌、證件、地面痕跡、行車記錄器。',
       d_en:'Photograph the overall scene, point of impact, damage, license plates, IDs, marks on the road, and dashcam footage.',
       act:{ t:T('打開拍照清單', 'Open photo checklist'), go:'photo' } },
-    { id:'police', ic:'siren', t:'撥 110 報案，索取登記聯單', t_en:'Call 110 and ask for the registration slip',
-      d:'不論事故大小都建議報警。向處理員警索取「交通事故當事人登記聯單」，後續申請文件都要用到。',
-      d_en:'Calling the police is recommended no matter how minor the accident. Ask the officer for the “Traffic Accident Party Registration Slip” (交通事故當事人登記聯單) — you\'ll need it later.',
-      act:{ t:T('撥打 110', 'Call 110'), tel:'110' } },
     /* 有人受傷時原則上不得移車，雙方同意才可標繪後移置（道路交通事故處理辦法 §3）。
-       沒有引導問答之後分不出有沒有人受傷，所以一律寫保守的版本。 */
+       分不出有沒有人受傷，所以一律寫保守的版本。
+       以前寫「不要簽任何文件」會讓人拒簽警方的現場圖與筆錄；要擋的是和解書與當場認錯
+       —— 車險條款規定被保險人自行承認、和解，未經保險公司參與或同意的，保險公司不受拘束。 */
     { id:'nosettle', ic:'ban', t:'不私下和解、不隨意移車', t_en:"Don't settle privately or move the car carelessly",
-      d:'有人受傷時，除非雙方同意或警方指示，不要移車。沒人受傷且車能開，先拍照記下位置再移到路邊。也不要簽任何文件。',
-      d_en:"If anyone is hurt, don't move the car unless both sides agree or the police say so. If no one is hurt and the car can be driven, photograph its position first, then move to the roadside. Don't sign anything." },
+      d:'有人受傷時，除非雙方同意或警方指示，不要移車。沒人受傷且車能開，先拍照記下位置再移到路邊。不要當場認錯、答應賠多少錢或簽和解書，因為沒經過保險公司同意就承認或和解，保險公司可以不認。警察做的現場圖和筆錄，看清楚內容沒錯再簽。',
+      d_en:"If anyone is hurt, don't move the car unless both sides agree or the police say so. If no one is hurt and the car can be driven, photograph its position first, then move to the roadside. Don't admit fault, promise to pay or sign a settlement on the spot, because your insurer doesn't have to honor an admission or settlement made without its consent. Read the police sketch and statement carefully, and sign them only if they're accurate." },
     { id:'insurer', ic:'phone', t:'五日內通知保險公司出險', t_en:'Notify your insurer within 5 days',
       d:'越早通知，理賠越順。', d_en:'The sooner you notify them, the smoother the claim.',
       act:{ t:T('查出險專線', 'Find the claim hotline'), go:'claim' } }
@@ -2158,7 +2173,7 @@ function renderOther(){
 function openOther(){
   var d = otherData(), html = '<div class="qhead" style="padding:26px 0 20px">' +
     '<p class="k">' + T('現場記錄', 'At the scene') + '</p><h2>' + T('對方資料', 'Other driver') + '</h2>' +
-    '<p class="sub">' + T('邊問邊填，會自動儲存。全部只存在這支手機裡，不會上傳。', 'Fill it in as you ask — it saves automatically. Everything stays on this phone and is never uploaded.') + '</p></div><div class="card">';
+    '<p class="sub">' + T('邊問邊填，會自動儲存。全部只存在這支手機裡，不會上傳。對方不願意給的資料不用勉強，警察到場會登記雙方的身分。', "Fill it in as you ask — it saves automatically. Everything stays on this phone and is never uploaded. Don't push if they won't share something — the police will record both parties' identities.") + '</p></div><div class="card">';
 
   OTHER_FIELDS.forEach(function(f){
     var v = esc(d[f.k] || '');
@@ -2220,8 +2235,8 @@ var PHOTOS = [
   { ic:'wave',  t:'煞車痕與散落物', s:'地面痕跡、碎片位置，會影響肇責認定',
     t_en:'Skid marks & debris', s_en:'Marks on the road and where debris landed affect who is at fault' },
   /* 影片拍不進來，只能手動標記 */
-  { ic:'video', t:'行車記錄器備份', s:'當場存檔，避免循環錄影覆蓋', manual:true,
-    t_en:'Back up dashcam footage', s_en:"Save it now so loop recording doesn't overwrite it" }
+  { ic:'video', t:'行車記錄器備份', s:'按記錄器的緊急鎖檔鍵，或關機後拔下記憶卡收好，免得被循環錄影蓋掉', manual:true,
+    t_en:'Back up dashcam footage', s_en:"Press the dashcam's emergency-lock button, or switch it off and keep the memory card, so loop recording doesn't overwrite it" }
 ];
 
 /* ── 照片儲存：IndexedDB（照片是 Blob，localStorage 放不下） ── */
@@ -2631,8 +2646,8 @@ var CLAIM_PICK = { t:T('選你的保險公司', 'Choose your insurer'), fn:funct
 /* 各家產險的作業大同小異，這裡只寫共通流程，不臆測個別公司的細節 */
 /* id 沿用舊版的索引，已存的 {2:true} 不必轉換 */
 var CLAIM_STEPS = [
-  { id:'0', ic:'phone',  t:'撥打出險專線通知', d:'事故後五日內。打不通也先留紀錄，之後補通知。',
-    t_en:'Call the claim hotline', d_en:"Within 5 days of the accident. If you can't get through, keep a record and follow up.",
+  { id:'0', ic:'phone',  t:'撥打出險專線通知', d:'事故後五日內。打不通也先留紀錄，之後補通知。你自己受傷的醫藥費，要向「對方」的保險公司申請強制險，詳見「賠償 › 誰賠誰」。',
+    t_en:'Call the claim hotline', d_en:"Within 5 days of the accident. If you can't get through, keep a record and follow up. Medical costs for your own injuries are claimed from the other car's compulsory insurance — see “Claims › Who pays whom”.",
     act:null },
   { id:'1', ic:'list',   t:'提供事故基本資料', d:'保單或車牌、時間地點、對方資料、警方案件編號。',
     t_en:'Give the basic accident details', d_en:"Policy or plate number, time and place, the other driver's details, and the police case number." },
@@ -2691,7 +2706,7 @@ function myInsurer(){
     note.target = '_blank';
     note.rel = 'noopener';
   }
-  note.innerHTML = T('不確定是哪一家？<b>歡迎聯絡我們</b>', 'Not sure which one?&nbsp;<b>Contact us</b>');
+  note.innerHTML = T('不確定是哪一家？強制險保險證或保單上都有寫，也可以<b>聯絡我們</b>', "Not sure which one? It's on your compulsory insurance certificate or policy, or&nbsp;<b>contact us</b>");
   box.appendChild(note);
 })();
 
@@ -2773,6 +2788,65 @@ var COMP_FACTORS = EN ? [
   '雙方的過失比例'
 ];
 
+/* 交叉理賠。查證於 2026-11-11：
+   - 強制險不論有無過失（強制汽車責任保險法 §7）、時效 2 年／10 年（§14）、
+     酒駕毒駕無照等保險人仍要給付但可代位（§29）
+   - 給付標準 115 年 5 月 29 日修正，115 年 7 月 1 日以後的事故：死亡與第一等級失能 300 萬、
+     傷害醫療 20 萬、合計 320 萬（金管會新聞稿 2026-05-28）
+   - 駕駛人不能向自己車的強制險申請，單一車輛事故的駕駛人也不能申請；乘客向所搭乘的車申請
+   - 特別補償基金 0800-565-678（金管會新聞稿 2025-04-24） */
+var COMP_WHO = EN ? [
+  {
+    t:'Injuries: compulsory insurance, whoever is at fault',
+    tag:'Cross claims',
+    d:"Injury or death is first paid by compulsory auto insurance, with no need to prove who was at fault. A driver claims from the OTHER car's insurer, because your own compulsory insurance doesn't cover you. A passenger claims from the car they were riding in, and a pedestrian claims from the car that hit them.",
+    m:'Medical costs up to NT$200,000. Death or the most severe disability up to NT$3 million for accidents on or after 1 July 2026 (NT$2 million before). Claim within 2 years of learning of the injury and the insurer (Compulsory Automobile Liability Insurance Act, Arts. 7 and 14). A driver in a single-vehicle crash, such as hitting a pole, cannot claim.'
+  },
+  {
+    t:'Car damage and other losses: split by fault',
+    tag:'Cross claims',
+    d:"Repairs, medical costs beyond the compulsory cover, lost income and so on are shared by each side's share of fault: you pay the other side your share, and they pay you theirs. If you have third-party liability insurance, your insurer pays your share up to the policy limit. A party found to have no fault at all pays nothing to the other side.",
+    m:"Example: their car damage is NT$100,000 and you're 30% at fault, so you owe NT$30,000. Compulsory insurance never covers car damage. To have your own insurer fix your car first, you need collision (vehicle damage) cover, and the insurer then recovers the money from the other side. If you disagree on fault, apply for a fault assessment."
+  },
+  {
+    t:"Even if you're not at fault, they can claim your compulsory insurance",
+    tag:'Not your money',
+    d:"Because compulsory insurance ignores fault, an injured other party can still claim from yours. The insurer pays, not you, and it doesn't mean you were at fault.",
+    m:'Exception: if the driver was drunk, on drugs, unlicensed and so on, the insurer pays the victim and can then recover it from that driver (Art. 29).'
+  },
+  {
+    t:'Hit-and-run, or the car had no compulsory insurance',
+    tag:'Special fund',
+    d:"If the car can't be found or wasn't insured, claim from the Motor Vehicle Accident Compensation Fund instead, with the same limits as compulsory insurance.",
+    m:'Toll-free 0800-565-678. Claiming compulsory insurance or the fund is free, so be wary of anyone charging to do it for you.'
+  }
+] : [
+  {
+    t:'受傷：強制險，不管誰對誰錯',
+    tag:'交叉理賠',
+    d:'有人受傷或死亡，先由強制險賠，不用先證明誰有錯。駕駛人要向「對方車」的保險公司申請，因為自己的強制險不賠自己。乘客向自己搭的那台車申請，行人向撞到你的車申請。',
+    m:'傷害醫療最高 20 萬。2026 年 7 月 1 日以後的事故，死亡與最重的失能最高 300 萬（之前是 200 萬）。從知道受傷、也知道是哪家保險公司起 2 年內申請（強制汽車責任保險法第 7、14 條）。自撞電線桿這類只有一台車的事故，駕駛人不能申請。'
+  },
+  {
+    t:'車損與其他損失：照肇事比例互賠',
+    tag:'交叉理賠',
+    d:'修車費、強制險不夠付的醫藥費、工作損失等，依雙方的肇事比例分攤：你賠對方你那一份，對方賠你他那一份。有第三人責任險的話，你那一份在保額內由保險公司代付。經認定完全沒有肇事責任的一方，不用賠對方。',
+    m:'例：對方車損 10 萬、你有 3 成責任，你就賠 3 萬。強制險不賠車損。想讓自己的保險公司先修自己的車，要有車體險，保險公司之後再向對方追討。對比例有爭議，可以申請肇事鑑定。'
+  },
+  {
+    t:'你完全沒錯，對方受傷也能申請你的強制險',
+    tag:'不用你出錢',
+    d:'強制險不看過失，所以對方受傷仍然可以向你的強制險申請。錢由保險公司付，不用你出，也不代表你有錯。',
+    m:'例外：酒駕、毒駕、無照駕駛等情形，保險公司賠給受害人之後，可以再向駕駛人追討（同法第 29 條）。'
+  },
+  {
+    t:'撞你的車跑了，或對方沒保強制險',
+    tag:'特別補償基金',
+    d:'找不到肇事車，或對方沒保強制險，可以改向汽車交通事故特別補償基金申請，額度跟強制險一樣。',
+    m:'免付費專線 0800-565-678。申請強制險或補償金都不用錢，有人說要收費幫你代辦，要小心。'
+  }
+];
+
 /* 期限放在調解之前講：錯過了，後面三條路再怎麼走都少了籌碼。 */
 var COMP_DEADLINES = EN ? [
   {
@@ -2792,6 +2866,18 @@ var COMP_DEADLINES = EN ? [
     tag:'Disputed fault',
     d:'If fault is disputed, you can apply to the Vehicle Accident Assessment Committee within 6 months of the accident.',
     m:'Regulations Governing Vehicle Accident Assessment and Review.'
+  },
+  {
+    t:'Compulsory insurance: 2 years',
+    tag:'Time limit',
+    d:'Claim medical costs from compulsory insurance within 2 years of learning of the injury and the insurer, and in any case within 10 years of the accident.',
+    m:'Compulsory Automobile Liability Insurance Act, Art. 14.'
+  },
+  {
+    t:'Police records: after 7 and 30 days',
+    tag:'When to ask',
+    d:'You get the registration slip at the scene. The scene sketch and photos are available 7 days after the accident, and the preliminary analysis report after 30 days, from the police unit that handled it.',
+    m:'Regulations Governing the Handling of Road Traffic Accidents, Art. 13. Some cities release them sooner; check with the local police.'
   }
 ] : [
   {
@@ -2811,6 +2897,18 @@ var COMP_DEADLINES = EN ? [
     tag:'肇責爭議',
     d:'對肇責有爭議，可以向車輛行車事故鑑定會申請鑑定，要在事故發生後 6 個月內提出。',
     m:'車輛行車事故鑑定及覆議作業辦法。'
+  },
+  {
+    t:'強制險：2 年',
+    tag:'時效',
+    d:'受傷的醫藥費向保險公司申請強制險，要在知道受傷、也知道是哪家保險公司起 2 年內；不論如何，事故滿 10 年就不能再申請。',
+    m:'強制汽車責任保險法第 14 條。'
+  },
+  {
+    t:'警方資料：7 天、30 天後',
+    tag:'什麼時候能拿',
+    d:'登記聯單在現場就能拿。事故 7 天後可以申請現場圖、現場照片，30 天後可以申請初步分析研判表，向處理的警察機關申請。',
+    m:'道路交通事故處理辦法第 13 條。部分縣市開放得更早，以當地警察局公告為準。'
   }
 ];
 
@@ -3272,6 +3370,7 @@ function renderComp(){
     ul.appendChild(li);
   });
 
+  renderPaths($('comp-who'), COMP_WHO);
   renderPaths($('comp-deadlines'), COMP_DEADLINES);
   renderPaths($('comp-paths'), COMP_PATHS);
 

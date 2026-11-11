@@ -254,7 +254,7 @@ async def main():
             print("\n── 五個分頁 ──")
             await ev("document.getElementById('loc-btn').click()")
             await asyncio.sleep(3)
-            for i, name in enumerate(['現場', '存證', '出險', '求償', '設定']):
+            for i, name in enumerate(['現場', '存證', '保險', '賠償', '設定']):
                 await ev("document.querySelectorAll('.tab')[%d].click()" % i)
                 await asyncio.sleep(.7)
                 await audit(name, ".view.on")
