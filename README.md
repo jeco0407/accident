@@ -114,7 +114,7 @@ v58 起**不上架商店**，直接發網址。
 
 ## 主題
 
-**品牌色取自品牌插圖**（`icons/hero.jpg`，v60 起）：米白紙底 `#FAF3E1`、深墨綠 `#2F5A53`（`--brand`，按鈕與強調）、赭黃土色 `#C9A05F`（`--brand-lite`，只當裝飾不承載文字）、炭棕文字 `#2A251E`。深色模式的底是插圖西裝的炭棕 `#1A1813`，品牌綠提亮成 `#8CC2B6`。
+**視覺（v85 起）**：白底卡片疊在「上白 → 下淡綠」漸層上（`--bg-grad`），品牌綠 `#0F6B4E`（`--brand`）用在實心重點卡與主要按鈕；110／119 是淡紅底深紅字、淡橘底深橘字。只有淺色一套，不跟手機的深色模式走。設計規格見 [docs/superpowers/specs/2026-11-11-visual-redesign-design.md](docs/superpowers/specs/2026-11-11-visual-redesign-design.md)。
 
 110 的紅與 119 的琥珀是**語意色，不跟著品牌走**。
 
@@ -183,7 +183,7 @@ sw.js           service worker，cache-first 快取 app shell
 favicon.ico     瀏覽器分頁圖示
 vercel.json     快取標頭設定
 .vercelignore   部署白名單：只有上面這些檔案與 icons/、screenshots/ 會上線
-icons/          App 圖示、mark.png、現場頁插圖 hero.jpg、自我介紹頭像 about.png
+icons/          App 圖示、mark.png、頭像 about.png（現場頁與設定頁）、舊版插圖 hero.jpg（App 已不使用，影片素材用）
 screenshots/    商店列表與 manifest 用，1080×1920
 tests/          CDP 驗證腳本（手動重跑，見 tests/README.md）
 docs/           內部文件，不會部署

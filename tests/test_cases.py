@@ -380,9 +380,9 @@ async def run():
             await goto(URL.split('#')[0] + '&me=1#me', 3)   # 只改 hash 不會重新載入，多帶一個 query
             st = await js("""({ cards: document.querySelectorAll('#case-box .case-card').length,
                                line: !document.querySelector('.about-line').hidden,
-                               theme: !!document.querySelector('#seg-theme .on, #seg-theme [aria-pressed=true]') })""")
-            ok = st["cards"] >= 1 and st["line"] and st["theme"]
-            print(("  PASS " if ok else "  FAIL ") + "設定頁重新整理後案件、LINE 鍵、外觀都畫得出來　" + json.dumps(st))
+                               lang: !!document.querySelector('#seg-lang [aria-pressed=true]') })""")
+            ok = st["cards"] >= 1 and st["line"] and st["lang"]
+            print(("  PASS " if ok else "  FAIL ") + "設定頁重新整理後案件、LINE 鍵、語言切換都畫得出來　" + json.dumps(st))
             if not ok:
                 raise SystemExit(1)
     finally:

@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Guardy — 車禍緊急助手</title>
 <meta name="description" content="別慌，我們陪你一步一步處理。車禍現場定位、報案、拍照存證與後續理賠的完整引導。">
-<meta name="theme-color" content="#FAF3E1">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="color-scheme" content="light">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -15,75 +16,48 @@
 <meta name="apple-mobile-web-app-title" content="Guardy">
 <style>
 :root{
-  /* v60 品牌色：取自品牌插圖（icons/hero.jpg）—— 米白紙底、深墨綠、赭黃土色、炭棕線稿。
-     每一組文字色都量過對比，最低的 --muted 在頁首色塊上也有 4.84:1。 */
-  --bg:#FAF3E1;
-  --card:#FFFCF4;
-  --ink:#2A251E;
-  --ink-2:#4E4538;
-  --muted:#6B604F;   /* 米底 5.56:1、頁首色塊 4.84:1 */
-  --chev:#6B604F;    /* 箭頭 › 是文字，門檻 4.5 */
-  --line:#E8DCC0;
-  --line-soft:#F2E9D3;
+  /* v84 視覺改版（docs/superpowers/specs/2026-11-11-visual-redesign-design.md）：
+     白底卡片疊在「上白 → 下淡綠」漸層上，品牌綠當主色，只有淺色一套。
+     文字色的對比在漸層最綠的 #DDEFE5 上量過，最低的 --muted 也 ≥ 4.5:1。 */
+  color-scheme:light;
+  --bg:#F4F9F6;
+  --bg-grad:linear-gradient(180deg,#FFFFFF 0%,#F4F9F6 45%,#DDEFE5 100%);
+  --card:#FFFFFF;
+  --ink:#111814;
+  --ink-2:#2E3833;
+  --muted:#56615C;
+  --chev:#56615C;
+  --line:rgba(17,24,20,.11);
+  --line-soft:rgba(17,24,20,.06);
 
-  --red:#B03226;      --red-bg:#FBECE5;  --red-line:#F0D5CB;
-  --amber:#8E5A0A;    --amber-bg:#FBF1DC; --amber-line:#EEDDB8;
-  --green-ink:#1F5F45; --green-bg:#EDF4EC; --green-line:#D2E4D4;
-  /* 品牌深墨綠，插圖裡車身與領帶的顏色。白字 7.75:1 */
-  --brand:#2F5A53;
-  --brand-lite:#C9A05F;                      /* 赭黃土色，插圖用，不承載文字 */
-  --head-bg:#F1E3C2;  --head-line:#E6D3AA;   /* 頁首色塊 */
+  /* 110 用紅、119 用橘紅：同一個暖色系，淡底深字 */
+  --red:#B4142C;      --red-bg:#FDE7E9;  --red-line:#F6C4CA;
+  --amber:#B93A0B;    --amber-bg:#FFEDE8; --amber-line:#F8CDBF;
+  /* 淡綠：圖示的圓形底、完成狀態 */
+  --green-ink:#0F6B4E; --green-bg:#D3E7DC; --green-line:#B9D9C8;
+  --brand:#0F6B4E;    /* 白字 6.4:1 */
 
   --r-lg:16px;
   --r-md:14px;
   --r-sm:12px;
-  /* v76 起卡片不打陰影，只靠淡框分開（跟設定頁同一個語彙） */
-  --shadow:none;
-  --shadow-up:0 -8px 30px -18px rgba(60,45,20,.38);
+  --r-xl:22px;
+  /* 卡片靠細框加一層很淡的陰影分開：漸層往下變綠時白卡的邊界才看得出來 */
+  --shadow:0 1px 3px rgba(17,24,20,.05);
+  --shadow-up:0 -8px 30px -18px rgba(17,40,30,.35);
 
-  /* 語意 token：深色模式只要覆寫這些，元件不必動 */
-  --solid-bg:#2F5A53;  --solid-fg:#FFFFFF;   /* 主要按鈕。白字 7.75:1 */
-  --cta-bg:#2F5A53;    --cta-fg:#FFFFFF;     /* 目前步驟的實心按鈕 */
-  --toast-bg:#2A251E;  --toast-fg:#FFFFFF;
+  /* 語意 token */
+  --solid-bg:#0F6B4E;  --solid-fg:#FFFFFF;   /* 主要按鈕、實心重點卡 */
+  --cta-bg:#0F6B4E;    --cta-fg:#FFFFFF;
+  --toast-bg:#111814;  --toast-fg:#FFFFFF;
   --on-red:#FFFFFF;    --on-green:#FFFFFF;
-  --chrome:rgba(250,243,225,.9);            /* 頂欄／分頁列毛玻璃 */
-  --inset:rgba(255,255,255,.75);             /* 有底色卡片內的淺色區塊 */
-  --sk-1:#EFE5CE;      --sk-2:#F7EFDC;       /* 骨架動畫 */
+  --chrome:rgba(255,255,255,.92);            /* 分頁列毛玻璃 */
+  --inset:#F2F7F4;                           /* 卡片內的淺色區塊 */
+  --sk-1:#E6EFEA;      --sk-2:#F2F7F4;       /* 骨架動畫 */
   --tap:64px;
 
-  --tabbar:60px;
+  --tabbar:62px;
   --top:env(safe-area-inset-top);
   --bottom:calc(var(--tabbar) + env(safe-area-inset-bottom));
-}
-
-:root[data-theme="dark"]{
-  /* 深色：插圖西裝的炭棕當底，品牌綠提亮成灰綠才讀得到 */
-  --bg:#1A1813;
-  --card:#24211A;
-  --ink:#F3ECDD;
-  --ink-2:#CDBFA8;
-  --muted:#A39784;
-  --chev:#A39784;
-  --line:#3A3326;
-  --line-soft:#2A261D;
-
-  --red:#FF8A78;       --red-bg:#2B1714;   --red-line:#48261F;
-  --amber:#E3B065;     --amber-bg:#2A2113; --amber-line:#463619;
-  --green-ink:#63CFA0; --green-bg:#13241D; --green-line:#264034;
-  --brand:#8CC2B6;
-  --brand-lite:#D2AA6A;
-  --head-bg:#2E281C;  --head-line:#3D3524;
-
-  --shadow:none;
-  --shadow-up:0 -8px 30px -18px rgba(0,0,0,.7);
-
-  --solid-bg:#8CC2B6;  --solid-fg:#0F2621;
-  --cta-bg:#8CC2B6;    --cta-fg:#0F2621;
-  --toast-bg:#3A3428;  --toast-fg:#F3ECDD;
-  --on-red:#2B1008;    --on-green:#0E1F18;
-  --chrome:rgba(26,24,19,.9);
-  --inset:rgba(255,255,255,.05);
-  --sk-1:#26221B;      --sk-2:#302B22;
 }
 .i{
   width:1em;height:1em;flex:none;display:block;
@@ -121,63 +95,31 @@ body.is-offline .chip-off{display:flex}
 
 /* ═══════════ Views ═══════════ */
 .views{position:fixed;top:var(--top);bottom:var(--bottom);left:0;right:0}
+body::before{content:'';position:fixed;inset:0;z-index:-1;background:var(--bg-grad);pointer-events:none}
 .view{
   position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
   opacity:0;visibility:hidden;transform:translateY(7px);
   transition:opacity .2s ease, transform .24s cubic-bezier(.32,.72,0,1), visibility .24s;
 }
 .view.on{opacity:1;visibility:visible;transform:none}
-.view-in{max-width:520px;margin:0 auto;padding:26px 20px 40px}
+.view-in{max-width:520px;margin:0 auto;padding:6px 18px 40px}
 
-/* 頁首：頂欄移除後用來補回視覺重量與「我在哪一頁」。
-   刻意不固定，捲動時讓位給內容 —— 事故現場的每一像素都該留給資訊。 */
-/* 滿版做法：負 margin 抵銷 .view-in 的 padding，讓色塊延伸到螢幕邊緣 */
-.page-head{
-  margin:-26px -20px 26px; padding:30px 20px 26px;
-  background:linear-gradient(170deg, var(--head-bg) 0%, var(--bg) 100%);
-  border-bottom:1px solid var(--head-line);
-}
-.page-head .brand{
-  display:flex;align-items:center;gap:8px;margin-bottom:16px;
-}
-.page-head .brand img{width:24px;height:24px;display:block}
-.page-head .brand span{
-  font-size:16px;font-weight:700;color:var(--ink-2);letter-spacing:.06em;
-}
+/* 頁首（v84）：最上方置中的小標題說明「我在哪一頁」，底下一行大字問候。
+   不固定、不加底色，捲動時讓位給內容。 */
+.page-head{margin:0 0 18px}
 .page-head h1{
-  font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.25;
-  margin:0;
+  font-size:17px;font-weight:700;letter-spacing:.01em;line-height:1.3;
+  text-align:center;margin:0;padding:14px 0 16px;
 }
-.page-head .greet{margin:9px 0 0}
-
-/* 現場頁的品牌插圖：滿版鋪在頁首底下，文字疊在上面。
-   .page-head 本身就用負 margin 貼齊螢幕上、左、右三邊，插圖跟著它 inset:0 就滿版。
-   可讀性靠兩層：圖本身降透明度，再從左側（文字所在）蓋一層底色漸層；
-   人物在圖的右半邊，漸層在那裡淡掉，不會被蓋住。 */
-.scene-head{position:relative;overflow:hidden;min-height:200px}
-.scene-head .brand,.scene-head h1,.scene-head .greet{position:relative;z-index:2}
-.hero-bg{
-  position:absolute;inset:0;width:100%;height:100%;z-index:0;
-  object-fit:cover;object-position:62% 12%;
-  opacity:.62;pointer-events:none;
-}
-.scene-head::after{
-  content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
-  background:
-    linear-gradient(90deg, var(--hero-fade) 0%, var(--hero-fade-mid) 42%, transparent 72%),
-    linear-gradient(0deg, var(--hero-fade-mid) 0%, transparent 35%);
-}
-:root{--hero-fade:rgba(250,243,225,.94);--hero-fade-mid:rgba(250,243,225,.55)}
-:root[data-theme="dark"]{--hero-fade:rgba(26,24,19,.92);--hero-fade-mid:rgba(26,24,19,.55)}
-:root[data-theme="dark"] .hero-bg{opacity:.4;filter:saturate(.85)}
-
-.head-row{display:flex;align-items:center;gap:12px}
-.head-row h1{flex:1;min-width:0}
+.hello{display:flex;align-items:center;gap:13px}
+.hello img{flex:0 0 52px;width:52px;height:52px;border-radius:50%;display:block}
+.hello-t{font-size:24px;font-weight:800;letter-spacing:-.01em;line-height:1.3;margin:0}
+.hello-s{font-size:14.5px;color:var(--muted);line-height:1.55;margin:3px 0 0}
 
 /* 卡片內的圓形圖示徽章 */
 .badge-ic{
   flex:0 0 42px;height:42px;border-radius:50%;
-  background:var(--head-bg);color:var(--brand);
+  background:var(--green-bg);color:var(--brand);
   display:flex;align-items:center;justify-content:center;
 }
 .badge-ic .i{width:22px;height:22px}
@@ -185,14 +127,20 @@ body.is-offline .chip-off{display:flex}
 .blk{margin-bottom:34px}
 .blk:last-child{margin-bottom:0}
 .sec-label{
-  display:flex;align-items:center;gap:7px;
-  font-size:14px;font-weight:600;color:var(--muted);
-  letter-spacing:.04em;margin:0 0 11px;padding-left:2px;
+  display:flex;align-items:baseline;gap:8px;
+  font-size:16.5px;font-weight:800;color:var(--ink);
+  letter-spacing:0;margin:0 0 10px;padding-left:2px;
 }
-.sec-label .i{width:1.3em;height:1.3em}
+.sec-label .i{display:none}
+.sec-label .sec-r{margin-left:auto;font-size:13px;font-weight:500;color:var(--muted);font-variant-numeric:tabular-nums}
 .card{
   background:var(--card);border:1px solid var(--line);
   border-radius:var(--r-lg);box-shadow:var(--shadow);overflow:hidden;
+}
+/* 實心重點卡：一頁只有一兩張，是「先看這裡」的地方 */
+.solid-card{
+  background:var(--solid-bg);color:var(--solid-fg);
+  border-radius:var(--r-xl);padding:18px;
 }
 
 /* ═══════════ Tab bar ═══════════ */
@@ -210,8 +158,9 @@ body.is-offline .chip-off{display:flex}
   flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
   color:var(--muted);transition:color .18s ease;position:relative;
 }
-.tab .i{width:23px;height:23px;transition:transform .22s cubic-bezier(.32,.72,0,1)}
+.tab .i{width:22px;height:22px;transition:transform .22s cubic-bezier(.32,.72,0,1)}
 .tab span{font-size:12px;font-weight:500;letter-spacing:.02em}
+.tab[aria-selected="true"] span{font-weight:700}
 .tab[aria-selected="true"]{color:var(--brand)}
 .tab[aria-selected="true"] .i{stroke-width:1.75;transform:translateY(-1px)}
 .tab[aria-selected="true"] span{font-weight:600}
@@ -311,14 +260,15 @@ body.is-offline .chip-off{display:flex}
 /* ═══════════ 緊急 ═══════════ */
 .emg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .emg-card{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:24px 12px 20px;border-radius:var(--r-lg);
-  border:1px solid;box-shadow:var(--shadow);transition:transform .12s ease;
+  display:grid;grid-template-columns:1fr auto;grid-template-areas:"num num" "lb ic";
+  align-items:end;row-gap:6px;
+  padding:16px 16px 15px;border-radius:18px;
+  border:1.5px solid;transition:transform .12s ease;
 }
 .emg-card:active{transform:scale(.975)}
-.emg-card .ic{font-size:32px;line-height:1;margin-bottom:9px;display:flex}
-.emg-card .num{font-size:42px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
-.emg-card .lb{font-size:16px;font-weight:600;margin-top:7px}
+.emg-card .ic{grid-area:ic;font-size:26px;line-height:1;display:flex}
+.emg-card .num{grid-area:num;font-size:38px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.emg-card .lb{grid-area:lb;font-size:15.5px;font-weight:700}
 .emg-110{background:var(--red-bg);border-color:var(--red-line);color:var(--red)}
 .emg-119{background:var(--amber-bg);border-color:var(--amber-line);color:var(--amber)}
 
@@ -370,10 +320,18 @@ body.is-offline .chip-off{display:flex}
 .tl-item{
   background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
   box-shadow:var(--shadow);margin-bottom:8px;
-  transition:background .35s ease, border-color .35s ease;
+  transition:background .35s ease, border-color .35s ease, opacity .35s ease;
 }
-.tl-item.done{background:var(--green-bg);border-color:var(--green-line)}
-.tl-item.done .tl-t{color:var(--green-ink)}
+/* 目前這一步：實心品牌綠，整頁最顯眼的一張 */
+.tl-item.now{background:var(--solid-bg);border-color:var(--solid-bg);color:var(--solid-fg);border-radius:18px}
+.tl-item.now .tl-step{color:rgba(255,255,255,.82)}
+.tl-item.now .tl-step em{color:#fff}
+.tl-item.now .tl-t{font-size:18.5px;font-weight:800}
+.tl-item.now .tl-d{color:rgba(255,255,255,.92)}
+.tl-item.now .tl-mark{background:rgba(255,255,255,.16);color:#fff}
+.tl-item.now .tl-check{border-color:rgba(255,255,255,.75)}
+.tl-item.done{opacity:.62}
+.tl-item.done .tl-t{text-decoration:line-through;text-decoration-thickness:1.5px}
 /* 第一個還沒做的步驟不加外框（v61 拿掉）：靠「現在做這一步」標籤與實心按鈕標示就夠了 */
 .tl-head{display:flex;gap:13px;align-items:center;width:100%;text-align:left;padding:16px 18px}
 .tl-head:active{transform:scale(.99)}
@@ -388,17 +346,16 @@ body.is-offline .chip-off{display:flex}
   background:var(--inset);border:1px solid var(--line);color:var(--ink);
 }
 .tl-act .i{width:1em;height:1em}
-.tl-item.now .tl-act{background:var(--cta-bg);border-color:var(--cta-bg);color:var(--cta-fg)}
+.tl-item.now .tl-act{background:#fff;border-color:#fff;color:var(--brand);font-weight:700}
 .tl-act.danger,.tl-item.now .tl-act.danger{background:var(--red-bg);border-color:var(--red-line);color:var(--red)}
 .tl-mark{
-  flex:0 0 40px;height:40px;border-radius:12px;background:var(--line-soft);
+  flex:0 0 40px;height:40px;border-radius:50%;background:var(--green-bg);
   display:flex;align-items:center;justify-content:center;
-  font-size:21px;line-height:1;color:var(--ink-2);transition:background .35s ease;
+  font-size:20px;line-height:1;color:var(--brand);transition:background .35s ease;
 }
-.tl-item.done .tl-mark{background:var(--green-line);color:var(--green-ink)}
 .tl-titles{flex:1;min-width:0;display:block}
-.tl-step{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.1em;display:block;margin-bottom:1px}
-.tl-t{display:block;font-size:17.5px;font-weight:600;letter-spacing:-.01em;line-height:1.4}
+.tl-step{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.08em;display:block;margin-bottom:2px}
+.tl-t{display:block;font-size:16.5px;font-weight:700;letter-spacing:-.01em;line-height:1.4}
 .tl-d{display:block;font-size:14.5px;color:var(--ink-2);margin:0;line-height:1.6}
 .tl-check{
   flex:0 0 28px;height:28px;border-radius:50%;
@@ -406,7 +363,7 @@ body.is-offline .chip-off{display:flex}
   display:flex;align-items:center;justify-content:center;
   transition:background .3s ease, border-color .3s ease;
 }
-.tl-item.done .tl-check{background:var(--green-ink);border-color:var(--green-ink)}
+.tl-item.done .tl-check{background:var(--brand);border-color:var(--brand)}
 .tl-check svg{width:15px;height:15px}
 .tl-check path{
   stroke:var(--on-green);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;fill:none;
@@ -414,22 +371,27 @@ body.is-offline .chip-off{display:flex}
 }
 .tl-item.done .tl-check path{animation:draw .38s cubic-bezier(.65,0,.35,1) forwards}
 @keyframes draw{to{stroke-dashoffset:0}}
-.prog-bar{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding:0 4px}
+.prog-bar{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:0 4px}
 .prog-bar .n{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
 .btn-reset{font-size:14px;color:var(--muted);min-height:44px;padding:6px 14px;border-radius:8px}
+.prog-bar .btn-reset{margin-left:auto}
 
 /* ═══════════ 拍照 ═══════════ */
-.ph{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:15px 18px;min-height:66px}
-.ph + .ph{border-top:1px solid var(--line-soft)}
-.ph .ic{
-  flex:0 0 42px;height:42px;border-radius:13px;background:var(--line-soft);
-  display:flex;align-items:center;justify-content:center;
-  font-size:22px;line-height:1;color:var(--ink-2);transition:background .3s ease;
+#ph-body{background:none;border:0;box-shadow:none;overflow:visible;border-radius:0}
+.ph{
+  display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:12px 14px;min-height:66px;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);
 }
-.ph.done .ic{background:var(--green-line);color:var(--green-ink)}
+.ph + .ph{margin-top:8px}
+.ph .ic{
+  flex:0 0 42px;height:42px;border-radius:50%;background:var(--green-bg);
+  display:flex;align-items:center;justify-content:center;
+  font-size:21px;line-height:1;color:var(--brand);transition:background .3s ease;
+}
+.ph.done .ic{background:var(--brand);color:#fff}
 .ph .t{flex:1;min-width:0;display:block;font-size:16.5px;font-weight:600;line-height:1.4}
 .ph .s{display:block;font-size:13.5px;color:var(--muted);font-weight:400;margin-top:3px;line-height:1.45}
-.ph.done .t{color:var(--green-ink)}
+.ph.done .t{color:var(--ink)}
 .ph.done .ic svg{width:20px;height:20px}
 .ph.done .ic path{stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;fill:none}
 /* 行車記錄器那一列：沒有照片可拍，改成一顆文字鍵 */
@@ -513,7 +475,8 @@ body.is-offline .chip-off{display:flex}
 .ins-call .p{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
 #ins-body .note{margin-top:14px}
 .note{display:block;margin:0;padding:14px 18px;font-size:13.5px;color:var(--muted);line-height:1.6;background:var(--line-soft)}
-a.note{display:flex;align-items:center;min-height:48px;text-decoration:none;font-size:14.5px}
+/* 不用 flex：文字和粗體會被拆成兩欄，長句時「聯絡我們」會被擠到右邊自成一欄 */
+a.note{display:block;min-height:48px;text-decoration:none;font-size:14.5px;line-height:1.6}
 a.note b{color:var(--brand);font-weight:600;margin-left:2px}
 
 /* ═══════════ 個人 ═══════════ */
@@ -564,19 +527,19 @@ a.note b{color:var(--brand);font-weight:600;margin-left:2px}
 /* ── 關於我們：「設定」頁最上方的自我介紹 ──
    設定頁整頁是平鋪的清單，不包卡片：分區只靠小標題與留白，
    跟手機內建設定、LINE 設定的讀法一樣。 */
-#v-me .about{padding:16px}
-.about-top{display:flex;align-items:center;gap:12px}
-.about-top img{flex:0 0 52px;width:52px;height:52px;display:block}
-.about-top .nm{flex:1;min-width:0;white-space:nowrap;font-size:18px;font-weight:700;letter-spacing:-.01em;margin:0}
+#v-me .about{padding:22px 18px 18px;text-align:center}
+.about-top{display:flex;flex-direction:column;align-items:center;gap:10px}
+.about-top img{width:76px;height:76px;border-radius:50%;display:block;border:3px solid rgba(255,255,255,.35)}
+.about-top .nm{font-size:19px;font-weight:800;letter-spacing:-.01em;margin:0}
 .about-line{
-  display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;
-  border-radius:999px;background:var(--solid-bg);color:var(--solid-fg);
-  font-size:15px;font-weight:600;text-decoration:none;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:6px;min-height:46px;padding:0 20px;margin-top:4px;
+  border-radius:var(--r-sm);background:#fff;color:var(--brand);
+  font-size:15px;font-weight:800;text-decoration:none;white-space:nowrap;
 }
 .about-line[hidden]{display:none}
 .about-line .i{width:17px;height:17px}
 .about-line:active{opacity:.85}
-.about p.tx{font-size:14.5px;color:var(--ink-2);line-height:1.75;margin:14px 0 0}
+.about p.tx{font-size:14px;color:rgba(255,255,255,.9);line-height:1.7;margin:12px 0 0;text-align:left}
 .about p.tx + p.tx{margin-top:6px}
 
 .row-btn{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:16px 18px;min-height:60px}
@@ -591,12 +554,19 @@ a.row-btn{color:inherit;text-decoration:none}
 
 /* 設定頁：每一項各自一個淡框，框與框之間留空隙 —— 不用粗陰影、
    不把整組包成一張大卡，只要看得出一項一項分開就好 */
-#v-me .row-btn, #v-me .about, #v-me .case-card, #v-me .case-empty, #v-me .seg{
-  background:var(--card);border:1px solid var(--line);border-radius:14px;
+#v-me .row-btn, #v-me .case-card, #v-me .case-empty, #v-me .seg{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);
 }
+#v-me .about{background:var(--solid-bg);color:var(--solid-fg);border-radius:var(--r-xl)}
+#v-me .case-card.is-cur{border:1.5px solid var(--brand)}
 #v-me .row-btn{padding:0 16px;min-height:56px;gap:14px}
 #v-me .row-btn + .row-btn{border-top:1px solid var(--line);margin-top:8px}
-#v-me .row-btn .ic{color:var(--ink-2)}
+#v-me .row-btn.warn .t{font-weight:700}
+#v-me .row-btn .ic{
+  flex:0 0 36px;height:36px;border-radius:50%;background:var(--green-bg);color:var(--brand);
+  align-items:center;justify-content:center;font-size:18px;
+}
+#v-me .row-btn.warn .ic{background:var(--red-bg);color:var(--red)}
 #v-me .row-btn .t{font-size:16.5px}
 
 /* ── 事故案件 ──
@@ -608,7 +578,7 @@ a.row-btn{color:inherit;text-decoration:none}
 
 .cc-top{display:flex;align-items:center;gap:14px}
 .cc-ic{flex:0 0 40px;height:40px;border-radius:12px;
-  background:var(--bg);color:var(--brand);
+  background:var(--green-bg);color:var(--brand);
   display:flex;align-items:center;justify-content:center}
 .case-card.is-cur .cc-ic{background:var(--solid-bg);color:var(--solid-fg)}
 .cc-ic .i{width:21px;height:21px}
@@ -681,19 +651,18 @@ a.row-btn{color:inherit;text-decoration:none}
 }
 .amt-box .amt:focus{outline:none;border-color:var(--brand);background:var(--card)}
 .amt-box .amt:focus + .cur,.amt-box.has .cur{color:var(--ink-2)}
-.amt-box.has .amt{border-color:var(--green-line);background:var(--green-bg);font-weight:600}
+.amt-box.has .amt{border-color:var(--brand);border-width:1.5px;background:var(--card);font-weight:700}
 .comp-sum{
-  margin-top:10px;padding:18px;border-radius:var(--r-md);
-  border:1px solid var(--line);background:var(--card);
-  transition:background .35s ease, border-color .35s ease;
+  margin:0 0 14px;padding:18px 18px 16px;border-radius:var(--r-xl);
+  background:var(--solid-bg);color:var(--solid-fg);
 }
-.comp-sum.on{background:var(--green-bg);border-color:var(--green-line)}
-.comp-sum .empty .t{font-size:15.5px;font-weight:600;color:var(--ink-2);margin:0}
-.comp-sum .empty .d{font-size:13.5px;color:var(--muted);line-height:1.6;margin:5px 0 0}
-.comp-sum .row{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-.comp-sum .k{font-size:15px;font-weight:600;color:var(--green-ink)}
-.comp-sum .v{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-.comp-sum .n{font-size:13.5px;color:var(--green-ink);opacity:.8;margin:6px 0 0}
+.comp-sum .empty .t{font-size:18px;font-weight:800;margin:0}
+.comp-sum .empty .d{font-size:14px;color:rgba(255,255,255,.88);line-height:1.6;margin:5px 0 0}
+.comp-sum .k{display:block;font-size:13.5px;font-weight:600;color:rgba(255,255,255,.85)}
+.comp-sum .v{display:block;font-size:34px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1.2;margin-top:2px}
+.comp-sum .stats{display:flex;gap:22px;margin:12px 0 0}
+.comp-sum .stats div{font-size:12.5px;color:rgba(255,255,255,.85);line-height:1.4}
+.comp-sum .stats b{display:block;font-size:17px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
 .note-soft{font-size:13.5px;color:var(--muted);line-height:1.65;margin:10px 2px 0}
 
 /* ── 損害賠償請求明細 ──
@@ -785,7 +754,7 @@ a.row-btn{color:inherit;text-decoration:none}
 .fold + .fold{margin-top:10px}
 .fold summary{display:flex;align-items:center;gap:14px;padding:14px 16px;min-height:64px;cursor:pointer;list-style:none}
 .fold summary::-webkit-details-marker{display:none}
-.fold summary .ic{flex:0 0 40px;height:40px;border-radius:12px;background:var(--line-soft);color:var(--ink-2);
+.fold summary .ic{flex:0 0 40px;height:40px;border-radius:50%;background:var(--green-bg);color:var(--brand);
   display:flex;align-items:center;justify-content:center}
 .fold summary .ic .i{width:20px;height:20px}
 .fold summary .tx{flex:1;min-width:0}
@@ -924,22 +893,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
 }
 </style>
 <script>
-/* 必須在首次繪製前執行，否則深色使用者會看到一閃的白畫面 */
-(function(){
-  var KEY = 'aa.theme.v1';
-  var mq = window.matchMedia('(prefers-color-scheme: dark)');
-  function pref(){ try{ return localStorage.getItem(KEY) || 'auto'; }catch(e){ return 'auto'; } }
-  function apply(){
-    var p = pref();
-    var dark = p === 'dark' || (p === 'auto' && mq.matches);
-    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-    var m = document.querySelector('meta[name="theme-color"]');
-    if (m) m.setAttribute('content', dark ? '#1A1813' : '#FAF3E1');
-  }
-  window.__theme = { get:pref, set:function(v){ try{ localStorage.setItem(KEY, v); }catch(e){} apply(); }, apply:apply };
-  mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply);
-  apply();
-})();
 
 /* 語言：選過就照選的；沒選過看手機的第一語言，中文就中文，其他一律英文。
    切換時整頁重新載入 —— 清單、步驟這些文字都是開機時畫的，重載最不會漏 */
@@ -1001,21 +954,20 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <!-- ───── 現場 ───── -->
   <section class="view on" id="v-scene" role="tabpanel" aria-label="現場" data-en-aria="Scene">
     <div class="view-in">
-      <div class="page-head scene-head">
-        <!-- 純裝飾，alt 留空：標題與標語已經說完了 -->
-        <img class="hero-bg" src="icons/hero.jpg" alt="" width="1040" height="552" decoding="async">
-        <div class="brand">
-          <img src="icons/mark.png" alt="" width="24" height="24">
-          <span>GUARDY</span>
-        </div>
+      <div class="page-head">
         <h1 data-en="At the Scene">事故現場</h1>
-        <p class="greet" data-en-html="Stay calm —&lt;br&gt;we'll walk you through it.">別慌，我們陪你<br>一步一步處理。</p>
-
+        <div class="hello">
+          <!-- 裝飾用頭像，alt 留空：問候語已經說完了 -->
+          <img src="icons/about.png" alt="" width="52" height="52" decoding="async">
+          <div>
+            <p class="hello-t" data-en="Stay calm.">別慌，</p>
+            <p class="hello-s" data-en="We'll walk you through it, one step at a time.">我們陪你一步一步處理。</p>
+          </div>
+        </div>
       </div>
 
       <!-- 緊急聯絡排在位置卡前面：小螢幕一打開就要看得到 110／119，不必先滑 -->
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-alert"/></svg><span data-en="Emergency calls">緊急聯絡</span></p>
         <div class="emg">
           <a class="emg-card emg-110" href="tel:110">
             <span class="ic"><svg class="i"><use href="#ic-siren"/></svg></span>
@@ -1023,7 +975,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
           </a>
           <a class="emg-card emg-119" href="tel:119">
             <span class="ic"><svg class="i"><use href="#ic-cross"/></svg></span>
-            <span class="num">119</span><span class="lb" data-en="Injuries">有人受傷</span>
+            <span class="num">119</span><span class="lb" data-en="Ambulance">救護車</span>
           </a>
         </div>
         <!-- 沒有查證過的號碼就不顯示這一列（CONFIG.towTel 留空即隱藏） -->
@@ -1071,10 +1023,9 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
       </div>
 
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-check"/></svg><span data-en="On-scene steps">現場處理</span></p>
+        <p class="sec-label"><svg class="i"><use href="#ic-check"/></svg><span data-en="On-scene steps">現場處理</span><span class="sec-r" id="tl-prog"></span></p>
         <div id="tl"></div>
         <div class="prog-bar">
-          <span class="n" id="tl-prog"></span>
           <button class="btn-reset" id="tl-reset" data-en="Reset">重設</button>
         </div>
         <a class="help-link" hidden data-en-html="&lt;svg class=&quot;i&quot;&gt;&lt;use href=&quot;#ic-chat&quot;/&gt;&lt;/svg&gt;Still not sure what to do? &lt;b&gt;Contact us&lt;/b&gt;"><svg class="i"><use href="#ic-chat"/></svg>還是不知道怎麼做嗎？<b>歡迎聯絡我們</b></a>
@@ -1086,8 +1037,9 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <section class="view" id="v-photo" role="tabpanel" aria-label="拍照" data-en-aria="Photos">
     <div class="view-in">
       <div class="page-head">
-        <div class="head-row"><h1 data-en="Photo Evidence">拍照存證</h1></div>
-        <p class="greet" data-en="The other driver may leave first — get their details now, and take photos before any car is moved.">對方可能會先離開，資料先問到手；車輛移動前先拍照。</p>
+        <h1 data-en="Photo Evidence">拍照存證</h1>
+        <p class="hello-t" data-en="Get their details first">資料先問到手</p>
+        <p class="hello-s" data-en="The other driver may leave first. Take photos before any car is moved.">對方可能先離開，車輛移動前先拍照。</p>
       </div>
 
       <div class="blk">
@@ -1096,10 +1048,9 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
       </div>
 
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-camera"/></svg><span data-en="Photo checklist">拍照清單</span></p>
+        <p class="sec-label"><svg class="i"><use href="#ic-camera"/></svg><span data-en="Photo checklist">拍照清單</span><span class="sec-r" id="ph-prog"></span></p>
         <div class="card" id="ph-body"></div>
         <div class="prog-bar">
-          <span class="n" id="ph-prog"></span>
           <button class="btn-reset" id="ph-reset" data-en="Reset">重設</button>
         </div>
       </div>
@@ -1110,8 +1061,9 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <section class="view" id="v-claim" role="tabpanel" aria-label="保險" data-en-aria="Insurer">
     <div class="view-in">
       <div class="page-head">
-        <div class="head-row"><h1 data-en="Notify Your Insurer">通知保險公司</h1></div>
-        <p class="greet" data-en="Notify them within 5 days. The sooner, the smoother.">五日內通知，越早越順。</p>
+        <h1 data-en="Notify Your Insurer">通知保險</h1>
+        <p class="hello-t" data-en="Notify your insurer within 5 days">五日內通知保險公司</p>
+        <p class="hello-s" data-en="The sooner you call, the smoother the claim.">越早通知，理賠越順。</p>
       </div>
 
       <div class="blk">
@@ -1120,10 +1072,9 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
       </div>
 
       <div class="blk">
-        <p class="sec-label"><svg class="i"><use href="#ic-check"/></svg><span data-en="Claim process">出險流程</span></p>
+        <p class="sec-label"><svg class="i"><use href="#ic-check"/></svg><span data-en="Claim process">出險流程</span><span class="sec-r" id="cl-prog"></span></p>
         <div id="cl"></div>
         <div class="prog-bar">
-          <span class="n" id="cl-prog"></span>
           <button class="btn-reset" id="cl-reset" data-en="Reset">重設</button>
         </div>
         <a class="help-link" hidden data-en-html="&lt;svg class=&quot;i&quot;&gt;&lt;use href=&quot;#ic-chat&quot;/&gt;&lt;/svg&gt;Still not sure what to do? &lt;b&gt;Contact us&lt;/b&gt;"><svg class="i"><use href="#ic-chat"/></svg>還是不知道怎麼做嗎？<b>歡迎聯絡我們</b></a>
@@ -1136,8 +1087,19 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <section class="view" id="v-comp" role="tabpanel" aria-label="賠償" data-en-aria="Claims">
     <div class="view-in">
       <div class="page-head">
-        <div class="head-row"><h1 data-en="Mediation &amp; Compensation">調解與求償</h1></div>
-        <p class="greet" data-en="No need to finish today — whatever you fill in is saved.">不用今天填完，填多少就存多少。</p>
+        <h1 data-en="Mediation &amp; Compensation">調解與賠償</h1>
+      </div>
+      <!-- 小計卡（v84 搬到最上面）：實心綠，一打開就看得到目前算出來多少 -->
+      <div class="comp-sum" id="comp-sum">
+        <div class="empty" id="comp-sum-empty">
+          <p class="t" data-en="No amounts entered yet">還沒有填入金額</p>
+          <p class="d" data-en="No need to finish today. Enter the receipts you have now — whatever you fill in is saved.">不用今天填完，手邊有幾張收據就先填幾張，填多少就存多少。</p>
+        </div>
+        <div class="filled" id="comp-sum-filled" hidden>
+          <span class="k" data-en="Subtotal with receipts">有單據的損失小計</span>
+          <span class="v" id="comp-total">$0</span>
+          <div class="stats" id="comp-count"></div>
+        </div>
       </div>
 
       <!-- 期限關係到權益，錯過就補不回來，所以不能只藏在下面的折疊區裡。
@@ -1151,19 +1113,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
       <div class="blk">
         <p class="sec-label"><svg class="i"><use href="#ic-coin"/></svg><span data-en="Start with what you have receipts for">把有單據的先算出來</span></p>
         <div class="card" id="comp-form"></div>
-        <div class="comp-sum" id="comp-sum">
-          <div class="empty" id="comp-sum-empty">
-            <p class="t" data-en="No amounts entered yet">還沒有填入金額</p>
-            <p class="d" data-en="Enter the receipts you have now. You can add more any time.">手邊有幾張收據就先填幾張，之後隨時可以再補。</p>
-          </div>
-          <div class="filled" id="comp-sum-filled" hidden>
-            <div class="row">
-              <span class="k" data-en="Subtotal with receipts">有憑據的小計</span>
-              <span class="v" id="comp-total">$0</span>
-            </div>
-            <p class="n" id="comp-count"></p>
-          </div>
-        </div>
         <div class="cdoc-actions">
           <button id="cdoc-open" disabled data-en="Export claim statement">
             <span class="i-w"><svg class="i"><use href="#ic-doc"/></svg></span>匯出請求明細
@@ -1230,9 +1179,7 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
   <section class="view" id="v-me" role="tabpanel" aria-label="設定" data-en-aria="Settings">
     <div class="view-in">
       <div class="page-head">
-        <div class="head-row">
-          <h1 data-en="Settings">設定</h1>
-        </div>
+        <h1 data-en="Settings">設定</h1>
       </div>
 
       <!-- 關於我們。聯絡鍵連到 CONFIG.contactUrl，由 applyConfig() 填 -->
@@ -1240,10 +1187,10 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
         <div class="about-top">
           <img src="icons/about.png" alt="保險好鄰居的頭像" data-en-alt="保險好鄰居 (Guardy's creator)" width="52" height="52" decoding="async">
           <p class="nm">保險好鄰居</p>
-          <a class="about-line" hidden><svg class="i"><use href="#ic-chat"/></svg><span data-en="Chat on LINE">用 LINE 找我們</span></a>
         </div>
         <p class="tx" data-en="Most people panic the first time they're in a car accident: who to call first, which photos to take, whether to move the car. We put all of that into Guardy so you can follow along, one step at a time, right at the scene.">車禍當下，多數人第一次遇到都會慌：該先打給誰、要拍哪些照片、能不能移車？我們把這些整理成 Guardy，讓你在現場一步一步照著做。</p>
         <p class="tx" data-en="If anything's unclear, message us on LINE any time. Keep yourself safe first — we'll help you with the rest.">遇到不確定的地方，隨時用 LINE 找我們。你先顧好自己的安全，其他的我們陪你一起處理。</p>
+        <a class="about-line" hidden><svg class="i"><use href="#ic-chat"/></svg><span data-en="Chat on LINE">用 LINE 找我們</span></a>
       </div>
 
       <div class="blk">
@@ -1265,14 +1212,6 @@ a.btn-outline{display:flex;align-items:center;justify-content:center;text-decora
         <p class="set-foot" id="storage-info"></p>
       </div>
 
-      <div class="blk">
-        <p class="sec-label" data-en="Appearance">外觀</p>
-        <div class="seg" id="seg-theme">
-          <button data-v="auto" data-en="System">跟隨系統</button>
-          <button data-v="light" data-en="Light">淺色</button>
-          <button data-v="dark" data-en="Dark">深色</button>
-        </div>
-      </div>
 
       <!-- 小標中英都寫：看不懂目前語言的人也找得到這裡 -->
       <div class="blk">
@@ -3023,7 +2962,6 @@ function compStats(){
    $0 看起來像「你什麼都沒有」，但實際情況只是還沒開始填。 */
 function renderCompSum(){
   var st = compStats();
-  $('comp-sum').classList.toggle('on', st.n > 0);
   /* 一筆都沒填就沒有東西可以匯出。禁用而不是隱藏 —— 使用者要先看得到
      「填完之後可以匯出」，才知道值得把收據一張張打進去。 */
   $('cdoc-open').disabled = st.n === 0;
@@ -3031,8 +2969,11 @@ function renderCompSum(){
   $('comp-sum-filled').hidden = st.n === 0;
   if (st.n){
     $('comp-total').textContent = money(st.sum);
-    $('comp-count').textContent = T('目前填了 ' + st.n + ' 項，隨時可以再補',
-      st.n + (st.n === 1 ? ' item' : ' items') + ' so far — you can add more any time');
+    var total = COMP_FIELDS.filter(function(f){ return f.k; }).length;
+    $('comp-count').innerHTML =
+      '<div><b>' + st.n + '</b>' + T('已填項目', 'Filled in') + '</div>' +
+      '<div><b>' + (total - st.n) + '</b>' + T('還沒填', 'Still empty') + '</div>' +
+      '<div><b>' + T('2 年', '2 yrs') + '</b>' + T('求償期限', 'Claim deadline') + '</div>';
   }
 }
 
@@ -3753,26 +3694,6 @@ $('btn-reset-all').addEventListener('click', function(){
     toast(T('本案件的進度已清除', "This case's progress was cleared"));
   });
 });
-
-/* =========================================================
-   外觀
-   ========================================================= */
-(function(){
-  var seg = $('seg-theme');
-  function paint(){
-    var cur = window.__theme ? window.__theme.get() : 'auto';
-    seg.querySelectorAll('button').forEach(function(b){
-      b.setAttribute('aria-pressed', b.dataset.v === cur ? 'true' : 'false');
-    });
-  }
-  seg.querySelectorAll('button').forEach(function(b){
-    b.addEventListener('click', function(){
-      if (window.__theme) window.__theme.set(b.dataset.v);
-      paint();
-    });
-  });
-  paint();
-})();
 
 /* =========================================================
    語言

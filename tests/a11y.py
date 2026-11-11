@@ -184,12 +184,12 @@ async def main():
                 await asyncio.sleep(.12)
 
             async def audit(label, root="body"):
-                """同一個畫面淺色深色各量一次。開一次、量兩次，不必重跑動線。"""
+                """量一個畫面。v85 起只有淺色一套（深色模式已拿掉）。"""
                 global screens
                 screens += 1
                 clean = True
                 js = AUDIT.replace("ROOT_SEL", json.dumps(root))
-                for th in ("light", "dark"):
+                for th in ("light",):
                     await theme(th)
                     raw = await ev(js)
                     if not isinstance(raw, str) or raw.startswith("ERR"):
@@ -322,13 +322,13 @@ async def main():
 
     print("\n" + "=" * 56)
     if not report:
-        print("全部乾淨（%d 個畫面 × 淺深兩色）" % screens)
+        print("全部乾淨（%d 個畫面，淺色）" % screens)
         return
     for label, th, kind, data in report:
         print("\n▼ %s（%s）— %s" % (label, th, kind))
         print(json.dumps(data, ensure_ascii=False, indent=1)[:1800])
     print("\n" + "=" * 56)
-    print("掃了 %d 個畫面 × 淺深兩色，共 %d 項問題，分布在 %d 個畫面：" % (
+    print("掃了 %d 個畫面，淺色，共 %d 項問題，分布在 %d 個畫面：" % (
         screens, len(report), len({r[0] for r in report})))
     for lab in dict.fromkeys(r[0] for r in report):
         kinds = "、".join(dict.fromkeys(r[2] for r in report if r[0] == lab))
